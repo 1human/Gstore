@@ -18,6 +18,7 @@ import okhttp3.Request
 import okhttp3.Response
 import zed.rainxch.core.data.data_source.TokenStore
 import zed.rainxch.core.data.download.ContentRange
+import zed.rainxch.core.data.download.ProgressThrottle
 import zed.rainxch.core.data.download.FinishedFileReuse
 import zed.rainxch.core.data.download.OrphanPolicy
 import zed.rainxch.core.data.download.OrphanVerdict
@@ -38,6 +39,7 @@ import zed.rainxch.core.domain.network.AssetIdentity
 import zed.rainxch.core.domain.network.DigestVerifier
 import zed.rainxch.core.domain.network.Downloader
 import java.io.File
+import java.io.BufferedOutputStream
 import java.io.FileOutputStream
 import java.net.Authenticator
 import java.net.InetSocketAddress
@@ -61,13 +63,37 @@ class DesktopDownloader(
 
     private val nameLocks = ConcurrentHashMap<String, Mutex>()
 
-    private fun buildClient(): OkHttpClient {
+    private val clientLock = Any()
+    private var cachedConfig: ProxyConfig? = null
+    private var cachedClient: OkHttpClient? = null
+
+    private fun downloadClient(): OkHttpClient {
+        val config = ProxyManager.currentConfig(ProxyScope.DOWNLOAD)
+        if (!config.isCacheable()) return buildClient(config)
+        synchronized(clientLock) {
+            cachedClient?.takeIf { cachedConfig == config }?.let { return it }
+            cachedClient?.connectionPool?.evictAll()
+            return buildClient(config).also {
+                cachedConfig = config
+                cachedClient = it
+            }
+        }
+    }
+
+    private fun ProxyConfig.isCacheable(): Boolean =
+        when (this) {
+            ProxyConfig.None, is ProxyConfig.Http -> true
+            ProxyConfig.System -> false
+            is ProxyConfig.Socks -> username == null || password == null
+        }
+
+    private fun buildClient(config: ProxyConfig): OkHttpClient {
         Authenticator.setDefault(null)
 
         return OkHttpClient
             .Builder()
             .apply {
-                when (val config = ProxyManager.currentConfig(ProxyScope.DOWNLOAD)) {
+                when (config) {
                     is ProxyConfig.None -> {
                         proxy(Proxy.NO_PROXY)
                     }
@@ -114,7 +140,7 @@ class DesktopDownloader(
     ): Flow<DownloadProgress> =
 
         flow {
-            val client = buildClient()
+            val client = downloadClient()
 
             val dir = File(files.userDownloadsDir())
             if (!dir.exists()) dir.mkdirs()
@@ -309,8 +335,9 @@ class DesktopDownloader(
                 val base = if (append) resumeFrom else 0L
 
                 response.body.byteStream().use { input ->
-                    FileOutputStream(partFile, append).use { output ->
+                    BufferedOutputStream(FileOutputStream(partFile, append), DEFAULT_BUFFER_SIZE).use { output ->
                         val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                        val throttle = ProgressThrottle()
                         var downloaded = base
                         var bytesRead: Int
                         while (input.read(buffer).also { bytesRead = it } != -1) {
@@ -320,7 +347,8 @@ class DesktopDownloader(
                                 total?.takeIf { it > 0L }?.let {
                                     ((downloaded * 100L) / it).toInt()
                                 }
-                            emit(DownloadProgress(downloaded, total, percent))
+                            val progress = DownloadProgress(downloaded, total, percent)
+                            if (throttle.shouldEmit(progress)) emit(progress)
                         }
                     }
                 }
@@ -534,7 +562,7 @@ class DesktopDownloader(
     private class PartialAborted(cause: Throwable) : Exception(cause)
 
     companion object {
-        private const val DEFAULT_BUFFER_SIZE = 8 * 1024
+        private const val DEFAULT_BUFFER_SIZE = 64 * 1024
         private const val MAX_RESTARTS = 2
     }
 }
