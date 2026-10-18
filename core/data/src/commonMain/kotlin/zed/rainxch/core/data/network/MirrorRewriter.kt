@@ -41,6 +41,13 @@ object MirrorRewriter {
             else -> null
         }
 
+    fun probeUrl(template: String?): String = mirrorProbeUrl(template) ?: PROBE_URL
+
+    fun mirrorProbeUrl(template: String?): String? =
+        if (template == null) PROBE_URL else applyTemplate(template, PROBE_URL)
+
+    private const val PROBE_URL = "https://raw.githubusercontent.com/octocat/Hello-World/master/README"
+
     private fun applyDecomposedTemplate(
         template: String,
         githubUrl: String,

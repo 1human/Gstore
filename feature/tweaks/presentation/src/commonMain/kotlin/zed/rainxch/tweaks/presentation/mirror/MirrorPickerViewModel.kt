@@ -14,8 +14,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import org.jetbrains.compose.resources.getString
+import zed.rainxch.core.data.network.MirrorRewriter
 import zed.rainxch.core.domain.model.mirror.MirrorConfig
 import zed.rainxch.core.domain.model.mirror.MirrorPreference
+import zed.rainxch.core.domain.model.mirror.fastestReleaseMirror
 import zed.rainxch.core.domain.repository.MirrorRepository
 import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.error_unknown
@@ -39,10 +41,13 @@ class MirrorPickerViewModel(
             combine(
                 mirrorRepository.observeCatalog(),
                 mirrorRepository.observePreference(),
-            ) { catalog, pref ->
-                catalog to pref
-            }.collect { (catalog, pref) ->
-                _state.update { it.copy(mirrors = catalog, preference = pref) }
+                mirrorRepository.observeMeasuredLatencies(),
+            ) { catalog, pref, latencies ->
+                Triple(catalog, pref, latencies)
+            }.collect { (catalog, pref, latencies) ->
+                _state.update {
+                    it.copy(mirrors = catalog, preference = pref, measuredLatencies = latencies)
+                }
             }
         }
         viewModelScope.launch {
@@ -50,6 +55,7 @@ class MirrorPickerViewModel(
                 _events.send(MirrorPickerEvent.MirrorRemovedNotice(notice.displayName))
             }
         }
+        measureLatencies()
     }
 
     fun onAction(action: MirrorPickerAction) {
@@ -70,6 +76,8 @@ class MirrorPickerViewModel(
             MirrorPickerAction.OnCustomMirrorDismiss ->
                 _state.update { it.copy(isCustomDialogVisible = false) }
 
+            MirrorPickerAction.OnMeasureLatencies -> measureLatencies(force = true)
+            MirrorPickerAction.OnAutoPickFastest -> pickFastest()
             MirrorPickerAction.OnTestConnection -> runTest()
             MirrorPickerAction.OnRefreshCatalog -> refresh()
             MirrorPickerAction.OnDeployYourOwnClicked ->
@@ -81,12 +89,16 @@ class MirrorPickerViewModel(
 
     private fun selectMirror(mirror: MirrorConfig) {
         viewModelScope.launch {
-            val pref = if (mirror.id == "direct") {
-                MirrorPreference.Direct
-            } else MirrorPreference.Selected(mirror.id)
-            mirrorRepository.setPreference(pref)
+            mirrorRepository.setPreference(preferenceFor(mirror))
         }
     }
+
+    private fun preferenceFor(mirror: MirrorConfig): MirrorPreference =
+        if (mirror.id == "direct") {
+            MirrorPreference.Direct
+        } else {
+            MirrorPreference.Selected(mirror.id)
+        }
 
     private fun updateDraft(value: String) {
         val error =
@@ -115,6 +127,35 @@ class MirrorPickerViewModel(
         }
     }
 
+    private fun measureLatencies(force: Boolean = false) {
+        viewModelScope.launch {
+            if (!force && state.value.measuredLatencies.isNotEmpty()) return@launch
+            _state.update { it.copy(isMeasuringLatencies = true) }
+            mirrorRepository.measureLatencies()
+            _state.update { it.copy(isMeasuringLatencies = false) }
+        }
+    }
+
+    private fun pickFastest() {
+        viewModelScope.launch {
+            _state.update { it.copy(isMeasuringLatencies = true) }
+            val measured = mirrorRepository.measureLatencies().getOrDefault(emptyMap())
+            val fastest = fastestReleaseMirror(state.value.mirrors, measured)
+            _state.update { it.copy(isMeasuringLatencies = false) }
+            if (fastest == null) {
+                _events.send(MirrorPickerEvent.NoMirrorResponded)
+                return@launch
+            }
+            mirrorRepository.setPreference(preferenceFor(fastest.first))
+            _events.send(
+                MirrorPickerEvent.FastestMirrorChosen(
+                    displayName = fastest.first.name,
+                    latencyMs = fastest.second,
+                )
+            )
+        }
+    }
+
     private fun runTest() {
         viewModelScope.launch {
             _state.update { it.copy(isTesting = true, testResult = null) }
@@ -125,20 +166,7 @@ class MirrorPickerViewModel(
                     is MirrorPreference.Selected ->
                         state.value.mirrors.firstOrNull { it.id == pref.id }?.urlTemplate
                 }
-            val wholeUrlProbe =
-                "https://raw.githubusercontent.com/octocat/Hello-World/master/README"
-
-            val targetUrl = when {
-                template == null -> wholeUrlProbe
-                template.contains("{url}") -> template.replace("{url}", wholeUrlProbe)
-                template.contains("{owner}") -> template
-                    .replace("{owner}", "cli")
-                    .replace("{repo}", "cli")
-                    .replace("{ref}", "v2.40.0")
-                    .replace("{path}", "LICENSE")
-
-                else -> wholeUrlProbe
-            }
+            val targetUrl = MirrorRewriter.probeUrl(template)
 
             val result = withTimeoutOrNull(5_000L.milliseconds) {
                 runCatching {
