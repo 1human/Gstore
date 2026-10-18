@@ -15,6 +15,9 @@ import zed.rainxch.core.domain.system.DownloadProgressNotifier
 
 class AndroidDownloadProgressNotifier(
     private val context: Context,
+    private val pauseLabel: String = "Pause",
+    private val resumeLabel: String = "Resume",
+    private val deleteLabel: String = "Delete task",
 ) : DownloadProgressNotifier {
     @SuppressLint("MissingPermission")
     override fun notifyProgress(
@@ -24,43 +27,33 @@ class AndroidDownloadProgressNotifier(
         percent: Int?,
         bytesDownloaded: Long,
         totalBytes: Long?,
+        paused: Boolean,
     ) {
         if (!hasNotificationPermission()) return
 
-        val pauseIntent =
-            Intent(context, DownloadCancelReceiver::class.java).apply {
-                action = DownloadCancelReceiver.ACTION_CANCEL
-                data =
-                    Uri.parse(
-                        "${DownloadCancelReceiver.URI_SCHEME_PAUSE}://$packageName",
-                    )
-                setPackage(context.packageName)
-                putExtra(DownloadCancelReceiver.EXTRA_PACKAGE_NAME, packageName)
+        val primaryPendingIntent =
+            if (paused) {
+                broadcastIntent(
+                    action = DownloadCancelReceiver.ACTION_RESUME,
+                    scheme = DownloadCancelReceiver.URI_SCHEME_RESUME,
+                    packageName = packageName,
+                )
+            } else {
+                broadcastIntent(
+                    action = DownloadCancelReceiver.ACTION_CANCEL,
+                    scheme = DownloadCancelReceiver.URI_SCHEME_PAUSE,
+                    packageName = packageName,
+                )
             }
-        val pausePendingIntent =
-            PendingIntent.getBroadcast(
-                context,
-                packageName.hashCode(),
-                pauseIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            )
+        val primaryLabel = if (paused) resumeLabel else pauseLabel
+        val primaryIcon =
+            if (paused) android.R.drawable.ic_media_play else android.R.drawable.ic_media_pause
 
-        val discardIntent =
-            Intent(context, DownloadCancelReceiver::class.java).apply {
-                action = DownloadCancelReceiver.ACTION_DISCARD
-                data =
-                    Uri.parse(
-                        "${DownloadCancelReceiver.URI_SCHEME_DISCARD}://$packageName",
-                    )
-                setPackage(context.packageName)
-                putExtra(DownloadCancelReceiver.EXTRA_PACKAGE_NAME, packageName)
-            }
         val discardPendingIntent =
-            PendingIntent.getBroadcast(
-                context,
-                packageName.hashCode(),
-                discardIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            broadcastIntent(
+                action = DownloadCancelReceiver.ACTION_DISCARD,
+                scheme = DownloadCancelReceiver.URI_SCHEME_DISCARD,
+                packageName = packageName,
             )
 
         val progressText = formatProgressText(versionTag, bytesDownloaded, totalBytes)
@@ -73,20 +66,20 @@ class AndroidDownloadProgressNotifier(
                 .setContentTitle(appName)
                 .setContentText(progressText)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setOngoing(true)
+                .setOngoing(!paused)
                 .setOnlyAlertOnce(true)
                 .setProgress(100, percent ?: 0, indeterminate)
                 .addAction(
                     NotificationCompat.Action.Builder(
-                        android.R.drawable.ic_media_pause,
-                        PAUSE_LABEL,
-                        pausePendingIntent,
+                        primaryIcon,
+                        primaryLabel,
+                        primaryPendingIntent,
                     ).build(),
                 )
                 .addAction(
                     NotificationCompat.Action.Builder(
                         android.R.drawable.ic_menu_delete,
-                        DELETE_LABEL,
+                        deleteLabel,
                         discardPendingIntent,
                     ).build(),
                 )
@@ -94,6 +87,26 @@ class AndroidDownloadProgressNotifier(
         NotificationManagerCompat
             .from(context)
             .notify(notificationIdFor(packageName), builder.build())
+    }
+
+    private fun broadcastIntent(
+        action: String,
+        scheme: String,
+        packageName: String,
+    ): PendingIntent {
+        val intent =
+            Intent(context, DownloadCancelReceiver::class.java).apply {
+                this.action = action
+                data = Uri.parse("$scheme://$packageName")
+                setPackage(context.packageName)
+                putExtra(DownloadCancelReceiver.EXTRA_PACKAGE_NAME, packageName)
+            }
+        return PendingIntent.getBroadcast(
+            context,
+            packageName.hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
     }
 
     override fun clearProgress(packageName: String) {
@@ -139,10 +152,6 @@ class AndroidDownloadProgressNotifier(
 
     private companion object {
         const val DOWNLOADS_CHANNEL_ID = "app_downloads"
-
-        const val PAUSE_LABEL = "Pause"
-
-        const val DELETE_LABEL = "Delete"
 
         const val NOTIFICATION_ID_BASE = 3000
     }

@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.outlined.DeleteOutline
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.MoreVert
 import zed.rainxch.core.presentation.components.buttons.KomiButton
 import zed.rainxch.core.presentation.components.buttons.KomiButtonVariant
@@ -55,11 +56,13 @@ import zed.rainxch.githubstore.core.presentation.res.apps_compact_more_actions
 import zed.rainxch.githubstore.core.presentation.res.apps_ignore_updates
 import zed.rainxch.githubstore.core.presentation.res.apps_menu_item_active
 import zed.rainxch.githubstore.core.presentation.res.apps_skip_version_unskip
+import zed.rainxch.githubstore.core.presentation.res.delete_task
+import zed.rainxch.githubstore.core.presentation.res.download_failed
+import zed.rainxch.githubstore.core.presentation.res.error_with_message
 import zed.rainxch.githubstore.core.presentation.res.install
 import zed.rainxch.githubstore.core.presentation.res.open
 import zed.rainxch.githubstore.core.presentation.res.pre_release_badge
 import zed.rainxch.githubstore.core.presentation.res.uninstall
-import zed.rainxch.githubstore.core.presentation.res.discard_pending_install
 import zed.rainxch.githubstore.core.presentation.res.variant_picker_open
 import kotlin.time.ExperimentalTime
 
@@ -91,6 +94,8 @@ fun CompactAppRow(
     val colors = LocalPersonality.current.colors
     val shape = LocalPersonality.current.shape
     val rowShape = RoundedCornerShape(shape.corner)
+
+    val showVersionMigration = app.isPendingInstall && appItem.versionTargetVersion != null
 
     Row(
         modifier = modifier
@@ -126,6 +131,7 @@ fun CompactAppRow(
                     .size(48.dp)
                     .clip(RoundedCornerShape(shape.corner)),
             apkFilePath = app.pendingInstallFilePath,
+            avatarFallbackUrl = app.repoOwnerAvatarUrl,
         )
 
         Column(modifier = Modifier.weight(1f)) {
@@ -148,16 +154,39 @@ fun CompactAppRow(
                 app.sourceHost?.let { SourceChip(host = it) }
 
                 KomiText(
-                    text = app.installedVersion,
+                    text = if (showVersionMigration) appItem.versionLabel else app.installedVersion,
                     role = KomiTextRole.Body,
                     fontSize = 13.sp,
-                    color = colors.onSurfaceVariant,
+                    color =
+                        if (showVersionMigration && appItem.isVersionDowngrade) {
+                            DowngradeWarningColor
+                        } else {
+                            colors.onSurfaceVariant
+                        },
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f, fill = false),
                 )
 
                 StatusDotCluster(flags = flags)
+            }
+
+            if (appItem.updateState is UpdateState.Error) {
+                Spacer(Modifier.height(4.dp))
+
+                KomiText(
+                    text =
+                        stringResource(
+                            Res.string.error_with_message,
+                            appItem.error ?: stringResource(Res.string.download_failed),
+                        ),
+                    role = KomiTextRole.Body,
+                    fontSize = 13.sp,
+                    uppercase = false,
+                    color = colors.error,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         }
 
@@ -235,7 +264,7 @@ private fun CompactRowOverflow(
     val advancedSettingsLabel = stringResource(Res.string.advanced_settings_open)
     val variantPickerLabel = stringResource(Res.string.variant_picker_open)
     val unskipLabel = stringResource(Res.string.apps_skip_version_unskip)
-    val discardLabel = stringResource(Res.string.discard_pending_install)
+    val deleteTaskLabel = stringResource(Res.string.delete_task)
     val uninstallLabel = stringResource(Res.string.uninstall)
     val preReleaseActive = stringResource(Res.string.apps_menu_item_active, preReleaseBase)
     val ignoreUpdatesActive = stringResource(Res.string.apps_menu_item_active, ignoreUpdatesBase)
@@ -262,8 +291,8 @@ private fun CompactRowOverflow(
             add(
                 KomiMenuItem(
                     id = "discard_pending",
-                    label = discardLabel,
-                    icon = Icons.Outlined.DeleteOutline,
+                    label = deleteTaskLabel,
+                    icon = Icons.Outlined.Close,
                     tone = KomiMenuTone.Danger,
                 ),
             )

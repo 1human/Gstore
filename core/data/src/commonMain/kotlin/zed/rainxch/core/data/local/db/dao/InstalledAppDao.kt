@@ -215,13 +215,47 @@ interface InstalledAppDao {
         UPDATE installed_apps
            SET pendingInstallFilePath = :path,
                pendingInstallVersion = :version,
-               pendingInstallAssetName = :assetName
+               pendingInstallAssetName = :assetName,
+               isPendingInstall = CASE WHEN :path IS NULL THEN 0 ELSE 1 END
          WHERE packageName = :packageName
         """,
     )
     suspend fun updatePendingInstallFilePath(
         packageName: String,
         path: String?,
+        version: String?,
+        assetName: String?,
+    )
+
+    @Query(
+        """
+        UPDATE installed_apps
+           SET pendingInstallFilePath = NULL,
+               pendingInstallVersion = NULL,
+               pendingInstallAssetName = NULL,
+               isPendingInstall = 0
+         WHERE packageName = :packageName
+           AND pendingInstallFilePath IS :path
+        """,
+    )
+    suspend fun clearPendingInstallIfPathMatches(
+        packageName: String,
+        path: String?,
+    )
+
+    @Query(
+        """
+        UPDATE installed_apps
+           SET pendingInstallFilePath = :path,
+               pendingInstallVersion = :version,
+               pendingInstallAssetName = :assetName,
+               isPendingInstall = 1
+         WHERE packageName = :packageName
+        """,
+    )
+    suspend fun markAwaitingInstall(
+        packageName: String,
+        path: String,
         version: String?,
         assetName: String?,
     )

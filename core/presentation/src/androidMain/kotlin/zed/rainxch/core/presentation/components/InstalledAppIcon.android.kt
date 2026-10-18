@@ -11,9 +11,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.graphics.drawable.toBitmap
-import org.jetbrains.compose.resources.painterResource
-import zed.rainxch.githubstore.core.presentation.res.Res
-import zed.rainxch.githubstore.core.presentation.res.app_icon
 
 private const val TAG = "InstalledAppIcon"
 
@@ -23,6 +20,7 @@ actual fun InstalledAppIcon(
     appName: String,
     modifier: Modifier,
     apkFilePath: String?,
+    avatarFallbackUrl: String?,
 ) {
     val packageManager = LocalContext.current.packageManager
     val iconBitmap =
@@ -38,11 +36,7 @@ actual fun InstalledAppIcon(
             modifier = modifier,
         )
     } else {
-        Image(
-            painter = painterResource(Res.drawable.app_icon),
-            contentDescription = appName,
-            modifier = modifier,
-        )
+        FallbackAppIcon(appName = appName, avatarFallbackUrl = avatarFallbackUrl, modifier = modifier)
     }
 }
 

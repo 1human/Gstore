@@ -7,6 +7,7 @@ import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.collections.immutable.toImmutableSet
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.transformWhile
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
@@ -56,6 +58,9 @@ import zed.rainxch.core.domain.system.DownloadStage as OrchestratorStage
 import zed.rainxch.core.domain.system.InstallOutcome
 import zed.rainxch.core.domain.system.InstallPolicy
 import zed.rainxch.core.domain.system.Installer
+import zed.rainxch.core.domain.system.DownloadStagePhase
+import zed.rainxch.core.domain.system.OrchestratedDownload
+import zed.rainxch.core.domain.system.phase
 import zed.rainxch.core.domain.model.installation.InstallerType
 import zed.rainxch.core.domain.repository.UserSessionRepository
 import zed.rainxch.core.domain.system.PackageMonitor
@@ -151,7 +156,16 @@ class DetailsViewModel(
     private val packageNameParam: String? = null,
 ) : ViewModel() {
     private var hasLoadedInitialData = false
-    private var currentDownloadJob: Job? = null
+
+    private val localDownloadJob = MutableStateFlow<Job?>(null)
+
+    private var currentDownloadJob: Job?
+        get() = localDownloadJob.value
+        set(value) {
+            localDownloadJob.value = value
+            value?.invokeOnCompletion { localDownloadJob.compareAndSet(value, null) }
+        }
+
     private var currentAssetName: String? = null
     private var aboutTranslationJob: Job? = null
     private var whatsNewTranslationJob: Job? = null
@@ -181,6 +195,10 @@ class DetailsViewModel(
     val events = _events.receiveAsFlow()
 
     private val rateLimited = AtomicBoolean(false)
+
+    init {
+        observeOrchestratorForDisplay()
+    }
 
     fun confirmUninstall() {
         _state.update { it.copy(showUninstallConfirmation = false) }
@@ -337,8 +355,16 @@ class DetailsViewModel(
                 )
             }
 
-            DetailsAction.CancelCurrentDownload -> {
-                cancelCurrentDownload()
+            DetailsAction.PauseDownload -> {
+                pauseCurrentDownload()
+            }
+
+            DetailsAction.ResumeDownload -> {
+                resumeCurrentDownload()
+            }
+
+            DetailsAction.DiscardDownload -> {
+                discardCurrentDownload()
             }
 
             DetailsAction.OnToggleFavorite -> {
@@ -1295,11 +1321,6 @@ class DetailsViewModel(
         }
 
         currentDownloadJob = job
-        job.invokeOnCompletion {
-            if (currentDownloadJob === job) {
-                currentDownloadJob = null
-            }
-        }
 
         _state.update {
             it.copy(isInstallDropdownExpanded = false)
@@ -1404,7 +1425,8 @@ class DetailsViewModel(
             .toImmutableSet()
 
     private fun openAppManager() {
-        viewModelScope.launch {
+        currentDownloadJob?.cancel()
+        currentDownloadJob = viewModelScope.launch {
             try {
                 val primary = _state.value.primaryAsset
                 val release = _state.value.selectedRelease
@@ -1655,10 +1677,7 @@ class DetailsViewModel(
         }
     }
 
-    private fun cancelCurrentDownload() {
-        currentDownloadJob?.cancel()
-        currentDownloadJob = null
-
+    private fun pauseCurrentDownload() {
         val packageKey = orchestratorKey()
         viewModelScope.launch {
             try {
@@ -1666,7 +1685,36 @@ class DetailsViewModel(
             } catch (e: kotlinx.coroutines.CancellationException) {
                 throw e
             } catch (t: Throwable) {
-                logger.error("Failed to cancel orchestrator download: ${t.message}")
+                logger.error("Failed to pause orchestrator download: ${t.message}")
+            }
+        }
+    }
+
+    private fun resumeCurrentDownload() {
+        val packageKey = orchestratorKey()
+        viewModelScope.launch {
+            try {
+                downloadOrchestrator.resume(packageKey)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (t: Throwable) {
+                logger.error("Failed to resume orchestrator download: ${t.message}")
+            }
+        }
+    }
+
+    private fun discardCurrentDownload() {
+        currentDownloadJob?.cancel()
+        currentDownloadJob = null
+
+        val packageKey = orchestratorKey()
+        viewModelScope.launch {
+            try {
+                downloadOrchestrator.discard(packageKey)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (t: Throwable) {
+                logger.error("Failed to discard orchestrator download: ${t.message}")
             }
         }
 
@@ -1680,7 +1728,7 @@ class DetailsViewModel(
                 size = totalSize,
                 result = LogResult.Cancelled,
             )
-            logger.debug("Download cancelled via orchestrator: $assetName")
+            logger.debug("Download discarded via orchestrator: $assetName")
         }
 
         currentAssetName = null
@@ -1921,6 +1969,10 @@ class DetailsViewModel(
                         packageName = packageKey,
                         repoOwner = repository.owner.login,
                         repoName = repository.name,
+                        repoId = repository.id,
+                        sourceHost = sourceHostParam,
+                        repoOwnerAvatarUrl = repository.owner.avatarUrl,
+                        repoDescription = repository.description,
                         asset = asset,
                         displayAppName = repository.name,
                         installPolicy = policy,
@@ -1990,14 +2042,77 @@ class DetailsViewModel(
         }
     }
 
-    private fun orchestratorKey(): String {
-        val packageName = _state.value.installedApp?.packageName
+    private fun orchestratorKey(state: RawDetailsState = _state.value): String {
+        val packageName = state.installedApp?.packageName
         if (packageName != null) return packageName
-        val owner = _state.value.repository?.owner?.login ?: return "unknown"
-        val name = _state.value.repository?.name ?: return "unknown"
+        val owner = state.repository?.owner?.login ?: return NO_ORCHESTRATOR_KEY
+        val name = state.repository?.name ?: return NO_ORCHESTRATOR_KEY
         return "$owner/$name"
     }
 
+    private fun observeOrchestratorForDisplay() {
+        viewModelScope.launch {
+            combine(
+                downloadOrchestrator.downloads,
+                _state.map { orchestratorKey(it) }.distinctUntilChanged(),
+                localDownloadJob,
+            ) { downloads, packageKey, job -> Triple(downloads[packageKey], packageKey, job) }
+                .collect { (entry, packageKey, job) ->
+                    if (packageKey == NO_ORCHESTRATOR_KEY) return@collect
+                    if (job?.isActive == true) return@collect
+                    mirrorOrchestratorStage(entry)
+                }
+        }
+    }
+
+    private fun mirrorOrchestratorStage(entry: OrchestratedDownload?) {
+        _state.update { current ->
+            when (entry?.stage) {
+                OrchestratorStage.Queued,
+                OrchestratorStage.Downloading,
+                -> current.copy(
+                    downloadStage = DownloadStage.DOWNLOADING,
+                    downloadProgressPercent = entry.progressPercent,
+                    downloadedBytes = entry.bytesDownloaded,
+                    totalBytes = entry.totalBytes ?: current.totalBytes,
+                )
+
+                OrchestratorStage.Paused -> current.copy(
+                    downloadStage = DownloadStage.PAUSED,
+                    downloadProgressPercent = entry.progressPercent,
+                    downloadedBytes = entry.bytesDownloaded,
+                    totalBytes = entry.totalBytes ?: current.totalBytes,
+                )
+
+                OrchestratorStage.Installing ->
+                    current.copy(downloadStage = DownloadStage.INSTALLING)
+
+                null,
+                OrchestratorStage.AwaitingInstall,
+                OrchestratorStage.Completed,
+                OrchestratorStage.Cancelled,
+                OrchestratorStage.Failed,
+                -> {
+                    val isResting =
+                        current.downloadStage == DownloadStage.IDLE &&
+                            current.downloadProgressPercent == null &&
+                            current.totalBytes == null
+                    if (isResting) {
+                        current
+                    } else {
+                        current.copy(
+                            downloadStage = DownloadStage.IDLE,
+                            downloadProgressPercent = null,
+                            downloadedBytes = 0L,
+                            totalBytes = null,
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun observeOrchestratorEntry(
         packageKey: String,
         downloadUrl: String,
@@ -2007,7 +2122,16 @@ class DetailsViewModel(
         isUpdate: Boolean,
     ) {
         var installFired = false
-        downloadOrchestrator.observe(packageKey).collect { entry ->
+        downloadOrchestrator
+            .observe(packageKey)
+            .transformWhile { entry ->
+                emit(entry)
+                entry == null ||
+                    entry.stage.phase == DownloadStagePhase.Live ||
+                    entry.stage.phase == DownloadStagePhase.Installing ||
+                    entry.stage == OrchestratorStage.Paused
+            }
+            .collect { entry ->
             if (entry == null) {
 
                 if (_state.value.downloadStage != DownloadStage.IDLE) {
@@ -2143,6 +2267,10 @@ class DetailsViewModel(
                         downloadOrchestrator.dismiss(packageKey)
                     }
                     return@collect
+                }
+
+                OrchestratorStage.Paused -> {
+                    _state.value = _state.value.copy(downloadStage = DownloadStage.PAUSED)
                 }
 
                 OrchestratorStage.Cancelled -> {
@@ -2461,6 +2589,10 @@ class DetailsViewModel(
                         packageName = packageKey,
                         repoOwner = repository.owner.login,
                         repoName = repository.name,
+                        repoId = repository.id,
+                        sourceHost = sourceHostParam,
+                        repoOwnerAvatarUrl = repository.owner.avatarUrl,
+                        repoDescription = repository.description,
                         asset = asset,
                         displayAppName = repository.name,
                         installPolicy = InstallPolicy.DeferUntilUserAction,
@@ -3140,5 +3272,7 @@ class DetailsViewModel(
         const val OBTAINIUM_REPO_ID: Long = 523534328
         const val APP_MANAGER_REPO_ID: Long = 268006778
         const val STALLED_STABLE_THRESHOLD_DAYS = 180
+
+        const val NO_ORCHESTRATOR_KEY = ""
     }
 }

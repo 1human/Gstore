@@ -472,7 +472,7 @@ private fun HeaderAvatar(
                 )
             }
 
-            DownloadStage.IDLE -> { }
+            DownloadStage.IDLE, DownloadStage.PAUSED -> { }
         }
     }
 }

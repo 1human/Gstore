@@ -25,8 +25,28 @@ sealed interface AppsAction {
         val app: InstalledAppUi,
     ) : AppsAction
 
-    data class OnCancelUpdate(
-        val packageName: String,
+    data class OnCancelInProgressDownload(
+        val key: String,
+    ) : AppsAction
+
+    data class OnResumeInProgressDownload(
+        val key: String,
+    ) : AppsAction
+
+    data class OnRetryInProgressDownload(
+        val key: String,
+    ) : AppsAction
+
+    data class OnDiscardInProgressDownload(
+        val key: String,
+    ) : AppsAction
+
+    data class OnInstallInProgressDownload(
+        val key: String,
+    ) : AppsAction
+
+    data class OnDismissInProgressDownload(
+        val key: String,
     ) : AppsAction
 
     data object OnUpdateAll : AppsAction

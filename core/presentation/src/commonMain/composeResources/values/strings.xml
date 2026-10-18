@@ -161,6 +161,9 @@
     <string name="open_repository">Open repository</string>
     <string name="open_in_browser">Open in browser</string>
     <string name="cancel_download">Cancel download</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="paused">Paused</string>
     <string name="show_install_options">Show install options</string>
 
     <string name="error_state_title_generic">Something went wrong</string>
@@ -1072,12 +1075,15 @@
     <string name="apps_compact_status_updates_ignored">updates ignored</string>
     <string name="apps_ignore_updates">Ignore updates</string>
     <string name="discard_pending_install">Discard</string>
+    <string name="delete_task">Delete task</string>
     <string name="apps_updates_banner_title_one">1 update available</string>
     <string name="apps_updates_banner_title_other">%1$d updates available</string>
     <string name="apps_updates_banner_subtitle">Review or update everything at once.</string>
     <string name="apps_updates_banner_show">See list</string>
     <string name="apps_updates_banner_hide">Hide list</string>
     <string name="apps_section_pending_installs">Ready to install</string>
+    <string name="apps_section_in_progress">In progress</string>
+    <string name="download_failed">Download failed</string>
     <string name="adaptive_pick_repo_title">Pick a repository</string>
     <string name="adaptive_pick_repo_subtitle">Tap any card on the left to view its details here.</string>
     <string name="translation_card_title">Translate</string>

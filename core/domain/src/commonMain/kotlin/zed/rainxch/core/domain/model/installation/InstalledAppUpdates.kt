@@ -68,27 +68,14 @@ fun InstalledApp.confirmInstall(
     )
 }
 
-fun InstalledApp.resolvePendingFromSystem(
-    resolvedTag: String,
-    versionName: String?,
-    versionCode: Long,
-): InstalledApp {
-    val targetCode = latestVersionCode ?: 0L
-    val installReachedTarget = targetCode > 0L && versionCode >= targetCode
-    val adoptedTag =
-        if (installReachedTarget) {
-            pendingInstallVersion ?: resolvedTag
-        } else {
-            installedVersion
-        }
-    return withSettledInstallIdentity(versionCode).copy(
+fun InstalledApp.resolvePendingFromSystem(reached: PendingInstallResolution.Reached): InstalledApp =
+    withSettledInstallIdentity(reached.versionCode).copy(
         isPendingInstall = false,
-        installedVersion = adoptedTag,
-        installedVersionName = versionName,
-        installedVersionCode = versionCode,
-        isUpdateAvailable = updateFlagAgainstSnapshot(versionCode, versionName ?: adoptedTag),
+        installedVersion = reached.resolvedTag,
+        installedVersionName = reached.versionName,
+        installedVersionCode = reached.versionCode,
+        isUpdateAvailable = updateFlagAgainstSnapshot(reached.versionCode, reached.versionName),
     )
-}
 
 fun InstalledApp.withSettledInstallIdentity(versionCode: Long): InstalledApp {
     val hasParkedIdentity =
@@ -119,6 +106,48 @@ fun InstalledApp.withSettledInstallIdentity(versionCode: Long): InstalledApp {
         pendingInstallAssetId = null,
         pendingInstallAssetDigest = null,
     )
+}
+
+sealed interface PendingInstallResolution {
+    data object Keep : PendingInstallResolution
+
+    class Reached internal constructor(
+        val resolvedTag: String,
+        val versionName: String,
+        val versionCode: Long,
+    ) : PendingInstallResolution
+}
+
+fun InstalledApp.pendingInstallResolution(systemInfo: SystemPackageInfo?): PendingInstallResolution {
+    if (systemInfo == null) return PendingInstallResolution.Keep
+    if (!installReachedTarget(systemInfo.versionName, systemInfo.versionCode)) {
+        return PendingInstallResolution.Keep
+    }
+    return PendingInstallResolution.Reached(
+        resolvedTag = pendingInstallVersion ?: latestVersion ?: systemInfo.versionName,
+        versionName = systemInfo.versionName,
+        versionCode = systemInfo.versionCode,
+    )
+}
+
+private fun InstalledApp.installReachedTarget(versionName: String, versionCode: Long): Boolean {
+    val targetCode = latestVersionCode ?: 0L
+    return if (targetCode > 0L) {
+        versionCode >= targetCode
+    } else {
+        versionName.isNotBlank() &&
+            versionName != SystemPackageInfo.UNKNOWN_VERSION_NAME &&
+            (
+                installedVersionName == null ||
+                    versionName != installedVersionName ||
+                    matchesParkedTargetName(versionName)
+            )
+    }
+}
+
+private fun InstalledApp.matchesParkedTargetName(systemName: String): Boolean {
+    val target = pendingInstallVersion ?: latestVersion ?: return false
+    return VersionMath.isExactSameVersion(systemName, target)
 }
 
 private fun InstalledApp.updateFlagAgainstSnapshot(

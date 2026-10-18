@@ -5,7 +5,10 @@ import kotlin.io.path.createTempDirectory
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
+import kotlin.test.assertNull
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
@@ -17,6 +20,7 @@ import zed.rainxch.core.domain.model.account.github.GithubAsset
 import zed.rainxch.core.domain.model.apk.ApkPackageInfo
 import zed.rainxch.core.domain.model.installation.DownloadProgress
 import zed.rainxch.core.domain.model.installation.InstalledApp
+import zed.rainxch.core.domain.model.installation.ParkedInstallDisposal
 import zed.rainxch.core.domain.model.smart_detect.MatchingPreview
 import zed.rainxch.core.domain.model.system.SystemArchitecture
 import zed.rainxch.core.domain.network.AssetIdentity
@@ -34,8 +38,8 @@ import zed.rainxch.core.domain.system.MultiSourceDownloader
 import zed.rainxch.core.domain.system.PendingInstallNotifier
 import zed.rainxch.core.domain.system.SystemInstallSerializer
 
-class InstallingDownloadWithMissingFileTest {
-    private val dir = createTempDirectory("komi-missing-file").toFile()
+class DownloadLifecycleTest {
+    private val dir = createTempDirectory("komi-lifecycle").toFile()
 
     @AfterTest
     fun cleanUp() {
@@ -46,25 +50,13 @@ class InstallingDownloadWithMissingFileTest {
     fun a_handed_off_install_whose_file_is_gone_downloads_again() =
         runBlocking {
             val source = FileWritingSource(dir)
-            val orchestrator =
-                DefaultDownloadOrchestrator(
-                    downloader = DirDownloader(dir),
-                    multiSourceDownloader = source,
-                    digestVerifier = UnusedVerifier,
-                    installer = HandOffInstaller,
-                    installedAppsRepository = StubInstalledAppsRepository,
-                    pendingInstallNotifier = StubNotifier,
-                    slowDownloadDetector = StubSlowDownloadDetector,
-                    appScope = this,
-                    systemInstallSerializer = StubInstallSerializer,
-                    tokenStore = FakeTokenStore(),
-                )
+            val orchestrator = orchestrator(source)
 
             val firstId = orchestrator.enqueue(spec())
             awaitStage(orchestrator, DownloadStage.AwaitingInstall)
             orchestrator.installPending(PACKAGE)
             val handedOff = orchestrator.downloads.value.getValue(PACKAGE)
-            assertEquals(DownloadStage.Installing, handedOff.stage)
+            assertEquals(DownloadStage.Completed, handedOff.stage)
 
             File(handedOff.filePath!!).delete()
             val secondId = orchestrator.enqueue(spec())
@@ -73,6 +65,78 @@ class InstallingDownloadWithMissingFileTest {
             awaitStage(orchestrator, DownloadStage.AwaitingInstall)
             assertEquals(2, source.calls)
         }
+
+    @Test
+    fun pause_keeps_the_download_and_resume_finishes_it() =
+        runBlocking {
+            val source = FileWritingSource(dir).apply { gate = CompletableDeferred() }
+            val orchestrator = orchestrator(source)
+
+            orchestrator.enqueue(spec())
+            awaitStage(orchestrator, DownloadStage.Downloading)
+            orchestrator.cancel(PACKAGE)
+            assertEquals(DownloadStage.Paused, orchestrator.downloads.value[PACKAGE]?.stage)
+
+            source.gate = null
+            orchestrator.resume(PACKAGE)
+            awaitStage(orchestrator, DownloadStage.AwaitingInstall)
+            assertEquals(2, source.calls)
+        }
+
+    @Test
+    fun cancelling_a_finished_download_removes_it_instead_of_pausing_it() =
+        runBlocking {
+            val orchestrator = orchestrator(FileWritingSource(dir))
+
+            orchestrator.enqueue(spec())
+            awaitStage(orchestrator, DownloadStage.AwaitingInstall)
+            orchestrator.cancel(PACKAGE)
+
+            assertNull(orchestrator.downloads.value[PACKAGE])
+        }
+
+    @Test
+    fun delete_task_removes_a_finished_file() =
+        runBlocking {
+            val orchestrator = orchestrator(FileWritingSource(dir))
+
+            orchestrator.enqueue(spec())
+            awaitStage(orchestrator, DownloadStage.AwaitingInstall)
+            val path = orchestrator.downloads.value.getValue(PACKAGE).filePath!!
+            orchestrator.discard(PACKAGE)
+
+            assertNull(orchestrator.downloads.value[PACKAGE])
+            assertFalse(File(path).exists())
+        }
+
+    @Test
+    fun retry_finishes_a_failed_download_and_keeps_its_release() =
+        runBlocking {
+            val source = FileWritingSource(dir).apply { failNext = true }
+            val orchestrator = orchestrator(source)
+
+            orchestrator.enqueue(spec())
+            awaitStage(orchestrator, DownloadStage.Failed)
+            orchestrator.retry(PACKAGE)
+            awaitStage(orchestrator, DownloadStage.AwaitingInstall)
+
+            assertEquals(RELEASE_ID, orchestrator.downloads.value[PACKAGE]?.releaseId)
+            assertEquals(2, source.calls)
+        }
+
+    private fun kotlinx.coroutines.CoroutineScope.orchestrator(source: FileWritingSource) =
+        DefaultDownloadOrchestrator(
+            downloader = DirDownloader(dir),
+            multiSourceDownloader = source,
+            digestVerifier = UnusedVerifier,
+            installer = HandOffInstaller,
+            installedAppsRepository = StubInstalledAppsRepository,
+            pendingInstallNotifier = StubNotifier,
+            slowDownloadDetector = StubSlowDownloadDetector,
+            appScope = this,
+            systemInstallSerializer = StubInstallSerializer,
+            tokenStore = FakeTokenStore(),
+        )
 
     private suspend fun awaitStage(orchestrator: DefaultDownloadOrchestrator, stage: DownloadStage) {
         withTimeout(AWAIT_MS) {
@@ -97,10 +161,13 @@ class InstallingDownloadWithMissingFileTest {
             displayAppName = "NewPipe",
             installPolicy = InstallPolicy.InstallWhileForeground,
             releaseTag = "v0.29.1",
+            releaseId = RELEASE_ID,
         )
 
     private class FileWritingSource(private val dir: File) : MultiSourceDownloader {
         var calls = 0
+        var gate: CompletableDeferred<Unit>? = null
+        var failNext = false
 
         override fun download(
             githubUrl: String,
@@ -109,6 +176,14 @@ class InstallingDownloadWithMissingFileTest {
         ): Flow<DownloadProgress> =
             flow {
                 calls++
+                if (failNext) {
+                    failNext = false
+                    throw java.io.IOException("network dropped")
+                }
+                gate?.let { held ->
+                    emit(DownloadProgress(bytesDownloaded = 1L, totalBytes = 4L, percent = 25))
+                    held.await()
+                }
                 File(dir, suggestedFileName!!).writeBytes(byteArrayOf(1, 2, 3, 4))
                 emit(DownloadProgress(bytesDownloaded = 4L, totalBytes = 4L, percent = 100))
             }
@@ -120,7 +195,7 @@ class InstallingDownloadWithMissingFileTest {
             suggestedFileName: String?,
             bypassMirror: Boolean,
             identity: AssetIdentity?,
-        ): Flow<DownloadProgress> = error("the multi-source download does not fail here")
+        ): Flow<DownloadProgress> = throw java.io.IOException("no fallback source in this test")
 
         override suspend fun saveToFile(url: String, suggestedFileName: String?): String = error("unused")
 
@@ -185,6 +260,16 @@ class InstallingDownloadWithMissingFileTest {
             version: String?,
             assetName: String?,
         ) = Unit
+
+        override suspend fun markAwaitingInstall(
+            packageName: String,
+            path: String,
+            version: String?,
+            assetName: String?,
+        ) = Unit
+
+        override suspend fun discardParkedInstall(packageName: String, expectedPath: String?) =
+            ParkedInstallDisposal.Discarded
 
         override fun getAllInstalledApps(): Flow<List<InstalledApp>> = emptyFlow()
 
@@ -305,5 +390,6 @@ class InstallingDownloadWithMissingFileTest {
     private companion object {
         const val PACKAGE = "org.schabi.newpipe"
         const val AWAIT_MS = 10_000L
+        const val RELEASE_ID = 99L
     }
 }

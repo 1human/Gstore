@@ -16,7 +16,10 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import zed.rainxch.core.data.data_source.TokenStore
 import zed.rainxch.core.data.network.GithubAssetAuth
+import zed.rainxch.core.domain.model.account.github.GithubAsset
 import zed.rainxch.core.domain.model.installation.DownloadProgress
+import zed.rainxch.core.domain.model.installation.InstallSource
+import zed.rainxch.core.domain.model.installation.InstalledApp
 import zed.rainxch.core.domain.model.installation.markPending
 import zed.rainxch.core.domain.model.installation.withLatestSnapshot
 import zed.rainxch.core.domain.network.AssetIdentity
@@ -36,6 +39,7 @@ import zed.rainxch.core.domain.system.PendingInstallNotifier
 import zed.rainxch.core.domain.system.SystemInstallSerializer
 import zed.rainxch.core.domain.utils.AssetFileName
 import kotlin.random.Random
+import kotlin.time.Clock
 
 class DefaultDownloadOrchestrator(
     private val downloader: Downloader,
@@ -69,10 +73,36 @@ class DefaultDownloadOrchestrator(
             .distinctUntilChanged()
 
     override suspend fun enqueue(spec: DownloadSpec): String {
+        val id = generateId()
+        val initial =
+            OrchestratedDownload(
+                id = id,
+                packageName = spec.packageName,
+                repoOwner = spec.repoOwner,
+                repoName = spec.repoName,
+                repoId = spec.repoId,
+                sourceHost = spec.sourceHost,
+                repoOwnerAvatarUrl = spec.repoOwnerAvatarUrl,
+                repoDescription = spec.repoDescription,
+                displayAppName = spec.displayAppName,
+                assetName = spec.asset.name,
+                assetSize = spec.asset.size,
+                assetId = spec.asset.id,
+                assetDigest = spec.asset.digest,
+                downloadUrl = spec.asset.downloadUrl,
+                releaseTag = spec.releaseTag,
+                releaseId = spec.releaseId,
+                filePath = null,
+                installPolicy = spec.installPolicy,
+                stage = DownloadStage.Queued,
+                progressPercent = null,
+            )
         stateMutex.withLock {
             val existing = _downloads.value[spec.packageName]
             if (existing != null && existing.stage != DownloadStage.Failed &&
                 existing.stage != DownloadStage.Cancelled &&
+                existing.stage != DownloadStage.Paused &&
+                existing.stage != DownloadStage.Completed &&
                 !existing.lostItsFile()
             ) {
                 if (existing.installPolicy != spec.installPolicy &&
@@ -84,26 +114,6 @@ class DefaultDownloadOrchestrator(
                 }
                 return existing.id
             }
-        }
-
-        val id = generateId()
-        val initial =
-            OrchestratedDownload(
-                id = id,
-                packageName = spec.packageName,
-                repoOwner = spec.repoOwner,
-                repoName = spec.repoName,
-                displayAppName = spec.displayAppName,
-                assetName = spec.asset.name,
-                assetSize = spec.asset.size,
-                downloadUrl = spec.asset.downloadUrl,
-                releaseTag = spec.releaseTag,
-                filePath = null,
-                installPolicy = spec.installPolicy,
-                stage = DownloadStage.Queued,
-                progressPercent = null,
-            )
-        stateMutex.withLock {
             _downloads.update { it + (spec.packageName to initial) }
         }
 
@@ -419,7 +429,7 @@ class DefaultDownloadOrchestrator(
         notify: Boolean,
     ) {
         try {
-            installedAppsRepository.setPendingInstallFilePath(
+            installedAppsRepository.markAwaitingInstall(
                 packageName = spec.packageName,
                 path = filePath,
                 version = spec.releaseTag,
@@ -448,7 +458,7 @@ class DefaultDownloadOrchestrator(
         stateMutex.withLock {
             val existing = _downloads.value[packageName] ?: return
             when (existing.stage) {
-                DownloadStage.Queued, DownloadStage.Downloading -> {
+                DownloadStage.Queued, DownloadStage.Downloading, DownloadStage.Paused -> {
                     _downloads.update { state ->
                         state + (
                             packageName to existing.copy(
@@ -548,13 +558,63 @@ class DefaultDownloadOrchestrator(
         }
 
         stateMutex.withLock {
-            _downloads.update { it - packageName }
+            _downloads.update { state ->
+                val current = state[packageName] ?: return@update state
+                when (current.stage) {
+                    DownloadStage.Queued, DownloadStage.Downloading, DownloadStage.Paused ->
+                        state + (packageName to current.copy(stage = DownloadStage.Paused))
+
+                    else -> state - packageName
+                }
+            }
         }
+    }
+
+    override suspend fun resume(packageName: String) {
+        val entry = _downloads.value[packageName] ?: return
+        if (entry.stage != DownloadStage.Paused) return
+        restart(entry)
+    }
+
+    override suspend fun retry(packageName: String) {
+        val entry = _downloads.value[packageName] ?: return
+        if (entry.stage != DownloadStage.Failed) return
+        restart(entry)
+    }
+
+    private suspend fun restart(entry: OrchestratedDownload) {
+        val spec =
+            DownloadSpec(
+                packageName = entry.packageName,
+                repoOwner = entry.repoOwner,
+                repoName = entry.repoName,
+                repoId = entry.repoId,
+                sourceHost = entry.sourceHost,
+                repoOwnerAvatarUrl = entry.repoOwnerAvatarUrl,
+                repoDescription = entry.repoDescription,
+                asset =
+                    GithubAsset(
+                        id = entry.assetId,
+                        name = entry.assetName,
+                        contentType = "",
+                        size = entry.assetSize,
+                        downloadUrl = entry.downloadUrl,
+                        digest = entry.assetDigest,
+                    ),
+                displayAppName = entry.displayAppName,
+                installPolicy = entry.installPolicy,
+                releaseTag = entry.releaseTag,
+                releaseId = entry.releaseId,
+            )
+        enqueue(spec)
     }
 
     override suspend fun discard(packageName: String) {
         val entry = _downloads.value[packageName]
         cancel(packageName)
+        stateMutex.withLock {
+            _downloads.update { it - packageName }
+        }
         if (entry != null) {
             val scopedName =
                 AssetFileName.scoped(entry.repoOwner, entry.repoName, entry.assetName)
@@ -564,6 +624,15 @@ class DefaultDownloadOrchestrator(
                 throw e
             } catch (e: Exception) {
                 Logger.w(e) { "Orchestrator: discardPartial failed for $scopedName" }
+            }
+            if (entry.stage == DownloadStage.AwaitingInstall || entry.stage == DownloadStage.Failed) {
+                entry.filePath?.let { path ->
+                    try {
+                        java.io.File(path).takeIf { it.exists() }?.delete()
+                    } catch (e: Exception) {
+                        Logger.w(e) { "Orchestrator: could not delete finished file $path" }
+                    }
+                }
             }
         }
     }
@@ -586,13 +655,14 @@ class DefaultDownloadOrchestrator(
 
         val filePath = entry.filePath ?: return null
         val ext = entry.assetName.substringAfterLast('.', "").lowercase()
-        return runStandaloneInstall(packageName, filePath, ext)
+        return runStandaloneInstall(packageName, filePath, ext, entry)
     }
 
     private suspend fun runStandaloneInstall(
         packageName: String,
         filePath: String,
         ext: String,
+        entry: OrchestratedDownload? = null,
     ): InstallOutcome? {
         val entryId = _downloads.value[packageName]?.id
         updateEntry(packageName) { it.copy(stage = DownloadStage.Installing) }
@@ -602,18 +672,29 @@ class DefaultDownloadOrchestrator(
             systemInstallSerializer.awaitFreeAndMarkPending(packageName, timeoutMs = 0L)
             val outcome = installer.install(filePath, ext)
             delegated = outcome == InstallOutcome.DELEGATED_TO_SYSTEM
-            if (outcome == InstallOutcome.COMPLETED) {
-                systemInstallSerializer.markCompleted(packageName)
-                try {
-                    installedAppsRepository.setPendingInstallFilePath(packageName, null)
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    Logger.w(e) { "Orchestrator: failed to clear pending install path post-install" }
+            adoptUntrackedDownload(entry, filePath, outcome)
+            when (outcome) {
+                InstallOutcome.COMPLETED -> {
+                    systemInstallSerializer.markCompleted(packageName)
+                    try {
+                        installedAppsRepository.setPendingInstallFilePath(packageName, null)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Logger.w(e) { "Orchestrator: failed to clear pending install path post-install" }
+                    }
+                    pendingInstallNotifier.clearPending(packageName)
+                    if (entryId != null) {
+                        updateEntry(packageName, onlyId = entryId) { it.copy(stage = DownloadStage.Completed) }
+                    }
                 }
-                pendingInstallNotifier.clearPending(packageName)
-                if (entryId != null) {
-                    updateEntry(packageName, onlyId = entryId) { it.copy(stage = DownloadStage.Completed) }
+
+                InstallOutcome.DELEGATED_TO_SYSTEM -> {
+                    if (entryId != null) {
+                        updateEntry(packageName, onlyId = entryId) {
+                            it.copy(stage = DownloadStage.Completed, installOutcome = outcome)
+                        }
+                    }
                 }
             }
             outcome
@@ -625,6 +706,73 @@ class DefaultDownloadOrchestrator(
             Logger.e(t) { "Orchestrator: standalone install failed for $packageName" }
             if (entryId != null) markFailed(packageName, t.message, onlyId = entryId)
             null
+        }
+    }
+
+    private suspend fun adoptUntrackedDownload(
+        entry: OrchestratedDownload?,
+        filePath: String,
+        outcome: InstallOutcome,
+    ) {
+        if (entry == null) return
+        try {
+            val repoId = entry.repoId ?: return
+            val apkInfo =
+                try {
+                    installer.getApkInfoExtractor().extractPackageInfo(filePath)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Logger.w(e) { "Orchestrator: could not read ${entry.assetName} for adoption" }
+                    null
+                } ?: return
+            val packageName = apkInfo.packageName
+            if (installedAppsRepository.getAppByPackage(packageName) != null) return
+            val isPending = outcome != InstallOutcome.COMPLETED
+            val now = Clock.System.now().toEpochMilliseconds()
+            installedAppsRepository.saveInstalledApp(
+                InstalledApp(
+                    packageName = packageName,
+                    repoId = repoId,
+                    repoName = entry.repoName,
+                    repoOwner = entry.repoOwner,
+                    repoOwnerAvatarUrl = entry.repoOwnerAvatarUrl ?: "",
+                    repoDescription = entry.repoDescription,
+                    primaryLanguage = null,
+                    repoUrl = "https://${entry.sourceHost ?: "github.com"}/${entry.repoOwner}/${entry.repoName}",
+                    installedVersion = entry.releaseTag,
+                    installedAssetName = entry.assetName,
+                    installedAssetUrl = entry.downloadUrl,
+                    latestVersion = null,
+                    latestAssetName = null,
+                    latestAssetUrl = null,
+                    latestAssetSize = null,
+                    appName = entry.displayAppName,
+                    installSource = InstallSource.THIS_APP,
+                    installedAt = now,
+                    lastCheckedAt = now,
+                    lastUpdatedAt = now,
+                    isUpdateAvailable = false,
+                    signingFingerprint = apkInfo.signingFingerprint,
+                    releaseNotes = "",
+                    systemArchitecture = installer.detectSystemArchitecture().name,
+                    fileExtension = entry.assetName.substringAfterLast('.', ""),
+                    isPendingInstall = isPending,
+                    installedVersionName = apkInfo.versionName,
+                    installedVersionCode = apkInfo.versionCode,
+                    installedAssetId = entry.assetId.takeIf { it > 0L },
+                    installedAssetDigest = entry.assetDigest,
+                    pendingInstallFilePath = filePath.takeIf { isPending },
+                    pendingInstallVersion = entry.releaseTag.takeIf { isPending },
+                    pendingInstallAssetName = entry.assetName.takeIf { isPending },
+                    sourceHost = entry.sourceHost,
+                ),
+            )
+            Logger.i { "Orchestrator: adopted $packageName into the library (pending=$isPending)" }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (t: Throwable) {
+            Logger.w(t) { "Orchestrator: failed to adopt ${entry.packageName}" }
         }
     }
 

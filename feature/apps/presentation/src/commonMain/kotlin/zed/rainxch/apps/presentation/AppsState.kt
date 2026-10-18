@@ -18,6 +18,7 @@ import zed.rainxch.apps.presentation.model.LinkStep
 import zed.rainxch.apps.presentation.model.UpdateAllProgress
 import zed.rainxch.apps.presentation.model.VariantOption
 import zed.rainxch.apps.presentation.model.VariantPickerError
+import zed.rainxch.core.domain.system.OrchestratedDownload
 import zed.rainxch.core.domain.system.RepoMatchSuggestion
 
 data class AppsState(
@@ -102,4 +103,8 @@ data class AppsState(
     val pendingGroups: ImmutableList<AppGroup> = persistentListOf(),
     val updateGroups: ImmutableList<AppGroup> = persistentListOf(),
     val idleGroups: ImmutableList<AppGroup> = persistentListOf(),
+
+    val inProgressDownloads: ImmutableList<OrchestratedDownload> = persistentListOf(),
+
+    val hiddenRowPackages: ImmutableSet<String> = persistentSetOf(),
 )

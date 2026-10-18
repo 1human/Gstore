@@ -57,6 +57,9 @@ import zed.rainxch.core.domain.system.DownloadSpec
 import zed.rainxch.core.domain.system.DownloadStage as OrchestratorStage
 import zed.rainxch.core.domain.system.InstallPolicy
 import zed.rainxch.core.domain.system.Installer
+import zed.rainxch.core.domain.system.DownloadStagePhase
+import zed.rainxch.core.domain.system.OrchestratedDownload
+import zed.rainxch.core.domain.system.phase
 import zed.rainxch.core.domain.system.SystemInstallSerializer
 import zed.rainxch.core.domain.use_cases.SyncInstalledAppsUseCase
 import kotlinx.coroutines.flow.first
@@ -102,6 +105,10 @@ class AppsViewModel(
 
     private var advancedPreviewJob: Job? = null
 
+    private val orchestratedStages = mutableMapOf<String, OrchestratorStage>()
+
+    private var orchestratorSnapshot: Map<String, OrchestratedDownload> = emptyMap()
+
     private val _state = MutableStateFlow(AppsState())
     val state =
         _state
@@ -119,6 +126,10 @@ class AppsViewModel(
                 started = SharingStarted.WhileSubscribed(5_000L),
                 initialValue = AppsState(),
             )
+
+    init {
+        observeOrchestratorDownloads()
+    }
 
     private fun AppsState.withDerived(): AppsState {
         val searchedDevice = if (deviceAppSearchQuery.isBlank()) {
@@ -143,15 +154,17 @@ class AppsViewModel(
             linkInstallableAssets.filter { regex.containsMatchIn(it.name) }.toImmutableList()
         }
 
-        val pending = filteredApps.filter {
+        val visibleApps = filteredApps.filterNot { it.installedApp.packageName in hiddenRowPackages }
+
+        val pending = visibleApps.filter {
             it.installedApp.isPendingInstall && it.installedApp.pendingInstallFilePath != null
         }.toImmutableList()
-        val updates = filteredApps.filter {
+        val updates = visibleApps.filter {
             it.installedApp.isUpdateAvailable &&
                 it.installedApp.updateCheckEnabled &&
                 !it.installedApp.isPendingInstall
         }.toImmutableList()
-        val idle = filteredApps.filter {
+        val idle = visibleApps.filter {
             (!it.installedApp.isUpdateAvailable || !it.installedApp.updateCheckEnabled) &&
                 !it.installedApp.isPendingInstall
         }.toImmutableList()
@@ -247,6 +260,7 @@ class AppsViewModel(
                         )
                     }
 
+                    reapplyOrchestratorStages()
                     filterApps()
                 }
             } catch (e: CancellationException) {
@@ -382,8 +396,30 @@ class AppsViewModel(
                 _state.update { it.copy(appPendingDiscard = null) }
             }
 
-            is AppsAction.OnCancelUpdate -> {
-                cancelUpdate(action.packageName)
+            is AppsAction.OnCancelInProgressDownload -> {
+                runOrchestratorAction("cancel", action.key) { downloadOrchestrator.cancel(it) }
+            }
+
+            is AppsAction.OnResumeInProgressDownload -> {
+                runOrchestratorAction("resume", action.key) { downloadOrchestrator.resume(it) }
+            }
+
+            is AppsAction.OnRetryInProgressDownload -> {
+                retryInProgressDownload(action.key)
+            }
+
+            is AppsAction.OnDiscardInProgressDownload -> {
+                runOrchestratorAction("discard", action.key) { downloadOrchestrator.discard(it) }
+            }
+
+            is AppsAction.OnInstallInProgressDownload -> {
+                runOrchestratorAction("installPending", action.key) {
+                    downloadOrchestrator.installPending(it)
+                }
+            }
+
+            is AppsAction.OnDismissInProgressDownload -> {
+                runOrchestratorAction("dismiss", action.key) { downloadOrchestrator.dismiss(it) }
             }
 
             AppsAction.OnUpdateAll -> {
@@ -1299,6 +1335,10 @@ class AppsViewModel(
                             packageName = app.packageName,
                             repoOwner = app.repoOwner,
                             repoName = app.repoName,
+                            repoId = app.repoId,
+                            sourceHost = app.sourceHost,
+                            repoOwnerAvatarUrl = app.repoOwnerAvatarUrl,
+                            repoDescription = app.repoDescription,
                             asset = primaryAsset,
                             displayAppName = app.appName,
                             installPolicy = policy,
@@ -1509,18 +1549,30 @@ class AppsViewModel(
             }
     }
 
-    private fun cancelUpdate(packageName: String) {
-        activeUpdates[packageName]?.cancel()
-        activeUpdates.remove(packageName)
-
-        val app = _state.value.apps.find { it.installedApp.packageName == packageName }
-        app?.installedApp?.latestAssetName?.let { assetName ->
-            viewModelScope.launch {
-                cleanupUpdate(packageName, assetName)
+    private fun runOrchestratorAction(
+        what: String,
+        key: String,
+        block: suspend (String) -> Unit,
+    ) {
+        viewModelScope.launch {
+            try {
+                block(key)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (t: Throwable) {
+                logger.warn("$what failed for $key: ${t.message}")
             }
         }
+    }
 
-        updateAppState(packageName, UpdateState.Idle)
+    private fun retryInProgressDownload(key: String) {
+        if (activeUpdates.containsKey(key)) return
+        val app = _state.value.apps.firstOrNull { it.installedApp.packageName == key }?.installedApp
+        when {
+            app == null -> runOrchestratorAction("retry", key) { downloadOrchestrator.retry(it) }
+            app.pendingInstallFilePath != null -> redownloadPendingApp(app)
+            else -> updateSingleApp(app)
+        }
     }
 
     private fun cancelAllUpdates() {
@@ -1537,6 +1589,16 @@ class AppsViewModel(
                 ) {
                     appItem.installedApp.latestAssetName?.let { assetName ->
                         cleanupUpdate(appItem.installedApp.packageName, assetName)
+                    }
+                    try {
+                        downloadOrchestrator.discard(appItem.installedApp.packageName)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (t: Throwable) {
+                        logger.warn(
+                            "cancelAllUpdates: orchestrator discard failed for " +
+                                "${appItem.installedApp.packageName}: ${t.message}",
+                        )
                     }
                     updateAppState(appItem.installedApp.packageName, UpdateState.Idle)
                 }
@@ -1608,6 +1670,81 @@ class AppsViewModel(
                             }
                         }.toImmutableList(),
             )
+        }
+    }
+
+    private fun observeOrchestratorDownloads() {
+        viewModelScope.launch {
+            downloadOrchestrator.downloads.collect { snapshot ->
+                orchestratorSnapshot = snapshot
+                try {
+                    mirrorOrchestratorSnapshot(snapshot, getString(Res.string.download_failed))
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (t: Throwable) {
+                    logger.warn("observeOrchestratorDownloads: mirroring failed: ${t.message}")
+                }
+            }
+        }
+    }
+
+    private suspend fun reapplyOrchestratorStages() {
+        orchestratedStages.clear()
+        mirrorOrchestratorSnapshot(orchestratorSnapshot, getString(Res.string.download_failed))
+    }
+
+    private fun mirrorOrchestratorSnapshot(
+        snapshot: Map<String, OrchestratedDownload>,
+        failedFallback: String,
+    ) {
+        val knownPackages = _state.value.apps.mapTo(mutableSetOf<String>()) { it.installedApp.packageName }
+
+        (orchestratedStages.keys - snapshot.keys).toList().forEach { packageName ->
+            orchestratedStages.remove(packageName)
+            if (!activeUpdates.containsKey(packageName)) {
+                updateAppState(packageName, UpdateState.Idle)
+            }
+        }
+
+        snapshot.forEach { (packageName, entry) ->
+            if (packageName in knownPackages && !activeUpdates.containsKey(packageName)) {
+                applyOrchestratorEntry(packageName, entry, failedFallback)
+            }
+        }
+
+        updateInProgressState(snapshot, knownPackages)
+    }
+
+    private fun updateInProgressState(
+        snapshot: Map<String, OrchestratedDownload>,
+        knownPackages: Set<String>,
+    ) {
+        val transient = transientDownloads(snapshot, knownPackages).toImmutableList()
+        val hidden = hiddenRowPackages(snapshot, knownPackages).toImmutableSet()
+        _state.update { current ->
+            if (current.inProgressDownloads == transient && current.hiddenRowPackages == hidden) {
+                current
+            } else {
+                current.copy(inProgressDownloads = transient, hiddenRowPackages = hidden)
+            }
+        }
+    }
+
+    private fun applyOrchestratorEntry(
+        packageName: String,
+        entry: OrchestratedDownload,
+        failedFallback: String,
+    ) {
+        val stageChanged = orchestratedStages.put(packageName, entry.stage) != entry.stage
+        if (stageChanged) {
+            updateAppState(
+                packageName,
+                mirroredUpdateState(entry.stage, entry.errorMessage, failedFallback),
+            )
+        }
+
+        if (entry.stage.phase == DownloadStagePhase.Live) {
+            updateAppProgress(packageName, entry.progressPercent)
         }
     }
 
@@ -1705,6 +1842,10 @@ class AppsViewModel(
                             packageName = app.packageName,
                             repoOwner = app.repoOwner,
                             repoName = app.repoName,
+                            repoId = app.repoId,
+                            sourceHost = app.sourceHost,
+                            repoOwnerAvatarUrl = app.repoOwnerAvatarUrl,
+                            repoDescription = app.repoDescription,
                             asset = target.asset,
                             displayAppName = app.appName,
                             installPolicy = InstallPolicy.InstallWhileForeground,
@@ -1746,11 +1887,11 @@ class AppsViewModel(
     private fun discardPendingInstall(app: InstalledAppUi) {
         viewModelScope.launch {
             try {
-                downloadOrchestrator.cancel(app.packageName)
+                downloadOrchestrator.discard(app.packageName)
             } catch (e: CancellationException) {
                 throw e
             } catch (t: Throwable) {
-                logger.warn("discardPendingInstall: orchestrator cancel failed: ${t.message}")
+                logger.warn("discardPendingInstall: orchestrator discard failed: ${t.message}")
             }
 
             app.pendingInstallFilePath?.let { path ->
