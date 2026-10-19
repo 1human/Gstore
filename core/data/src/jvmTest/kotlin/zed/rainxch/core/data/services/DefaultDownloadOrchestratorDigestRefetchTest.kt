@@ -240,6 +240,8 @@ class DefaultDownloadOrchestratorDigestRefetchTest {
     }
 
     private class StubInstalledAppsRepository : InstalledAppsRepository {
+        override suspend fun resolveTrackedRelease(packageName: String): zed.rainxch.core.domain.utils.ResolvedRelease? = null
+
         override suspend fun setPendingInstallFilePath(
             packageName: String,
             path: String?,
