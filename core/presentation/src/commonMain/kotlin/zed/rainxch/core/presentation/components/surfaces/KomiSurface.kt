@@ -145,7 +145,7 @@ private fun MangaSurface(
             KomiSurfacePaper.Background -> colors.onBackground
         }
 
-    val pressable = onClick != null
+    val pressable = onClick != null || onLongClick != null
     val tiltModifier = if (tilt != 0f) Modifier.rotate(tilt) else Modifier
 
     val depthModifier =
@@ -269,8 +269,8 @@ private fun ClassicSurface(
         }
 
     val clickModifier =
-        if (onClick != null) {
-            Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick)
+        if (onClick != null || onLongClick != null) {
+            Modifier.combinedClickable(onClick = onClick ?: {}, onLongClick = onLongClick)
         } else {
             Modifier
         }
