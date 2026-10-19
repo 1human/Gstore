@@ -61,7 +61,8 @@
     <ID>LongMethod:StarredRepositoryImpl.kt$StarredRepositoryImpl$override suspend fun syncStarredRepos(forceRefresh: Boolean): Result&lt;Unit&gt;</ID>
     <ID>LongMethod:UserSessionRepositoryImpl.kt$UserSessionRepositoryImpl$override fun getUser(): Flow&lt;UserProfile?&gt;</ID>
     <ID>LongParameterList:AndroidDownloader.kt$AndroidDownloader$( client: OkHttpClient, url: String, partFile: File, metaFile: File, destination: File, downloadId: String, identity: AssetIdentity?, emit: suspend (DownloadProgress) -&gt; Unit, )</ID>
-    <ID>LongParameterList:DefaultDownloadOrchestrator.kt$DefaultDownloadOrchestrator$( private val downloader: Downloader, private val multiSourceDownloader: MultiSourceDownloader, private val digestVerifier: DigestVerifier, private val installer: Installer, private val installedAppsRepository: InstalledAppsRepository, private val pendingInstallNotifier: PendingInstallNotifier, private val appScope: CoroutineScope, private val systemInstallSerializer: SystemInstallSerializer, private val tokenStore: TokenStore, )</ID>
+    <ID>LongParameterList:DefaultDownloadOrchestrator.kt$DefaultDownloadOrchestrator$( private val downloader: Downloader, private val multiSourceDownloader: MultiSourceDownloader, private val assetSourceRefetcher: AssetSourceRefetcher, private val digestVerifier: DigestVerifier, private val installer: Installer, private val installedAppsRepository: InstalledAppsRepository, private val pendingInstallNotifier: PendingInstallNotifier, private val appScope: CoroutineScope, private val systemInstallSerializer: SystemInstallSerializer, private val tokenStore: TokenStore, )</ID>
+    <ID>LongParameterList:DefaultDownloadOrchestratorAssetRefetchTest.kt$DefaultDownloadOrchestratorAssetRefetchTest$( downloader: Downloader, multi: MultiSourceDownloader, verifier: DigestVerifier, repo: InstalledAppsRepository, notifier: PendingInstallNotifier, refetcher: AssetSourceRefetcher, scope: CoroutineScope, )</ID>
     <ID>LongParameterList:DesktopDownloader.kt$DesktopDownloader$( client: OkHttpClient, url: String, partFile: File, metaFile: File, destination: File, downloadId: String, identity: AssetIdentity?, emit: suspend (DownloadProgress) -&gt; Unit, )</ID>
     <ID>LongParameterList:ExternalImportRepositoryImpl.kt$ExternalImportRepositoryImpl$( private val scanner: ExternalAppScanner, private val externalLinkDao: ExternalLinkDao, private val installedAppDao: InstalledAppDao, private val signingFingerprintDao: SigningFingerprintDao, private val ksafe: KSafe, private val legacyDataStore: DataStore&lt;Preferences&gt;, private val externalMatchApi: ExternalMatchApi, private val backendClient: BackendApiClient, private val forgejoClientRegistry: ForgejoClientRegistry, private val tweaksRepository: TweaksRepository, private val starredRepository: StarredRepository, )</ID>
     <ID>LongParameterList:InstalledAppDao.kt$InstalledAppDao$( packageName: String, available: Boolean, version: String?, assetName: String?, assetUrl: String?, assetSize: Long?, releaseId: Long?, assetId: Long?, assetDigest: String?, releaseNotes: String?, timestamp: Long, latestVersionName: String?, latestVersionCode: Long?, latestReleasePublishedAt: String?, )</ID>
@@ -186,6 +187,8 @@
     <ID>ReturnCount:BackendExternalMatchApi.kt$BackendExternalMatchApi$override suspend fun match(request: ExternalMatchRequest): Result&lt;ExternalMatchResponse&gt;</ID>
     <ID>ReturnCount:BackendRateLimitTracker.kt$BackendRateLimitTracker$fun shouldPreempt(): Boolean</ID>
     <ID>ReturnCount:CacheManager.kt$CacheManager$suspend inline fun &lt;reified T&gt; get(key: String): T?</ID>
+    <ID>ReturnCount:DefaultAssetSourceRefetcher.kt$DefaultAssetSourceRefetcher$override suspend fun refetch(spec: DownloadSpec): DownloadSpec?</ID>
+    <ID>ReturnCount:DefaultAssetSourceRefetcher.kt$internal fun assetReplacementFor( spec: DownloadSpec, window: List&lt;GithubRelease&gt;, ): DownloadSpec?</ID>
     <ID>ReturnCount:DefaultDownloadOrchestrator.kt$DefaultDownloadOrchestrator$override suspend fun installPending(packageName: String): InstallOutcome?</ID>
     <ID>ReturnCount:DefaultDownloadOrchestrator.kt$DefaultDownloadOrchestrator$private suspend fun adoptUntrackedDownload( entry: OrchestratedDownload?, filePath: String, outcome: InstallOutcome, )</ID>
     <ID>ReturnCount:DefaultDownloadOrchestrator.kt$DefaultDownloadOrchestrator$private suspend fun authenticatedGithubAssetUrl(spec: DownloadSpec): String?</ID>
@@ -269,6 +272,7 @@
     <ID>TooGenericExceptionCaught:BootReceiver.kt$BootReceiver$t: Throwable</ID>
     <ID>TooGenericExceptionCaught:DefaultDownloadOrchestrator.kt$DefaultDownloadOrchestrator$e: Exception</ID>
     <ID>TooGenericExceptionCaught:DefaultDownloadOrchestrator.kt$DefaultDownloadOrchestrator$e: Throwable</ID>
+    <ID>TooGenericExceptionCaught:DefaultDownloadOrchestrator.kt$DefaultDownloadOrchestrator$retry: Exception</ID>
     <ID>TooGenericExceptionCaught:DefaultDownloadOrchestrator.kt$DefaultDownloadOrchestrator$t: Throwable</ID>
     <ID>TooGenericExceptionCaught:DesktopAppLauncher.kt$DesktopAppLauncher$e: Exception</ID>
     <ID>TooGenericExceptionCaught:DesktopBrowserHelper.kt$DesktopBrowserHelper$e: Exception</ID>

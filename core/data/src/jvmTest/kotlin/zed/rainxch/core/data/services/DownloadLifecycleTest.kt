@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import zed.rainxch.core.data.download.AssetSourceRefetcher
 import zed.rainxch.core.domain.model.account.github.GithubAsset
 import zed.rainxch.core.domain.model.apk.ApkPackageInfo
 import zed.rainxch.core.domain.model.installation.DownloadProgress
@@ -130,6 +131,7 @@ class DownloadLifecycleTest {
         DefaultDownloadOrchestrator(
             downloader = DirDownloader(dir),
             multiSourceDownloader = source,
+            assetSourceRefetcher = StubAssetSourceRefetcher,
             digestVerifier = UnusedVerifier,
             installer = HandOffInstaller,
             installedAppsRepository = StubInstalledAppsRepository,
@@ -415,6 +417,10 @@ class DownloadLifecycleTest {
         ) = Unit
 
         override fun markCompleted(packageName: String) = Unit
+    }
+
+    private object StubAssetSourceRefetcher : AssetSourceRefetcher {
+        override suspend fun refetch(spec: DownloadSpec): DownloadSpec? = null
     }
 
     private companion object {
