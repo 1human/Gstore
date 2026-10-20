@@ -23,10 +23,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.stringResource
 import zed.rainxch.apps.presentation.model.AppItem
 import zed.rainxch.apps.presentation.model.UpdateState
@@ -108,12 +106,10 @@ fun AppItemCard(
                 Column(modifier = Modifier.weight(1f).fillMaxWidth()) {
                     KomiText(
                         text = app.appName,
-                        role = KomiTextRole.Title,
+                        role = KomiTextRole.CardTitle,
                         color = colors.onSurface,
-                        fontWeight = FontWeight.Bold,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
-                        uppercase = false,
                     )
 
                     Row(
@@ -133,8 +129,6 @@ fun AppItemCard(
                         KomiText(
                             text = app.repoOwner,
                             role = KomiTextRole.Body,
-                            fontSize = 13.sp,
-                            uppercase = false,
                             color = colors.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -152,11 +146,8 @@ fun AppItemCard(
                         app.pendingInstallFilePath != null -> {
                             KomiText(
                                 text = stringResource(Res.string.ready_to_install),
-                                role = KomiTextRole.Body,
-                                fontSize = 13.sp,
-                                uppercase = false,
+                                role = KomiTextRole.Label,
                                 color = colors.primary,
-                                fontWeight = FontWeight.SemiBold,
                             )
 
                             if (appItem.versionTargetVersion != null) {
@@ -165,8 +156,6 @@ fun AppItemCard(
                                 KomiText(
                                     text = appItem.versionLabel,
                                     role = KomiTextRole.Body,
-                                    fontSize = 13.sp,
-                                    uppercase = false,
                                     color =
                                         if (appItem.isVersionDowngrade) {
                                             DowngradeWarningColor
@@ -183,8 +172,6 @@ fun AppItemCard(
                             KomiText(
                                 text = stringResource(Res.string.pending_install),
                                 role = KomiTextRole.Body,
-                                fontSize = 13.sp,
-                                uppercase = false,
                                 color = colors.primary,
                             )
                         }
@@ -193,8 +180,6 @@ fun AppItemCard(
                             KomiText(
                                 text = stringResource(Res.string.variant_stale_hint),
                                 role = KomiTextRole.Body,
-                                fontSize = 13.sp,
-                                uppercase = false,
                                 color = colors.error,
                                 modifier =
                                     Modifier.clickable(
@@ -208,8 +193,6 @@ fun AppItemCard(
                             KomiText(
                                 text = appItem.versionLabel,
                                 role = KomiTextRole.Body,
-                                fontSize = 13.sp,
-                                uppercase = false,
                                 color = colors.primary,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
@@ -222,9 +205,7 @@ fun AppItemCard(
                                             Res.string.variant_label_inline,
                                             app.preferredAssetVariant,
                                         ),
-                                    role = KomiTextRole.Label,
-                                    fontSize = 11.sp,
-                                    uppercase = false,
+                                    role = KomiTextRole.Caption,
                                     color = colors.onSurfaceVariant,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
@@ -236,8 +217,6 @@ fun AppItemCard(
                             KomiText(
                                 text = appItem.idleVersionLabel,
                                 role = KomiTextRole.Body,
-                                fontSize = 13.sp,
-                                uppercase = false,
                                 color = colors.onSurfaceVariant,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
@@ -253,7 +232,6 @@ fun AppItemCard(
                 KomiText(
                     text = app.repoDescription,
                     role = KomiTextRole.Body,
-                    uppercase = false,
                     color = colors.onSurfaceVariant,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -287,7 +265,6 @@ fun AppItemCard(
                         KomiText(
                             text = stringResource(Res.string.installing),
                             role = KomiTextRole.Body,
-                            fontSize = 13.sp,
                             color = colors.onSurface,
                         )
                     }
@@ -305,7 +282,6 @@ fun AppItemCard(
                         KomiText(
                             text = stringResource(Res.string.checking),
                             role = KomiTextRole.Body,
-                            fontSize = 13.sp,
                             color = colors.onSurface,
                         )
                     }
@@ -326,7 +302,6 @@ fun AppItemCard(
                         KomiText(
                             text = stringResource(Res.string.updated_successfully),
                             role = KomiTextRole.Body,
-                            fontSize = 13.sp,
                             color = colors.primary,
                         )
                     }
@@ -336,8 +311,6 @@ fun AppItemCard(
                     KomiText(
                         text = stringResource(Res.string.error_with_message, state.message),
                         role = KomiTextRole.Body,
-                        fontSize = 13.sp,
-                        uppercase = false,
                         color = colors.error,
                     )
                 }

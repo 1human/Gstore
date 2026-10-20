@@ -246,6 +246,8 @@
     <string name="verified_build">Verified build</string>
     <string name="checking_attestation">Checking\u2026</string>
     <string name="unable_to_verify_attestation">Could not verify</string>
+    <string name="details_attestation_verified_explainer">This file's SHA-256 matches a build attestation the repository published on GitHub, so it came from the repository's own build.</string>
+    <string name="details_attestation_unverified_explainer">Komi Store couldn't check this file against the repository's build attestations. That alone doesn't make it unsafe.</string>
     <string name="install_version">Install %1$s</string>
     <string name="failed_to_open_app">Failed to open %1$s</string>
     <string name="failed_to_uninstall">Failed to uninstall %1$s</string>
@@ -567,6 +569,8 @@
     <string name="delete_downloads_confirmation_message">This will permanently remove all downloaded APKs and installers (%1$s). You can re-download them anytime.</string>
     <string name="downloads_cleared">All downloaded packages have been deleted.</string>
     <string name="clear">Clear</string>
+    <string name="show_password">Show password</string>
+    <string name="hide_password">Hide password</string>
 
 
 
@@ -1152,6 +1156,12 @@
     <string name="paper_night">Night</string>
     <string name="paper_nord">Nord</string>
     <string name="appearance_section_display">Display</string>
+    <string name="tweaks_accent_crimson">Crimson</string>
+    <string name="tweaks_accent_cobalt">Cobalt</string>
+    <string name="tweaks_accent_sun">Sun</string>
+    <string name="tweaks_accent_frost">Frost</string>
+    <string name="tweaks_accent_mono">Mono</string>
+    <string name="tweaks_accent_wallpaper">Wallpaper colors</string>
     <string name="auth_more_signin_options">More sign-in options</string>
     <string name="auth_hide_signin_options">Hide options</string>
     <string name="tweaks_sources_platforms_title">Discovery platforms</string>
@@ -1183,7 +1193,6 @@
     <string name="tweaks_install_method_desktop_empty_body">Silent installers and installer attribution are Android features. Desktop installs go through the OS package manager.</string>
     <string name="tweaks_stub_coming_soon_title">Coming in a follow-up</string>
     <string name="tweaks_stub_coming_soon_body">This screen is part of the in-progress redesign. The settings still work — they're just being moved here from the old layout.</string>
-    <string name="back_cd">Back</string>
     <string name="menubar_file_menu">File</string>
     <string name="menubar_go_menu">Go</string>
     <string name="menubar_file_quit">Quit</string>

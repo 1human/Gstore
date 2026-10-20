@@ -47,6 +47,7 @@ import zed.rainxch.core.presentation.components.dividers.KomiHorizontalDivider
 import zed.rainxch.core.presentation.components.overlays.KomiToastState
 import zed.rainxch.core.presentation.components.overlays.rememberKomiToastState
 import zed.rainxch.core.presentation.components.progress.KomiCircularProgress
+import zed.rainxch.core.presentation.components.progress.KomiLoadingIndicator
 import zed.rainxch.core.presentation.components.refresh.KomiPullToRefresh
 import zed.rainxch.core.presentation.components.refresh.drivesPullToRefresh
 import zed.rainxch.core.presentation.components.scaffold.KomiScaffold
@@ -152,7 +153,6 @@ private fun FeedScreen(
                         size = KomiButtonSize.Sm,
                         leadingIcon = if (platform == DiscoveryPlatform.All) null else platform.toIcon(),
                         trailingIcon = Icons.Rounded.KeyboardArrowDown,
-                        modifier = Modifier.padding(end = 12.dp),
                     )
                 },
             )
@@ -260,7 +260,7 @@ private fun FeedContent(
                         item(key = "feed_offline", span = StaggeredGridItemSpan.FullLine) {
                             KomiText(
                                 text = stringResource(Res.string.feed_offline),
-                                role = KomiTextRole.Label,
+                                role = KomiTextRole.Overline,
                                 color = colors.onSurfaceVariant,
                                 modifier = Modifier.fillMaxWidth()
                                     .padding(vertical = 2.dp),
@@ -328,13 +328,13 @@ private fun FeedEndCap() {
         KomiHorizontalDivider(
             modifier = Modifier.weight(1f),
             thickness = 2.dp,
-            color = LocalPersonality.current.colors.outline.copy(alpha = 0.4f),
+            color = LocalPersonality.current.colors.divider,
         )
 
         if (LocalPersonality.current.usesDecor) {
             KomiText(
                 text = stringResource(Res.string.feed_end_cap),
-                role = KomiTextRole.Label,
+                role = KomiTextRole.Overline,
                 color = LocalPersonality.current.colors.onSurfaceVariant,
             )
         }
@@ -342,7 +342,7 @@ private fun FeedEndCap() {
         KomiHorizontalDivider(
             modifier = Modifier.weight(1f),
             thickness = 2.dp,
-            color = LocalPersonality.current.colors.outline.copy(alpha = 0.4f),
+            color = LocalPersonality.current.colors.divider,
         )
     }
 }
@@ -357,7 +357,7 @@ private fun FeedLoading() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            KomiCircularProgress()
+            KomiLoadingIndicator()
 
             KomiText(
                 text = stringResource(Res.string.feed_loading),
@@ -383,7 +383,7 @@ private fun FeedError(
         ) {
             KomiText(
                 text = stringResource(Res.string.feed_failed_to_load),
-                role = KomiTextRole.Title,
+                role = KomiTextRole.SectionTitle,
                 textAlign = TextAlign.Center,
             )
 
@@ -419,7 +419,7 @@ private fun FeedEmpty(
         ) {
             KomiText(
                 text = stringResource(Res.string.feed_empty_title),
-                role = KomiTextRole.Title,
+                role = KomiTextRole.SectionTitle,
                 textAlign = TextAlign.Center,
             )
 

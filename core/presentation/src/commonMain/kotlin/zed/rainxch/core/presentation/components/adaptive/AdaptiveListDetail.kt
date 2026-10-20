@@ -34,9 +34,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import zed.rainxch.core.presentation.layout.WindowBreakpoints
+import zed.rainxch.core.presentation.locals.LocalPersonality
 
 @Composable
 fun rememberAdaptiveListDetailState(): AdaptiveListDetailState =
@@ -162,7 +162,7 @@ private fun PaneResizeHandle(onDrag: (Float) -> Unit) {
                 Modifier
                     .fillMaxHeight()
                     .width(1.dp)
-                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)),
+                    .background(LocalPersonality.current.colors.divider),
         )
         Box(
             modifier =
@@ -170,7 +170,7 @@ private fun PaneResizeHandle(onDrag: (Float) -> Unit) {
                     .width(4.dp)
                     .height(36.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.85f)),
+                    .background(LocalPersonality.current.colors.outlineVariant),
         )
     }
 }
@@ -200,7 +200,6 @@ private fun EmptyDetailPlaceholder(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.SemiBold,
             )
             Spacer(Modifier.height(4.dp))
             Text(

@@ -20,10 +20,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.stringResource
 import zed.rainxch.apps.presentation.AppsAction
 import zed.rainxch.apps.presentation.isVersionDowngrade
@@ -107,12 +105,10 @@ fun InProgressAppCard(
                 Column(modifier = Modifier.weight(1f).fillMaxWidth()) {
                     KomiText(
                         text = download.displayAppName,
-                        role = KomiTextRole.Title,
+                        role = KomiTextRole.CardTitle,
                         color = colors.onSurface,
-                        fontWeight = FontWeight.Bold,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
-                        uppercase = false,
                     )
 
                     Row(
@@ -132,8 +128,6 @@ fun InProgressAppCard(
                         KomiText(
                             text = download.repoOwner,
                             role = KomiTextRole.Body,
-                            fontSize = 13.sp,
-                            uppercase = false,
                             color = colors.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -152,7 +146,6 @@ fun InProgressAppCard(
                 KomiText(
                     text = description,
                     role = KomiTextRole.Body,
-                    uppercase = false,
                     color = colors.onSurfaceVariant,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -252,7 +245,6 @@ fun InProgressAppCard(
                         KomiText(
                             text = stringResource(Res.string.installing),
                             role = KomiTextRole.Body,
-                            fontSize = 13.sp,
                             color = colors.onSurface,
                             modifier = Modifier.weight(1f),
                         )
@@ -273,9 +265,7 @@ fun InProgressAppCard(
                     ) {
                         KomiText(
                             text = assetCaption(download, formatFileSize(download.assetSize)),
-                            role = KomiTextRole.Body,
-                            fontSize = 12.sp,
-                            uppercase = false,
+                            role = KomiTextRole.Caption,
                             color = colors.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -306,8 +296,6 @@ fun InProgressAppCard(
                                 download.errorMessage ?: stringResource(Res.string.download_failed),
                             ),
                         role = KomiTextRole.Body,
-                        fontSize = 13.sp,
-                        uppercase = false,
                         color = colors.error,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
@@ -360,11 +348,8 @@ private fun StageLine(
     if (download.stage == DownloadStage.AwaitingInstall) {
         KomiText(
             text = stringResource(Res.string.ready_to_install),
-            role = KomiTextRole.Body,
-            fontSize = 13.sp,
-            uppercase = false,
+            role = KomiTextRole.Label,
             color = colors.primary,
-            fontWeight = FontWeight.SemiBold,
         )
 
         Spacer(Modifier.height(2.dp))
@@ -392,8 +377,6 @@ private fun VersionLine(
     KomiText(
         text = text,
         role = KomiTextRole.Body,
-        fontSize = 13.sp,
-        uppercase = false,
         color = if (isDowngrade) DowngradeWarningColor else colors.onSurfaceVariant,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
@@ -417,7 +400,6 @@ private fun ProgressBody(
             KomiText(
                 text = stringResource(if (paused) Res.string.paused else Res.string.downloading),
                 role = KomiTextRole.Body,
-                fontSize = 13.sp,
                 color = if (paused) colors.onSurfaceVariant else colors.onSurface,
                 modifier = Modifier.weight(1f),
             )
@@ -426,8 +408,6 @@ private fun ProgressBody(
                 KomiText(
                     text = "$percent%",
                     role = KomiTextRole.Body,
-                    fontSize = 13.sp,
-                    uppercase = false,
                     color = colors.onSurfaceVariant,
                 )
             }
@@ -445,9 +425,7 @@ private fun ProgressBody(
 
         KomiText(
             text = assetCaption(download, downloadSizeLabel(download)),
-            role = KomiTextRole.Body,
-            fontSize = 12.sp,
-            uppercase = false,
+            role = KomiTextRole.Caption,
             color = colors.onSurfaceVariant,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

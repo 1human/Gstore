@@ -3,6 +3,7 @@
 package zed.rainxch.apps.presentation
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,7 +21,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -31,7 +32,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -64,6 +64,7 @@ import zed.rainxch.core.presentation.components.inputs.KomiTextField
 import zed.rainxch.core.presentation.components.overlays.KomiToastState
 import zed.rainxch.core.presentation.components.overlays.rememberKomiToastState
 import zed.rainxch.core.presentation.components.progress.KomiCircularProgress
+import zed.rainxch.core.presentation.components.progress.KomiLoadingIndicator
 import zed.rainxch.core.presentation.components.refresh.KomiPullToRefresh
 import zed.rainxch.core.presentation.components.refresh.drivesPullToRefresh
 import zed.rainxch.core.presentation.components.scaffold.KomiScaffold
@@ -226,7 +227,7 @@ fun AppsScreen(
         },
         floatingActionButton = {
             KomiFab(
-                icon = Icons.Default.Add,
+                icon = Icons.Rounded.Add,
                 contentDescription = stringResource(Res.string.add_by_link),
                 onClick = {
                     onAction(AppsAction.OnAddByLinkClick)
@@ -251,7 +252,8 @@ fun AppsScreen(
                     KomiTextField(
                         value = state.searchQuery,
                         onValueChange = { onAction(AppsAction.OnSearchChange(it)) },
-                        leadingIcon = Icons.Default.Search,
+                        leadingIcon = Icons.Rounded.Search,
+                        clearable = true,
                         placeholder = stringResource(Res.string.search_your_apps),
                         modifier =
                             Modifier
@@ -276,7 +278,6 @@ fun AppsScreen(
                             KomiText(
                                 text = stringResource(Res.string.checking_for_updates),
                                 role = KomiTextRole.Body,
-                                fontSize = 13.sp,
                                 color = colors.onSurfaceVariant,
                             )
                         }
@@ -288,8 +289,6 @@ fun AppsScreen(
                                     formatLastChecked(state.lastCheckedTimestamp),
                                 ),
                             role = KomiTextRole.Body,
-                            fontSize = 13.sp,
-                            uppercase = false,
                             color = colors.onSurfaceVariant,
                             modifier = Modifier
                                 .drivesPullToRefresh()
@@ -315,7 +314,7 @@ fun AppsScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 contentAlignment = Alignment.Center,
                             ) {
-                                KomiCircularProgress()
+                                KomiLoadingIndicator()
                             }
                         }
 
@@ -326,7 +325,7 @@ fun AppsScreen(
                             ) {
                                 KomiText(
                                     text = stringResource(Res.string.no_apps_found),
-                                    role = KomiTextRole.Title,
+                                    role = KomiTextRole.SectionTitle,
                                     color = colors.onBackground,
                                 )
                             }

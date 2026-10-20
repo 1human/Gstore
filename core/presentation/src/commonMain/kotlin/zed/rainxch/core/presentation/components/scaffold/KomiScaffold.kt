@@ -2,23 +2,34 @@ package zed.rainxch.core.presentation.components.scaffold
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import zed.rainxch.core.presentation.components.bars.KomiActionBar
+import zed.rainxch.core.presentation.components.bars.LocalScaffoldChrome
+import zed.rainxch.core.presentation.components.bars.ScaffoldChrome
+import zed.rainxch.core.presentation.components.bars.rememberScaffoldChrome
+import zed.rainxch.core.presentation.components.bars.scrollsChrome
 import zed.rainxch.core.presentation.components.buttons.KomiButtonVariant
 import zed.rainxch.core.presentation.components.buttons.KomiIconButton
 import zed.rainxch.core.presentation.components.overlays.KomiToastHost
@@ -52,16 +63,21 @@ fun KomiScaffold(
     val colors = LocalPersonality.current.colors
     val isManga = LocalPersonality.current is MangaPersonality
     val inkDividers = isManga && dividers
+    val chrome = rememberScaffoldChrome(enabled = !isManga && topBar != null)
+    // The FAB joins the action bar when there is one, instead of floating on its own.
+    val fabInBar = chrome?.hasActionBar == true
 
-    Box(modifier = modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize().scrollsChrome(chrome)) {
         Scaffold(
             containerColor = colors.background,
             contentColor = colors.onBackground,
             topBar = {
                 topBar?.let { bar ->
-                    Column {
-                        bar()
-                        if (inkDividers) HorizontalDivider(thickness = 3.dp, color = colors.outline)
+                    CompositionLocalProvider(LocalScaffoldChrome provides chrome) {
+                        Column {
+                            bar()
+                            if (inkDividers) HorizontalDivider(thickness = 3.dp, color = colors.outline)
+                        }
                     }
                 }
             },
@@ -73,7 +89,7 @@ fun KomiScaffold(
                     }
                 }
             },
-            floatingActionButton = { floatingActionButton?.invoke() },
+            floatingActionButton = { if (!fabInBar) floatingActionButton?.invoke() },
         ) { innerPadding ->
             Box(modifier = Modifier.fillMaxSize()) {
                 if (isManga && grid) {
@@ -94,10 +110,43 @@ fun KomiScaffold(
                     )
                 }
                 content(innerPadding)
+                chrome?.let { FloatingActionBar(chrome = it, floatingActionButton = floatingActionButton, padding = innerPadding) }
             }
         }
         toastState?.let { KomiToastHost(state = it) }
         overlay?.invoke()
+    }
+}
+
+// Floats over the content, above any bottom bar, and slides out of the way while the content
+// scrolls down, so it neither reserves a strip of the screen nor hides the end of a list.
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun BoxScope.FloatingActionBar(
+    chrome: ScaffoldChrome,
+    floatingActionButton: (@Composable () -> Unit)?,
+    padding: PaddingValues,
+) {
+    if (!chrome.hasActionBar) return
+    val state = chrome.actionBarBehavior.state
+    Box(
+        modifier =
+            Modifier
+                .matchParentSize()
+                .padding(bottom = padding.calculateBottomPadding())
+                .consumeWindowInsets(padding)
+                .clipToBounds(),
+    ) {
+        KomiActionBar(
+            onBack = chrome.onBack.value,
+            floatingActionButton = floatingActionButton,
+            actions = chrome.actions.value,
+            modifier =
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .onSizeChanged { state.offsetLimit = -it.height.toFloat() }
+                    .graphicsLayer { translationY = -state.offset },
+        )
     }
 }
 
@@ -113,7 +162,7 @@ private fun PreviewScaffold() {
                         .padding(horizontal = Spacing.lg, vertical = Spacing.md),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                KomiText(text = "Discover", role = KomiTextRole.Title)
+                KomiText(text = "Discover", role = KomiTextRole.ScreenTitle)
             }
         },
         bottomBar = {
@@ -125,9 +174,8 @@ private fun PreviewScaffold() {
                 listOf("Explore", "Search", "Top Charts", "You").forEach {
                     KomiText(
                         text = it,
-                        role = KomiTextRole.Label,
+                        role = KomiTextRole.LabelSmall,
                         color = colors.onSurfaceVariant,
-                        fontSize = 11.sp,
                     )
                 }
             }
@@ -150,7 +198,7 @@ private fun PreviewScaffold() {
                     elevation = KomiSurfaceElevation.Card,
                     contentPadding = PaddingValues(Spacing.lg),
                 ) {
-                    KomiText(text = "Panel ${it + 1}", role = KomiTextRole.Title)
+                    KomiText(text = "Panel ${it + 1}", role = KomiTextRole.CardTitle)
                 }
             }
         }

@@ -33,7 +33,6 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.collections.immutable.toImmutableList
 import org.jetbrains.compose.resources.stringResource
 import zed.rainxch.apps.presentation.model.AppItem
@@ -136,10 +135,8 @@ fun CompactAppRow(
         Column(modifier = Modifier.weight(1f)) {
             KomiText(
                 text = app.appName,
-                role = KomiTextRole.Title,
-                fontSize = 13.sp,
+                role = KomiTextRole.ItemTitle,
                 color = colors.onSurface,
-                uppercase = false,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
@@ -155,7 +152,6 @@ fun CompactAppRow(
                 KomiText(
                     text = if (showVersionMigration) appItem.versionLabel else app.installedVersion,
                     role = KomiTextRole.Body,
-                    fontSize = 13.sp,
                     color =
                         if (showVersionMigration && appItem.isVersionDowngrade) {
                             DowngradeWarningColor
@@ -180,8 +176,6 @@ fun CompactAppRow(
                             appItem.error ?: stringResource(Res.string.download_failed),
                         ),
                     role = KomiTextRole.Body,
-                    fontSize = 13.sp,
-                    uppercase = false,
                     color = colors.error,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
@@ -337,7 +331,7 @@ private fun CompactRowOverflow(
                 KomiIcon(
                     imageVector = Icons.Outlined.MoreVert,
                     contentDescription = null,
-                    tint = if (isBusy) colors.onSurfaceVariant.copy(alpha = 0.38f) else colors.onSurfaceVariant,
+                    tint = if (isBusy) colors.disabledContent else colors.onSurfaceVariant,
                 )
             }
         },

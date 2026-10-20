@@ -22,7 +22,9 @@ import androidx.compose.material.icons.filled.Leaderboard
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ripple
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.ShortNavigationBar
+import androidx.compose.material3.ShortNavigationBarItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -31,7 +33,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import zed.rainxch.core.presentation.components.badge.KomiBadge
@@ -145,9 +146,8 @@ private fun MangaBottomBar(
                 Spacer(Modifier.height(4.dp))
                 KomiText(
                     text = item.label,
-                    role = KomiTextRole.Label,
+                    role = KomiTextRole.LabelSmall,
                     color = if (selected) colors.onSurface else colors.onSurfaceVariant,
-                    fontSize = 10.5.sp,
                     maxLines = 1,
                 )
             }
@@ -162,55 +162,32 @@ private fun ClassicBottomBar(
     onSelect: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colors = LocalPersonality.current.colors
-
-    Row(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .background(colors.surface)
-                .navigationBarsPadding()
-                .height(72.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
+    // On the page itself, like the top bar: the selected item's indicator is enough.
+    ShortNavigationBar(modifier = modifier, containerColor = LocalPersonality.current.colors.background) {
         items.forEach { item ->
             val selected = item.id == selectedId
-            val interaction = remember { MutableInteractionSource() }
-            val tint = if (selected) colors.primary else colors.onSurfaceVariant
-
-            Column(
-                modifier =
-                    Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .clickable(
-                            interactionSource = interaction,
-                            indication = ripple(bounded = false, radius = 30.dp),
-                            onClick = { onSelect(item.id) },
-                        ),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                KomiBadgedBox(
-                    badge = { KomiBadge(count = item.badgeCount, size = KomiBadgeSize.Sm) },
-                ) {
-                    Icon(
-                        imageVector = if (selected) item.selectedIcon ?: item.icon else item.icon,
-                        contentDescription = item.label,
-                        modifier = Modifier.size(24.dp),
-                        tint = tint,
+            ShortNavigationBarItem(
+                selected = selected,
+                onClick = { onSelect(item.id) },
+                icon = {
+                    KomiBadgedBox(
+                        badge = { KomiBadge(count = item.badgeCount, size = KomiBadgeSize.Sm) },
+                    ) {
+                        Icon(
+                            imageVector = if (selected) item.selectedIcon ?: item.icon else item.icon,
+                            contentDescription = null,
+                        )
+                    }
+                },
+                label = {
+                    KomiText(
+                        text = item.label,
+                        role = KomiTextRole.LabelSmall,
+                        color = LocalContentColor.current,
+                        maxLines = 1,
                     )
-                }
-                Spacer(Modifier.height(4.dp))
-                KomiText(
-                    text = item.label,
-                    role = KomiTextRole.Label,
-                    color = tint,
-                    fontSize = 11.sp,
-                    uppercase = false,
-                    maxLines = 1,
-                )
-            }
+                },
+            )
         }
     }
 }

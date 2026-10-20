@@ -14,10 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.stringResource
 import zed.rainxch.core.presentation.components.text.KomiText
 import zed.rainxch.core.presentation.components.text.KomiTextRole
@@ -72,7 +70,7 @@ private fun ChartTabSegment(
 
     val bg = if (selected) colors.primary else colors.surface
     val fg = if (selected) colors.onPrimary else colors.onSurface
-    val kicker = if (selected) colors.onPrimary.copy(alpha = 0.85f) else colors.onSurfaceVariant
+    val kicker = if (selected) colors.onPrimary else colors.onSurfaceVariant
 
     val borderWidth =
         when (personality) {
@@ -116,8 +114,6 @@ private fun ChartTabSegment(
                 ),
             role = KomiTextRole.Label,
             color = fg,
-            fontSize = 13.sp,
-            fontWeight = FontWeight.W800,
             maxLines = 1,
         )
 
@@ -131,10 +127,8 @@ private fun ChartTabSegment(
                             ChartTab.Popular -> Res.string.home_chart_popular_jp
                         },
                     ),
-                role = KomiTextRole.Label,
+                role = KomiTextRole.Caption,
                 color = kicker,
-                fontSize = 9.sp,
-                uppercase = false,
                 maxLines = 1,
             )
         }

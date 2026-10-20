@@ -1,6 +1,7 @@
 package zed.rainxch.search.presentation
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -34,7 +35,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.automirrored.filled.Sort
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Link
@@ -54,11 +54,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.delay
@@ -415,10 +413,8 @@ fun SearchScreen(
                             Res.string.results_found,
                             state.totalCount,
                         ),
-                        role = KomiTextRole.Label,
-                        fontWeight = FontWeight.SemiBold,
+                        role = KomiTextRole.LabelSmall,
                         color = colors.onSurfaceVariant,
-                        uppercase = false,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 6.dp),
@@ -462,7 +458,7 @@ fun SearchScreen(
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 KomiText(
                                     text = state.errorMessage,
-                                    uppercase = false,
+                                    role = KomiTextRole.Body,
                                 )
 
                                 Spacer(Modifier.height(8.dp))
@@ -491,7 +487,7 @@ fun SearchScreen(
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 KomiText(
                                     text = stringResource(Res.string.no_repositories_found),
-                                    uppercase = false,
+                                    role = KomiTextRole.Body,
                                 )
 
                                 if (state.passthroughAttempted != true) {
@@ -523,7 +519,6 @@ fun SearchScreen(
                                     text = stringResource(Res.string.searching_for_unseen_repos),
                                     role = KomiTextRole.Body,
                                     color = colors.outline,
-                                    uppercase = false,
                                 )
                             }
                         }
@@ -541,7 +536,7 @@ fun SearchScreen(
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 KomiText(
                                     text = stringResource(Res.string.search_results_hidden_by_seen_filter),
-                                    uppercase = false,
+                                    role = KomiTextRole.Body,
                                 )
 
                                 Spacer(Modifier.height(8.dp))
@@ -679,7 +674,7 @@ fun PlatformPicker(
                     .clip(shape)
                     .background(
                         if (state.selectedSearchPlatform == platform) {
-                            colors.primary.copy(alpha = 0.12f)
+                            colors.primaryTint
                         } else colors.surface,
                         shape = shape
                     )
@@ -703,11 +698,8 @@ fun PlatformPicker(
 
                 KomiText(
                     text = platform.toLabel(),
-                    role = KomiTextRole.Label,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    role = KomiTextRole.LabelSmall,
                     color = colors.primary,
-                    uppercase = false,
                 )
             }
         }
@@ -736,10 +728,8 @@ private fun ClipboardBanner(
             ) {
                 KomiText(
                     text = stringResource(Res.string.clipboard_link_detected),
-                    role = KomiTextRole.Label,
-                    fontSize = 12.sp,
+                    role = KomiTextRole.Overline,
                     color = colors.onSurfaceVariant,
-                    fontWeight = FontWeight.SemiBold,
                 )
 
                 Box(
@@ -779,10 +769,8 @@ private fun ClipboardBanner(
 
                     KomiText(
                         text = "${link.owner}/${link.repo}",
-                        role = KomiTextRole.Body,
+                        role = KomiTextRole.Label,
                         color = colors.onSurface,
-                        fontWeight = FontWeight.SemiBold,
-                        uppercase = false,
                         modifier = Modifier.weight(1f),
                     )
 
@@ -811,10 +799,8 @@ private fun DetectedLinksSection(
     ) {
         KomiText(
             text = stringResource(Res.string.detected_links),
-            role = KomiTextRole.Label,
-            fontSize = 12.sp,
+            role = KomiTextRole.Overline,
             color = colors.onSurfaceVariant,
-            fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(bottom = 6.dp),
         )
 
@@ -840,19 +826,15 @@ private fun DetectedLinksSection(
 
                     KomiText(
                         text = "${link.owner}/${link.repo}",
-                        role = KomiTextRole.Body,
+                        role = KomiTextRole.Label,
                         color = colors.onSurface,
-                        fontWeight = FontWeight.SemiBold,
-                        uppercase = false,
                         modifier = Modifier.weight(1f),
                     )
 
                     KomiText(
                         text = stringResource(Res.string.open_in_app),
-                        role = KomiTextRole.Label,
-                        fontSize = 12.sp,
+                        role = KomiTextRole.Overline,
                         color = colors.primary,
-                        fontWeight = FontWeight.SemiBold,
                     )
                 }
             }
@@ -875,33 +857,14 @@ private fun SearchTopbar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        val colors = LocalPersonality.current.colors
-        val shape = LocalPersonality.current.shape
         KomiTextField(
             value = state.query,
             onValueChange = { value ->
                 onAction(SearchAction.OnSearchChange(value))
             },
             placeholder = stringResource(Res.string.search_repositories_hint),
-            leadingIcon = Icons.Default.Search,
-            trailing = {
-                if (state.query.isNotEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .size(28.dp)
-                            .clip(RoundedCornerShape(shape.cornerSmall))
-                            .clickable { onAction(SearchAction.OnClearClick) },
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        KomiIcon(
-                            imageVector = Icons.Default.Clear,
-                            contentDescription = stringResource(Res.string.dismiss),
-                            modifier = Modifier.size(18.dp),
-                            tint = colors.onSurfaceVariant,
-                        )
-                    }
-                }
-            },
+            leadingIcon = Icons.Rounded.Search,
+            onClear = { onAction(SearchAction.OnClearClick) },
             keyboardType = KeyboardType.Text,
             onCommit = { onAction(SearchAction.OnSearchImeClick) },
             modifier = Modifier
@@ -950,10 +913,8 @@ private fun FiltersPillButton(
         if (activeCount > 0) {
             KomiText(
                 text = activeCount.toString(),
-                role = KomiTextRole.Label,
-                fontWeight = FontWeight.SemiBold,
+                role = KomiTextRole.LabelSmall,
                 color = content,
-                uppercase = false,
             )
         }
     }
@@ -1031,7 +992,7 @@ private fun ActiveFilterChip(
     Row(
         modifier = Modifier
             .clip(shape)
-            .background(colors.primary.copy(alpha = 0.12f), shape)
+            .background(colors.primaryTint, shape)
             .border(1.dp, colors.primary.copy(alpha = 0.4f), shape)
             .clickable(onClick = onRemove)
             .padding(start = 12.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
@@ -1049,11 +1010,8 @@ private fun ActiveFilterChip(
 
         KomiText(
             text = label,
-            role = KomiTextRole.Label,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.SemiBold,
+            role = KomiTextRole.LabelSmall,
             color = colors.primary,
-            uppercase = false,
         )
 
         KomiIcon(
@@ -1101,7 +1059,6 @@ private fun ExploreFromGithubButton(
                     text = stringResource(Res.string.no_more_github_results),
                     role = KomiTextRole.Body,
                     color = LocalPersonality.current.colors.outline,
-                    uppercase = false,
                 )
             }
         }

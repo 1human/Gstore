@@ -45,6 +45,7 @@ import zed.rainxch.core.presentation.components.dividers.KomiHorizontalDivider
 import zed.rainxch.core.presentation.components.overlays.KomiToastState
 import zed.rainxch.core.presentation.components.overlays.rememberKomiToastState
 import zed.rainxch.core.presentation.components.progress.KomiCircularProgress
+import zed.rainxch.core.presentation.components.progress.KomiLoadingIndicator
 import zed.rainxch.core.presentation.components.refresh.KomiPullToRefresh
 import zed.rainxch.core.presentation.components.refresh.drivesPullToRefresh
 import zed.rainxch.core.presentation.components.scaffold.KomiScaffold
@@ -329,19 +330,19 @@ private fun HomeEndCap() {
         KomiHorizontalDivider(
             modifier = Modifier.weight(1f),
             thickness = 2.dp,
-            color = LocalPersonality.current.colors.outline.copy(alpha = 0.4f),
+            color = LocalPersonality.current.colors.divider,
         )
         if (LocalPersonality.current.usesDecor) {
             KomiText(
                 text = stringResource(Res.string.feed_end_cap),
-                role = KomiTextRole.Label,
+                role = KomiTextRole.Overline,
                 color = LocalPersonality.current.colors.onSurfaceVariant,
             )
         }
         KomiHorizontalDivider(
             modifier = Modifier.weight(1f),
             thickness = 2.dp,
-            color = LocalPersonality.current.colors.outline.copy(alpha = 0.4f),
+            color = LocalPersonality.current.colors.divider,
         )
     }
 }
@@ -354,7 +355,7 @@ private fun HomeEmpty() {
     ) {
         KomiText(
             text = stringResource(Res.string.feed_empty_title),
-            role = KomiTextRole.Title,
+            role = KomiTextRole.SectionTitle,
             color = LocalPersonality.current.colors.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
@@ -368,13 +369,13 @@ private fun HomeLoading() {
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            KomiCircularProgress()
+            KomiLoadingIndicator()
 
             Spacer(modifier = Modifier.height(8.dp))
 
             KomiText(
                 text = stringResource(Res.string.home_finding_repositories),
-                role = KomiTextRole.Title,
+                role = KomiTextRole.SectionTitle,
                 color = LocalPersonality.current.colors.onSurfaceVariant,
             )
         }
@@ -398,7 +399,6 @@ private fun HomeError(
                 text = message,
                 role = KomiTextRole.Body,
                 color = LocalPersonality.current.colors.onSurface,
-                uppercase = false,
             )
 
             KomiButton(
