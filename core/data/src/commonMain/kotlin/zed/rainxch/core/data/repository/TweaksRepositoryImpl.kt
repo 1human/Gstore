@@ -25,6 +25,7 @@ import zed.rainxch.core.data.secure.safeDelete
 import zed.rainxch.core.data.secure.safeGet
 import zed.rainxch.core.data.secure.safeGetFlow
 import zed.rainxch.core.data.secure.safePut
+import zed.rainxch.core.domain.isDesktop
 import zed.rainxch.core.domain.model.announcement.AnnouncementCategory
 import zed.rainxch.core.domain.model.appearance.AccentId
 import zed.rainxch.core.domain.model.appearance.AppTheme
@@ -209,7 +210,8 @@ class TweaksRepositoryImpl(
         )
     }
 
-    override fun getScrollbarEnabled(): Flow<Boolean> = gatedGetFlow(K_SCROLLBAR_ENABLED, false)
+    // Desktop ships a scrollbar by default; touch platforms never show one.
+    override fun getScrollbarEnabled(): Flow<Boolean> = gatedGetFlow(K_SCROLLBAR_ENABLED, isDesktop())
 
     override suspend fun setScrollbarEnabled(enabled: Boolean) {
         migrationDeferred.await()
@@ -217,7 +219,9 @@ class TweaksRepositoryImpl(
     }
 
     override fun getContentWidth(): Flow<ContentWidth> =
-        gatedGetFlow(K_CONTENT_WIDTH, "").map { ContentWidth.fromName(it.ifEmpty { null }) }
+        // A phone-width column wastes a desktop window; default to the wide reading measure.
+        gatedGetFlow(K_CONTENT_WIDTH, if (isDesktop()) ContentWidth.WIDE.name else "")
+            .map { ContentWidth.fromName(it.ifEmpty { null }) }
 
     override suspend fun setContentWidth(width: ContentWidth) {
         migrationDeferred.await()

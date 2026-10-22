@@ -6,6 +6,12 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.isSecondaryPressed
+import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -108,7 +114,28 @@ private fun ClassicSurface(
 
     val clickModifier =
         if (onClick != null || onLongClick != null) {
-            Modifier.combinedClickable(onClick = onClick ?: {}, onLongClick = onLongClick)
+            Modifier
+                // Mouse users need the hand cursor to know a surface is clickable; no-op on touch.
+                .pointerHoverIcon(PointerIcon.Hand)
+                .then(
+                    // Desktop has no long press: a secondary click opens the same actions.
+                    if (onLongClick != null) {
+                        Modifier.pointerInput(onLongClick) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent(PointerEventPass.Main)
+                                    if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
+                                        event.changes.forEach { it.consume() }
+                                        onLongClick()
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        Modifier
+                    },
+                )
+                .combinedClickable(onClick = onClick ?: {}, onLongClick = onLongClick)
         } else {
             Modifier
         }

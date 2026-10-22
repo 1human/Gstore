@@ -40,6 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import zed.rainxch.core.domain.isDesktop
 import zed.rainxch.core.presentation.components.bars.LocalInBar
 import zed.rainxch.core.presentation.components.overlays.KomiTooltip
 import zed.rainxch.core.presentation.locals.LocalPersonality
@@ -50,6 +51,7 @@ import zed.rainxch.core.presentation.spacing.Spacing
 import kotlin.math.roundToInt
 
 private val MinTouchTarget = 44.dp
+private val DesktopMinTouchTarget = 32.dp
 
 @Composable
 fun KomiIconButton(
@@ -98,7 +100,9 @@ private fun ClassicIconButton(
     val metrics = size.metrics
     val inBar = LocalInBar.current
     // In a bar, Material's own icon button: its 40dp shape in a 48dp target, with a 24dp icon.
-    val sizeModifier = if (inBar) Modifier else Modifier.size(maxOf(metrics.box, MinTouchTarget))
+    // Desktop pointers are precise: a 44dp touch box wastes space on a 40dp control.
+    val minTarget = if (isDesktop()) DesktopMinTouchTarget else MinTouchTarget
+    val sizeModifier = if (inBar) Modifier else Modifier.size(maxOf(metrics.box, minTarget))
     val content: @Composable () -> Unit = {
         if (inBar) {
             BarIcon(icon = icon, contentDescription = contentDescription)

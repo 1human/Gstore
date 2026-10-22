@@ -27,6 +27,10 @@ fun HandleKeyboardEvents(navController: NavHostController) {
                     }
                 }
             }
+
+            KeyboardNavigationEvent.OnBack -> {
+                navController.popBackStack()
+            }
         }
     }
 }

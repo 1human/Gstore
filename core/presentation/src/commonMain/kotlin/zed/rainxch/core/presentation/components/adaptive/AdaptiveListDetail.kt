@@ -84,8 +84,10 @@ fun AdaptiveListDetailScaffold(
     emptyPaneSubtitle: String,
     modifier: Modifier = Modifier,
     initialListFraction: Float = 0.46f,
-    minListWidthDp: Int = 480,
-    minDetailWidthDp: Int = 600,
+    // 380 + 520 = 900dp of content width is what a default 1280px window offers once the
+    // 216dp sidebar is subtracted; the old 480 + 600 never fit and hid the two-pane layout.
+    minListWidthDp: Int = 380,
+    minDetailWidthDp: Int = 520,
     expandedBreakpointDp: Int = WindowBreakpoints.Expanded.value.toInt(),
 ) {
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {

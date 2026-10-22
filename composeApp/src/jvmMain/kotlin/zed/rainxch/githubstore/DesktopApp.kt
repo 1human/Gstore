@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isAltPressed
 import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.key
@@ -59,6 +60,7 @@ import zed.rainxch.githubstore.desktop.applyWindowsImmersiveDarkMode
 import zed.rainxch.githubstore.desktop.installMacosSystemAppearance
 import zed.rainxch.githubstore.utils.STARTUP_PREFERENCE_TIMEOUT_MS
 import java.awt.Desktop
+import java.awt.Dimension
 import java.net.URI
 import java.security.Security
 import kotlin.system.exitProcess
@@ -162,18 +164,38 @@ fun main(args: Array<String>) {
             title = stringResource(Res.string.app_name),
             icon = painterResource(Res.drawable.app_icon),
             onKeyEvent = { keyEvent ->
-                if (keyEvent.key == Key.F && keyEvent.type == KeyEventType.KeyDown) {
-                    if (keyEvent.isCtrlPressed || keyEvent.isMetaPressed) {
-                        KeyboardNavigation.onKeyClicked(KeyboardNavigationEvent.OnCtrlFClick)
-                        true
-                    } else {
-                        false
-                    }
-                } else {
+                if (keyEvent.type != KeyEventType.KeyDown) {
                     false
+                } else {
+                    when {
+                        (keyEvent.isCtrlPressed || keyEvent.isMetaPressed) && keyEvent.key == Key.F -> {
+                            KeyboardNavigation.onKeyClicked(KeyboardNavigationEvent.OnCtrlFClick)
+                            true
+                        }
+
+                        keyEvent.key == Key.Escape -> {
+                            KeyboardNavigation.onKeyClicked(KeyboardNavigationEvent.OnBack)
+                            true
+                        }
+
+                        keyEvent.isAltPressed && keyEvent.key == Key.DirectionLeft -> {
+                            KeyboardNavigation.onKeyClicked(KeyboardNavigationEvent.OnBack)
+                            true
+                        }
+
+                        else -> {
+                            false
+                        }
+                    }
                 }
             },
         ) {
+            // Below this the sidebar + list + detail layout collapses into nonsense; keep the
+            // window at a size the desktop layouts were designed for.
+            LaunchedEffect(window) {
+                window.minimumSize = Dimension(1120, 720)
+            }
+
             var resolvedDark by remember { mutableStateOf<Boolean?>(null) }
             LaunchedEffect(window, resolvedDark) {
                 val dark = resolvedDark ?: return@LaunchedEffect
