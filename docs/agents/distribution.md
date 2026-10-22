@@ -6,6 +6,8 @@
 - `build-windows` runs `:composeApp:createDistributable` on `windows-latest` and zips the jpackage app-image (launcher + bundled JRE) as `Komi-Store-<version>-windows-x64-portable.zip`. No EXE/MSI installers, nothing is signed.
 - `release` reads `projectVersionName` from `gradle.properties`, collects that zip and creates the draft release `v<version>`. It refuses to overwrite a published release, so bump `projectVersionName` before re-running.
 
+Packaging needs a **full JDK** (jmods + jpackage). The Gradle daemon runs on the JDK 25 runtime image provisioned by `gradle-daemon-jvm.properties`, which has no `jmods`, so jlink failed with "This JDK does not contain packaged modules". `composeApp/build.gradle.kts` therefore sets `compose.desktop.application.javaHome` from `PACKAGING_JAVA_HOME`, or an installed Java 21 toolchain otherwise. CI exports `PACKAGING_JAVA_HOME="$JAVA_HOME"` (the Temurin 21 JDK from `setup-java`); locally, export the path of any full JDK 21+ if packaging fails the same way.
+
 macOS and Linux jobs are removed for now; re-add them to the same workflow when those artifacts come back. Because the macOS Homebrew, WinGet (`.msi`) and Scoop channels depend on artifacts we no longer produce, leave those workflows unused until installers exist again.
 
 ## Windows signing (SignPath Foundation) — paused

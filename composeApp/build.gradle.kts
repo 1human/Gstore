@@ -1,4 +1,5 @@
 import com.android.build.api.dsl.ApplicationExtension
+import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -120,8 +121,26 @@ kotlin {
     }
 }
 
+// jlink needs a full JDK (jmods + jpackage). The daemon JVM that
+// `gradle-daemon-jvm.properties` provisions is a runtime image without jmods, and
+// packaging with it fails with "This JDK does not contain packaged modules".
+// PACKAGING_JAVA_HOME wins, otherwise pick an installed Java 21 toolchain.
+val packagingJavaHome: String? =
+    System.getenv("PACKAGING_JAVA_HOME")?.takeIf { it.isNotBlank() }
+        ?: runCatching {
+            extensions
+                .getByType<org.gradle.jvm.toolchain.JavaToolchainService>()
+                .launcherFor { languageVersion.set(JavaLanguageVersion.of(21)) }
+                .orNull
+                ?.metadata
+                ?.installationPath
+                ?.asFile
+                ?.absolutePath
+        }.getOrNull()
+
 compose.desktop {
     application {
+        packagingJavaHome?.let { javaHome = it }
         mainClass = "zed.rainxch.githubstore.DesktopAppKt"
         nativeDistributions {
             packageName = "Komi-Store"

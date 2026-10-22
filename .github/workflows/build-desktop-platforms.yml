@@ -57,6 +57,11 @@ jobs:
       - name: Build Windows portable app-image (amd64)
         run: |
           set -euo pipefail
+          # The Gradle daemon runs on the JDK 25 runtime image that
+          # gradle-daemon-jvm.properties provisions, and that image has no jmods,
+          # so jlink fails with "This JDK does not contain packaged modules".
+          # Packaging therefore uses the full Temurin JDK installed above.
+          export PACKAGING_JAVA_HOME="$JAVA_HOME"
           retry() {
             local n=1 max=3 delay=5
             while true; do
