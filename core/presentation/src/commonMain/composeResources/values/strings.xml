@@ -1514,4 +1514,5 @@
     <string name="library_not_installed">Not installed</string>
     <string name="library_tracked_title">Added to library</string>
     <string name="library_remove">Remove</string>
+    <string name="library_add">Add to library</string>
 </resources>

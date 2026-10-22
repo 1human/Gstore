@@ -178,6 +178,10 @@ private fun HomeScreen(
             RepositoryActionsSheet(
                 repository = card.rawRepository,
                 isSeen = card.isSeen,
+                onAddToLibrary = {
+                    onAction(HomeAction.OnTrackRepo)
+                    onAction(HomeAction.OnActionSheetDismiss)
+                },
                 onDismiss = { onAction(HomeAction.OnActionSheetDismiss) },
                 onShare = {
                     onAction(HomeAction.OnActionSheetDismiss)

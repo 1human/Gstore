@@ -1437,4 +1437,5 @@
     <string name="library_not_installed">未安装</string>
     <string name="library_tracked_title">已加入文库</string>
     <string name="library_remove">移除</string>
+    <string name="library_add">加入文库</string>
 </resources>

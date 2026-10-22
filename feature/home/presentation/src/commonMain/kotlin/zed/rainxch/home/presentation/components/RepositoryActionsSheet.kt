@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.OpenInBrowser
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.Visibility
@@ -34,6 +35,7 @@ import zed.rainxch.core.presentation.components.text.KomiTextRole
 import zed.rainxch.core.presentation.locals.LocalPersonality
 import zed.rainxch.core.presentation.model.GithubRepoSummaryUi
 import zed.rainxch.githubstore.core.presentation.res.Res
+import zed.rainxch.githubstore.core.presentation.res.library_add
 import zed.rainxch.githubstore.core.presentation.res.hide_repository
 import zed.rainxch.githubstore.core.presentation.res.mark_as_unviewed
 import zed.rainxch.githubstore.core.presentation.res.mark_as_viewed
@@ -49,6 +51,7 @@ fun RepositoryActionsSheet(
     onOpenOnGithub: () -> Unit,
     onToggleSeen: () -> Unit,
     onHide: () -> Unit,
+    onAddToLibrary: () -> Unit = {},
 ) {
     val colors = LocalPersonality.current.colors
     val shape = LocalPersonality.current.shape
@@ -106,6 +109,12 @@ fun RepositoryActionsSheet(
             else stringResource(Res.string.mark_as_viewed),
             icon = Icons.Outlined.Visibility,
             onClick = onToggleSeen,
+        )
+
+        SheetRow(
+            label = stringResource(Res.string.library_add),
+            icon = Icons.Default.Add,
+            onClick = onAddToLibrary,
         )
 
         KomiHorizontalDivider(color = colors.outlineVariant)
