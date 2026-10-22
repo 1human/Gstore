@@ -1,5 +1,7 @@
 package zed.rainxch.githubstore.desktop
 
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import com.sun.jna.Native
 import com.sun.jna.Pointer
 import com.sun.jna.platform.win32.WinDef
@@ -35,9 +37,25 @@ private const val DWMWA_USE_IMMERSIVE_DARK_MODE = 20
 private const val DWMWA_USE_IMMERSIVE_DARK_MODE_PRE_20H1 = 19
 private const val DWMWA_BORDER_COLOR = 34
 private const val DWMWA_CAPTION_COLOR = 35
+private const val DWMWA_TEXT_COLOR = 36
 private const val DWMWA_COLOR_DEFAULT = -1
-private const val DARK_TITLE_BAR_COLORREF = 0x001E1E1E
+private const val FALLBACK_CAPTION_COLORREF = 0x001E1E1E
 private const val S_OK = 0
+private const val CHANNEL_MASK = 0xFF
+private const val RED_SHIFT = 16
+private const val GREEN_SHIFT = 8
+
+/**
+ * DWM wants a Win32 COLORREF (0x00BBGGRR): the app paints in ARGB, so the channels
+ * have to be flipped or the caption comes out with red and blue swapped.
+ */
+fun Color.toTitleBarColorRef(): Int {
+    val argb = toArgb()
+    val red = (argb shr RED_SHIFT) and CHANNEL_MASK
+    val green = (argb shr GREEN_SHIFT) and CHANNEL_MASK
+    val blue = argb and CHANNEL_MASK
+    return (blue shl RED_SHIFT) or (green shl GREEN_SHIFT) or red
+}
 
 private val isWindows: Boolean
     get() = DesktopOs.isWindows
@@ -66,13 +84,15 @@ fun applyMacosWindowAppearance(
 fun applyWindowsImmersiveDarkMode(
     window: Window,
     isDark: Boolean,
+    captionColorRef: Int? = null,
+    textColorRef: Int? = null,
 ) {
-    if (!isWindows) return
-    val dwm = DwmApi.INSTANCE ?: return
+    val dwm = if (isWindows) DwmApi.INSTANCE else null
     val hwnd =
-        runCatching {
-            WinDef.HWND(Pointer(Native.getWindowID(window)))
-        }.getOrNull() ?: return
+        dwm?.let {
+            runCatching { WinDef.HWND(Pointer(Native.getWindowID(window))) }.getOrNull()
+        }
+    if (dwm == null || hwnd == null) return
     val flag = WinDef.BOOLByReference(WinDef.BOOL(isDark))
     val hr =
         runCatching {
@@ -85,7 +105,10 @@ fun applyWindowsImmersiveDarkMode(
         }
     }
 
-    val colorRef = IntByReference(if (isDark) DARK_TITLE_BAR_COLORREF else DWMWA_COLOR_DEFAULT)
+    val colorRef = IntByReference(captionColorRef ?: if (isDark) FALLBACK_CAPTION_COLORREF else DWMWA_COLOR_DEFAULT)
     runCatching { dwm.DwmSetWindowAttribute(hwnd, DWMWA_CAPTION_COLOR, colorRef, 4) }
     runCatching { dwm.DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR, colorRef, 4) }
+    textColorRef?.let { text ->
+        runCatching { dwm.DwmSetWindowAttribute(hwnd, DWMWA_TEXT_COLOR, IntByReference(text), 4) }
+    }
 }

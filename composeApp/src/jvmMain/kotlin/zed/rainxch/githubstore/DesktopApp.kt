@@ -14,7 +14,6 @@ import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import kotlinx.coroutines.CoroutineScope
@@ -32,41 +31,32 @@ import org.koin.core.context.GlobalContext
 import zed.rainxch.core.data.network.ProxyManager
 import zed.rainxch.core.data.services.LocalizationManager
 import zed.rainxch.core.domain.logging.KomiStoreLogger
+import zed.rainxch.core.domain.model.appearance.AccentId
 import zed.rainxch.core.domain.repository.ProxyRepository
 import zed.rainxch.core.domain.repository.TweaksRepository
 import zed.rainxch.core.domain.system.DesktopOs
+import zed.rainxch.core.presentation.personality.classic.classicColorScheme
 import zed.rainxch.githubstore.app.desktop.KeyboardNavigation
 import zed.rainxch.githubstore.app.desktop.KeyboardNavigationEvent
 import zed.rainxch.githubstore.app.di.initKoin
 import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.app_icon
 import zed.rainxch.githubstore.core.presentation.res.app_name
-import zed.rainxch.githubstore.core.presentation.res.bottom_nav_explore_title
-import zed.rainxch.githubstore.core.presentation.res.bottom_nav_search_title
-import zed.rainxch.githubstore.core.presentation.res.favourites
-import zed.rainxch.githubstore.core.presentation.res.menubar_file_menu
-import zed.rainxch.githubstore.core.presentation.res.menubar_file_quit
-import zed.rainxch.githubstore.core.presentation.res.menubar_go_menu
-import zed.rainxch.githubstore.core.presentation.res.menubar_help_about
-import zed.rainxch.githubstore.core.presentation.res.menubar_help_feedback
-import zed.rainxch.githubstore.core.presentation.res.menubar_help_licenses
-import zed.rainxch.githubstore.core.presentation.res.menubar_help_menu
-import zed.rainxch.githubstore.core.presentation.res.menubar_help_privacy
-import zed.rainxch.githubstore.core.presentation.res.recently_viewed
-import zed.rainxch.githubstore.core.presentation.res.tweaks_title
 import zed.rainxch.githubstore.desktop.WindowStateStore
 import zed.rainxch.githubstore.desktop.applyMacosWindowAppearance
 import zed.rainxch.githubstore.desktop.applyWindowsImmersiveDarkMode
 import zed.rainxch.githubstore.desktop.installMacosSystemAppearance
+import zed.rainxch.githubstore.desktop.toTitleBarColorRef
 import zed.rainxch.githubstore.utils.STARTUP_PREFERENCE_TIMEOUT_MS
 import java.awt.Desktop
 import java.awt.Dimension
-import java.net.URI
 import java.security.Security
 import kotlin.system.exitProcess
 import kotlin.time.Duration.Companion.milliseconds
 
-private const val PRIVACY_POLICY_URL = "https://komistore.app/privacy-policy"
+// Small enough to fit on a 1080p screen, large enough for sidebar + list + detail.
+private const val WINDOW_MIN_WIDTH = 1120
+private const val WINDOW_MIN_HEIGHT = 720
 
 fun main(args: Array<String>) {
     installMacosSystemAppearance()
@@ -193,74 +183,22 @@ fun main(args: Array<String>) {
             // Below this the sidebar + list + detail layout collapses into nonsense; keep the
             // window at a size the desktop layouts were designed for.
             LaunchedEffect(window) {
-                window.minimumSize = Dimension(1120, 720)
+                window.minimumSize = Dimension(WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT)
             }
 
             var resolvedDark by remember { mutableStateOf<Boolean?>(null) }
             LaunchedEffect(window, resolvedDark) {
                 val dark = resolvedDark ?: return@LaunchedEffect
-                applyWindowsImmersiveDarkMode(window, dark)
+                // Paint the native caption in the app's own background colour so the
+                // window frame and the page below it read as one surface.
+                val scheme = classicColorScheme(accent = AccentId.WALLPAPER, dark = dark)
+                applyWindowsImmersiveDarkMode(
+                    window = window,
+                    isDark = dark,
+                    captionColorRef = scheme.background.toTitleBarColorRef(),
+                    textColorRef = scheme.onBackground.toTitleBarColorRef(),
+                )
                 applyMacosWindowAppearance(window, dark)
-            }
-            MenuBar {
-                Menu(text = stringResource(Res.string.menubar_file_menu)) {
-                    Item(
-                        text = stringResource(Res.string.tweaks_title),
-                        onClick = { deepLinkUri = "githubstore://tweaks" },
-                    )
-                    Separator()
-                    Item(
-                        text = stringResource(Res.string.menubar_file_quit),
-                        onClick = {
-                            WindowStateStore.save(windowState)
-                            exitApplication()
-                        },
-                    )
-                }
-                Menu(text = stringResource(Res.string.menubar_go_menu)) {
-                    Item(
-                        text = stringResource(Res.string.bottom_nav_explore_title),
-                        onClick = { deepLinkUri = "githubstore://home" },
-                    )
-                    Item(
-                        text = stringResource(Res.string.bottom_nav_search_title),
-                        onClick = { deepLinkUri = "githubstore://search" },
-                    )
-                    Item(
-                        text = stringResource(Res.string.favourites),
-                        onClick = { deepLinkUri = "githubstore://favourites" },
-                    )
-                    Item(
-                        text = stringResource(Res.string.recently_viewed),
-                        onClick = { deepLinkUri = "githubstore://recent" },
-                    )
-                }
-                Menu(text = stringResource(Res.string.menubar_help_menu)) {
-                    Item(
-                        text = stringResource(Res.string.menubar_help_about),
-                        onClick = { deepLinkUri = "githubstore://tweaks/app-info" },
-                    )
-                    Item(
-                        text = stringResource(Res.string.menubar_help_feedback),
-                        onClick = { deepLinkUri = "githubstore://tweaks/feedback" },
-                    )
-                    Item(
-                        text = stringResource(Res.string.menubar_help_licenses),
-                        onClick = { deepLinkUri = "githubstore://tweaks/licenses" },
-                    )
-                    Item(
-                        text = stringResource(Res.string.menubar_help_privacy),
-                        onClick = {
-                            runCatching {
-                                if (Desktop.isDesktopSupported() &&
-                                    Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)
-                                ) {
-                                    Desktop.getDesktop().browse(URI(PRIVACY_POLICY_URL))
-                                }
-                            }
-                        },
-                    )
-                }
             }
             App(
                 deepLinkUri = deepLinkUri,

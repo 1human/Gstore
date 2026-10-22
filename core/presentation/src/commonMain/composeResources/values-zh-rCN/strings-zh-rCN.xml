@@ -1122,14 +1122,6 @@
     <string name="host_tokens_validation_host_required">必须填写主机</string>
     <string name="host_tokens_validation_token_required">必须填写令牌</string>
     <string name="host_tokens_validation_token_short">令牌太短</string>
-    <string name="menubar_help_about">关于 gStore</string>
-    <string name="menubar_help_feedback">发送反馈…</string>
-    <string name="menubar_help_licenses">开源许可证</string>
-    <string name="menubar_file_menu">文件</string>
-    <string name="menubar_go_menu">前往</string>
-    <string name="menubar_file_quit">退出</string>
-    <string name="menubar_help_menu">帮助</string>
-    <string name="menubar_help_privacy">隐私政策</string>
     <string name="profile_tweaks_description">应用设置、主题、网络、翻译、高级选项。</string>
     <string name="restart_banner_body">部分更改需要重启后生效。</string>
     <string name="restart_banner_later">稍后</string>

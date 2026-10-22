@@ -22,6 +22,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Apps
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LocalContentColor
@@ -38,9 +42,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import zed.rainxch.core.domain.model.repository.DiscoveryPlatform
@@ -54,7 +60,9 @@ import zed.rainxch.core.presentation.locals.LocalPersonality
 import zed.rainxch.core.presentation.utils.toIcon
 import zed.rainxch.core.presentation.utils.toLabel
 import zed.rainxch.githubstore.core.presentation.res.Res
+import zed.rainxch.githubstore.core.presentation.res.bottom_nav_apps_title
 import zed.rainxch.githubstore.core.presentation.res.category_all
+import zed.rainxch.githubstore.core.presentation.res.favourites
 import zed.rainxch.githubstore.core.presentation.res.feed_category_ai
 import zed.rainxch.githubstore.core.presentation.res.feed_category_media
 import zed.rainxch.githubstore.core.presentation.res.feed_category_networking
@@ -62,9 +70,11 @@ import zed.rainxch.githubstore.core.presentation.res.feed_category_privacy
 import zed.rainxch.githubstore.core.presentation.res.feed_category_reading
 import zed.rainxch.githubstore.core.presentation.res.feed_category_social
 import zed.rainxch.githubstore.core.presentation.res.feed_category_tools
+import zed.rainxch.githubstore.core.presentation.res.recently_viewed
 import zed.rainxch.githubstore.core.presentation.res.sidebar_browse
 import zed.rainxch.githubstore.core.presentation.res.sidebar_categories
 import zed.rainxch.githubstore.core.presentation.res.sidebar_platform
+import zed.rainxch.githubstore.core.presentation.res.tweaks_title
 
 private val SidebarPlatforms =
     listOf(
@@ -177,8 +187,44 @@ fun DesktopSidebar(
                 )
             }
         }
+
+        // Library/settings/help used to live in the window menu bar, which desktop no
+        // longer shows; they belong next to the other destinations.
+        Spacer(Modifier.height(if (rail) 4.dp else 10.dp))
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(colors.outlineVariant),
+        )
+        Spacer(Modifier.height(if (rail) 2.dp else 6.dp))
+        sidebarDestinations.forEach { item ->
+            SidebarNavRow(
+                label = stringResource(item.titleRes),
+                icon = item.icon,
+                selected = currentScreen != null && currentScreen::class == item.screen::class,
+                rail = rail,
+                badgeCount = 0,
+                onClick = { onNavigate(item.screen) },
+            )
+        }
     }
 }
+
+private class SidebarDestination(
+    val titleRes: StringResource,
+    val icon: ImageVector,
+    val screen: GithubStoreGraph,
+)
+
+private val sidebarDestinations: List<SidebarDestination> =
+    listOf(
+        SidebarDestination(Res.string.bottom_nav_apps_title, Icons.Outlined.Apps, GithubStoreGraph.AppsScreen),
+        SidebarDestination(Res.string.favourites, Icons.Outlined.FavoriteBorder, GithubStoreGraph.FavouritesScreen),
+        SidebarDestination(Res.string.recently_viewed, Icons.Outlined.History, GithubStoreGraph.RecentlyViewedScreen),
+        SidebarDestination(Res.string.tweaks_title, Icons.Outlined.Settings, GithubStoreGraph.TweaksScreen),
+    )
 
 @Composable
 private fun SidebarSideHeading(
