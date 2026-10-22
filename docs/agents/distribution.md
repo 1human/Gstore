@@ -1,19 +1,25 @@
 # Distribution (maintainers)
 
-Desktop installers are built by `.github/workflows/build-desktop-platforms.yml` on every push to the `generate-installers` branch. Its `release` job reads `projectVersionName` and creates the draft release `v<version>`.
+`.github/workflows/build-desktop-platforms.yml` currently ships **Windows only**: one amd64 portable zip.
 
-## Windows signing (SignPath Foundation)
+- Triggers: push to `generate-installers`, or manual "Run workflow" (`workflow_dispatch`).
+- `build-windows` runs `:composeApp:createDistributable` on `windows-latest` and zips the jpackage app-image (launcher + bundled JRE) as `Komi-Store-<version>-windows-x64-portable.zip`. No EXE/MSI installers, nothing is signed.
+- `release` reads `projectVersionName` from `gradle.properties`, collects that zip and creates the draft release `v<version>`. It refuses to overwrite a published release, so bump `projectVersionName` before re-running.
 
-The `sign-windows` job runs after every push to `generate-installers`. The SignPath action is pinned to a commit SHA. Secrets: `SIGNPATH_API_TOKEN`, `SIGNPATH_ORGANIZATION_ID` (`1ecf111e-...`). The variable `SIGNPATH_SIGNING_POLICY_SLUG` is `test-signing` until the production certificate is issued, then `release-signing`. Project slug `GitHub-Store`, artifact configuration slug `initial`. The unsigned artifact is deleted after signing, so only `windows-installers-signed` reaches the draft release.
+macOS and Linux jobs are removed for now; re-add them to the same workflow when those artifacts come back. Because the macOS Homebrew, WinGet (`.msi`) and Scoop channels depend on artifacts we no longer produce, leave those workflows unused until installers exist again.
 
-## WinGet
+## Windows signing (SignPath Foundation) — paused
 
-`.github/workflows/winget-publish.yml` fires on `release: [released]` and uses `vedantmgoyal9/winget-releaser` to publish the MSI (`installers-regex: '\.msi$'`) as `zed.rainxch.githubstore`. The secret `WINGET_TOKEN` is a PAT with `Contents` and `Pull requests` write access on `komi-store/winget-pkgs` (a fork of `microsoft/winget-pkgs`). The workflow doesn't set `fork-user`; the action defaults it to the repository owner, `komi-store`.
+The `sign-windows` job was removed together with the EXE/MSI installers. Secrets `SIGNPATH_API_TOKEN`, `SIGNPATH_ORGANIZATION_ID` and the variable `SIGNPATH_SIGNING_POLICY_SLUG` are still configured but unused; restore the job from git history if signed installers are needed again.
+
+## WinGet — paused
+
+`.github/workflows/winget-publish.yml` fires on `release: [released]` and publishes the MSI (`installers-regex: '\.msi$'`) as `zed.rainxch.githubstore`. There is no MSI any more, so do not publish a release until this workflow is updated to the portable zip.
 
 ## Scoop
 
 `.github/workflows/scoop-publish.yml` fires on release (or by hand) and dispatches `komi-store-release` to `komi-store/komi-store-scoop-bucket` with the secret `SCOOP_BUCKET_TOKEN`.
 
-## macOS (Homebrew)
+## macOS (Homebrew) — paused
 
-The cask lives in the tap `komi-store/komi-store` (repository `homebrew-komi-store`): `brew install --cask komi-store`. The app is unsigned for now, so users run `xattr -dr com.apple.quarantine /Applications/Komi-Store.app` after installing. CI builds `.dmg` and `.pkg` on every push to `generate-installers`. On release, `.github/workflows/homebrew-tap-publish.yml` updates `Casks/komi-store.rb` in the tap with the secret `HOMEBREW_TAP_TOKEN`; it can also be run by hand for a given tag.
+The cask lives in the tap `komi-store/komi-store` (repository `homebrew-komi-store`): `brew install --cask komi-store`. CI no longer builds `.dmg`/`.pkg`, so `homebrew-tap-publish.yml` has nothing to publish until the macOS job returns.
