@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.serialization.json.Json
 import zed.rainxch.core.data.secure.MigrationEntry
 import zed.rainxch.core.data.secure.migrateDataStoreToKSafe
 import zed.rainxch.core.data.secure.safeDelete
@@ -31,6 +32,7 @@ import zed.rainxch.core.domain.model.appearance.AccentId
 import zed.rainxch.core.domain.model.appearance.AppTheme
 import zed.rainxch.core.domain.model.appearance.ContentWidth
 import zed.rainxch.core.domain.model.installation.InstallerType
+import zed.rainxch.core.domain.model.library.TrackedRepo
 import zed.rainxch.core.domain.model.repository.DiscoveryPlatform
 import zed.rainxch.core.domain.model.settings.AppLanguages
 import zed.rainxch.core.domain.model.settings.TranslationProvider
@@ -540,6 +542,20 @@ class TweaksRepositoryImpl(
         }
     }
 
+    override fun getTrackedRepos(): Flow<List<TrackedRepo>> =
+        gatedGetFlow(K_TRACKED_REPOS, "").map { stored ->
+            if (stored.isBlank()) {
+                emptyList()
+            } else {
+                runCatching { Json.decodeFromString<List<TrackedRepo>>(stored) }.getOrDefault(emptyList())
+            }
+        }
+
+    override suspend fun setTrackedRepos(repos: List<TrackedRepo>) {
+        migrationDeferred.await()
+        ksafe.safePut(K_TRACKED_REPOS, if (repos.isEmpty()) "" else Json.encodeToString(repos))
+    }
+
     companion object {
         private const val DEFAULT_UPDATE_CHECK_INTERVAL_HOURS = 12L
         private const val MIGRATION_MARKER = "__migrated_from_datastore_v1__"
@@ -588,5 +604,6 @@ class TweaksRepositoryImpl(
         private const val K_FAVOURITES_SORT_RULE = "favourites_sort_rule"
         private const val K_CONTENT_WIDTH = "content_width"
         private const val K_CUSTOM_FORGE_HOSTS = "custom_forge_hosts"
+        private const val K_TRACKED_REPOS = "tracked_repos"
     }
 }

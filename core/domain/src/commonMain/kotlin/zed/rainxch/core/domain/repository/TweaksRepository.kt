@@ -6,6 +6,7 @@ import zed.rainxch.core.domain.model.appearance.AccentId
 import zed.rainxch.core.domain.model.appearance.AppTheme
 import zed.rainxch.core.domain.model.appearance.ContentWidth
 import zed.rainxch.core.domain.model.installation.InstallerType
+import zed.rainxch.core.domain.model.library.TrackedRepo
 import zed.rainxch.core.domain.model.repository.DiscoveryPlatform
 import zed.rainxch.core.domain.model.settings.TranslationProvider
 
@@ -190,4 +191,9 @@ interface TweaksRepository {
     suspend fun addCustomForgeHost(host: String)
 
     suspend fun removeCustomForgeHost(host: String)
+
+    // Repositories added to the library without installing them.
+    fun getTrackedRepos(): Flow<List<TrackedRepo>>
+
+    suspend fun setTrackedRepos(repos: List<TrackedRepo>)
 }
