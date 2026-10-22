@@ -18,6 +18,8 @@ import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
 import java.io.File
 import java.io.IOException
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 import kotlin.collections.iterator
 import kotlin.getValue
 
@@ -81,7 +83,7 @@ class DesktopInstaller(
                 }
 
                 Platform.WINDOWS -> {
-                    name.endsWith(".msi") || name.endsWith(".exe")
+                    name.endsWith(".msi") || name.endsWith(".exe") || name.endsWith(".zip")
                 }
 
                 Platform.MACOS -> {
@@ -111,7 +113,8 @@ class DesktopInstaller(
                 }
 
                 Platform.WINDOWS -> {
-                    listOf(".msi", ".exe")
+                    // A zip is usually a portable build, so it only wins when no installer exists.
+                    listOf(".msi", ".exe", ".zip")
                 }
 
                 Platform.MACOS -> {
@@ -386,7 +389,7 @@ class DesktopInstaller(
     override suspend fun isSupported(extOrMime: String): Boolean {
         val ext = extOrMime.lowercase().removePrefix(".")
         return when (platform) {
-            Platform.WINDOWS -> ext in listOf("msi", "exe")
+            Platform.WINDOWS -> ext in listOf("msi", "exe", "zip")
             Platform.MACOS -> ext in listOf("dmg", "pkg")
             Platform.LINUX -> ext in listOf("appimage", "deb", "rpm", "pkg.tar.zst", "zst")
             else -> false
@@ -624,28 +627,88 @@ class DesktopInstaller(
         ext: String,
     ) {
         when (ext) {
-            "msi" -> {
-                val pb = ProcessBuilder("msiexec", "/i", file.absolutePath)
-                pb.start()
-            }
+            "msi" -> runWindowsFile(file, "msi")
+            "exe" -> runWindowsFile(file, "exe")
+            "zip" -> installWindowsZip(file)
+            else -> throw IllegalArgumentException("Unsupported Windows installer: .$ext")
+        }
+    }
 
-            "exe" -> {
-                try {
-                    ProcessBuilder("cmd", "/c", "start", "", file.absolutePath).start()
-                } catch (e: IOException) {
-                    Logger.w { "Failed to launch installer via cmd start: ${e.message}, falling back to Desktop.open" }
-                    if (Desktop.isDesktopSupported()) {
-                        Desktop.getDesktop().open(file)
-                    } else {
-                        ProcessBuilder(file.absolutePath).start()
-                    }
-                }
-            }
+    private fun runWindowsFile(
+        file: File,
+        ext: String,
+    ) {
+        if (ext == "msi") {
+            ProcessBuilder("msiexec", "/i", file.absolutePath).start()
+            return
+        }
 
-            else -> {
-                throw IllegalArgumentException("Unsupported Windows installer: .$ext")
+        try {
+            ProcessBuilder("cmd", "/c", "start", "", file.absolutePath).start()
+        } catch (e: IOException) {
+            Logger.w { "Failed to launch installer via cmd start: ${e.message}, falling back to Desktop.open" }
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(file)
+            } else {
+                ProcessBuilder(file.absolutePath).start()
             }
         }
+    }
+
+    // Portable Windows builds ship as a zip: unpack it next to the download, then hand whatever
+    // the archive holds (a setup binary, the app itself, or the folder) to Windows.
+    private fun installWindowsZip(archive: File) {
+        val target = File(archive.parentFile, archive.nameWithoutExtension)
+        if (target.exists() && !target.deleteRecursively()) {
+            Logger.w { "Could not clear the previous extraction at ${target.absolutePath}" }
+        }
+        target.mkdirs()
+
+        val root = target.canonicalFile
+        ZipFile(archive).use { zip ->
+            zip
+                .entries()
+                .asSequence()
+                .filterNot { it.isDirectory }
+                .forEach { entry -> extractEntry(root, zip, entry) }
+        }
+        Logger.d { "Extracted ${archive.name} to ${target.absolutePath}" }
+
+        val launcher = findWindowsLauncher(target)
+        when {
+            launcher != null -> runWindowsFile(launcher, launcher.extension.lowercase())
+            Desktop.isDesktopSupported() -> Desktop.getDesktop().open(target)
+            else -> Logger.w { "The extracted archive has nothing to launch: ${target.absolutePath}" }
+        }
+    }
+
+    private fun extractEntry(
+        root: File,
+        zip: ZipFile,
+        entry: ZipEntry,
+    ) {
+        val output = File(root, entry.name).canonicalFile
+        // Zip-slip guard: never write outside the extraction directory.
+        if (output != root && !output.path.startsWith(root.path + File.separator)) {
+            Logger.w { "Skipping zip entry outside the target directory: ${entry.name}" }
+            return
+        }
+        output.parentFile?.mkdirs()
+        zip.getInputStream(entry).use { input ->
+            output.outputStream().use { sink -> input.copyTo(sink) }
+        }
+    }
+
+    private fun findWindowsLauncher(directory: File): File? {
+        val files = directory.walkTopDown().filter { it.isFile }.toList()
+
+        fun first(extension: String): (File) -> Boolean =
+            { it.extension.equals(extension, ignoreCase = true) && !it.name.startsWith("unins", ignoreCase = true) }
+
+        return files.firstOrNull { first("msi")(it) && it.name.contains("setup", ignoreCase = true) }
+            ?: files.firstOrNull { first("exe")(it) && it.name.contains("setup", ignoreCase = true) }
+            ?: files.firstOrNull(first("msi"))
+            ?: files.firstOrNull(first("exe"))
     }
 
     private fun installMacOS(
