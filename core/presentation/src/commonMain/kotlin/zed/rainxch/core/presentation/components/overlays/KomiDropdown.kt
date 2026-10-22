@@ -34,11 +34,7 @@ import zed.rainxch.core.presentation.layout.currentFormFactor
 import zed.rainxch.core.presentation.layout.isCompact
 import zed.rainxch.core.presentation.locals.LocalPersonality
 import zed.rainxch.core.presentation.personality.ClassicPersonality
-import zed.rainxch.core.presentation.personality.MangaPersonality
 import zed.rainxch.core.presentation.personality.classicPersonality
-import zed.rainxch.core.presentation.personality.manga.MangaAccent
-import zed.rainxch.core.presentation.personality.manga.MangaPaper
-import zed.rainxch.core.presentation.personality.mangaPersonality
 import zed.rainxch.core.presentation.personality.utils.PersonalityPreview
 
 @Composable
@@ -95,28 +91,8 @@ private fun WideMenu(
     value: String?,
     onPick: (KomiMenuItem) -> Unit,
 ) {
-    val personality = LocalPersonality.current
-    val colors = personality.colors
-    when (personality) {
-        is MangaPersonality -> {
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = onDismiss,
-                shape = RectangleShape,
-                containerColor = colors.surface,
-                tonalElevation = 0.dp,
-                shadowElevation = 0.dp,
-                border = BorderStroke(3.dp, colors.outline),
-            ) {
-                MangaMenuEntries(entries = entries, value = value, onPick = onPick)
-            }
-        }
-
-        is ClassicPersonality -> {
-            DropdownMenuPopup(expanded = expanded, onDismissRequest = onDismiss) {
-                ClassicMenuList(entries = entries, value = value, onPick = onPick, inPopup = true)
-            }
-        }
+    DropdownMenuPopup(expanded = expanded, onDismissRequest = onDismiss) {
+        ClassicMenuList(entries = entries, value = value, onPick = onPick, inPopup = true)
     }
 }
 
@@ -139,42 +115,19 @@ private val PreviewSorts =
 @Composable
 private fun PreviewMenuPanel() {
     val colors = LocalPersonality.current.colors
-    val isManga = LocalPersonality.current is MangaPersonality
     Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
         KomiDropdown(
             entries = PreviewMenu,
             onSelect = {},
             trigger = { onClick -> KomiIconButton(Icons.Default.MoreVert, "More", onClick, variant = KomiButtonVariant.Outline) },
         )
-        Box(
-            modifier =
-                Modifier
-                    .background(colors.surface)
-                    .then(if (isManga) Modifier.border(3.dp, colors.outline) else Modifier),
-        ) {
+        Box(modifier = Modifier.background(colors.surface)) {
             KomiMenuList(entries = PreviewMenu, onSelect = {})
         }
-        Box(
-            modifier =
-                Modifier
-                    .background(colors.surface)
-                    .then(if (isManga) Modifier.border(3.dp, colors.outline) else Modifier),
-        ) {
+        Box(modifier = Modifier.background(colors.surface)) {
             KomiMenuList(entries = PreviewSorts, onSelect = {}, value = "stars")
         }
     }
-}
-
-@Preview
-@Composable
-private fun KomiDropdownMangaPreview() {
-    PersonalityPreview(mangaPersonality()) { PreviewMenuPanel() }
-}
-
-@Preview
-@Composable
-private fun KomiDropdownMangaNightPreview() {
-    PersonalityPreview(mangaPersonality(paper = MangaPaper.NIGHT, accent = MangaAccent.SUN)) { PreviewMenuPanel() }
 }
 
 @Preview

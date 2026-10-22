@@ -9,12 +9,12 @@ import zed.rainxch.core.data.network.TranslationClientProvider
 import zed.rainxch.core.data.services.LocalizationManager
 import zed.rainxch.core.domain.model.settings.TranslationProvider
 import zed.rainxch.core.domain.repository.TweaksRepository
+import zed.rainxch.details.data.translation.BaiduTranslator
 import zed.rainxch.details.data.translation.DeeplTranslator
 import zed.rainxch.details.data.translation.GoogleTranslator
 import zed.rainxch.details.data.translation.LibreTranslator
 import zed.rainxch.details.data.translation.MicrosoftTranslator
 import zed.rainxch.details.data.translation.Translator
-import zed.rainxch.details.data.translation.YoudaoTranslator
 import zed.rainxch.details.domain.model.TranslationResult
 import zed.rainxch.details.domain.repository.TranslationRepository
 import kotlin.time.Clock
@@ -176,13 +176,13 @@ class TranslationRepositoryImpl(
                 googleTranslator
             }
 
-            TranslationProvider.YOUDAO -> {
-                val appKey = tweaksRepository.getYoudaoAppKey().first()
-                val appSecret = tweaksRepository.getYoudaoAppSecret().first()
-                YoudaoTranslator(
+            TranslationProvider.BAIDU -> {
+                val appId = tweaksRepository.getBaiduAppId().first()
+                val appSecret = tweaksRepository.getBaiduAppSecret().first()
+                BaiduTranslator(
                     httpClient = { httpClient },
                     json = json,
-                    appKey = appKey,
+                    appId = appId,
                     appSecret = appSecret,
                 )
             }

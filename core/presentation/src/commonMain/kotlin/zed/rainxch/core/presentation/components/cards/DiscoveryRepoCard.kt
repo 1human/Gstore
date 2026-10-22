@@ -53,7 +53,6 @@ fun DiscoveryRepoCard(
     compact: Boolean = false,
     feed: KomiRepoCardFeed = KomiRepoCardFeed.Plain,
     rank: Int = 1,
-    index: Int = 0,
 ) {
     val repo = discoveryRepositoryUi.repository
     var showActions by remember { mutableStateOf(false) }
@@ -81,9 +80,7 @@ fun DiscoveryRepoCard(
         feed = feed,
         rank = rank,
         dailyStars = repo.dailyStars ?: 0,
-        version = repo.latestReleaseTag,
         compact = compact,
-        index = index,
     )
 
     if (showActions) {

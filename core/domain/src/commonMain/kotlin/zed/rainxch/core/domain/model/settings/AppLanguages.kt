@@ -1,22 +1,14 @@
 package zed.rainxch.core.domain.model.settings
 
 object AppLanguages {
+    /**
+     * The app ships two UI languages: English (the default resource set) and Simplified Chinese.
+     * Anything else renders English, both for the resources and for the in-app picker.
+     */
     val ALL: List<AppLanguage> =
         listOf(
             AppLanguage("en", "English"),
-            AppLanguage("ar", "العربية"),
-            AppLanguage("bn", "বাংলা"),
-            AppLanguage("es", "Español"),
-            AppLanguage("fr", "Français"),
-            AppLanguage("hi", "हिन्दी"),
-            AppLanguage("it", "Italiano"),
-            AppLanguage("ja", "日本語"),
-            AppLanguage("ko", "한국어"),
-            AppLanguage("pl", "Polski"),
-            AppLanguage("ru", "Русский"),
-            AppLanguage("tr", "Türkçe"),
             AppLanguage("zh-CN", "简体中文"),
-            AppLanguage("zh-TW", "繁體中文"),
         )
 
     fun findByTag(tag: String?): AppLanguage? = if (tag.isNullOrBlank()) null else ALL.find { it.tag == tag }

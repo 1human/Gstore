@@ -5,7 +5,6 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import zed.rainxch.core.presentation.locals.LocalPersonality
-import zed.rainxch.core.presentation.personality.MangaPersonality
 
 @Composable
 fun KomiSlider(
@@ -17,9 +16,7 @@ fun KomiSlider(
     steps: Int = 0,
     onValueChangeFinished: (() -> Unit)? = null,
 ) {
-    val personality = LocalPersonality.current
-    val colors = personality.colors
-    val isManga = personality is MangaPersonality
+    val colors = LocalPersonality.current.colors
     Slider(
         value = value,
         onValueChange = onValueChange,
@@ -32,7 +29,7 @@ fun KomiSlider(
             SliderDefaults.colors(
                 thumbColor = colors.primary,
                 activeTrackColor = colors.primary,
-                inactiveTrackColor = if (isManga) colors.surfaceVariant else colors.surfaceVariant,
+                inactiveTrackColor = colors.surfaceVariant,
                 activeTickColor = colors.onPrimary,
                 inactiveTickColor = colors.outline,
             ),

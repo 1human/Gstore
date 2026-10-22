@@ -27,7 +27,7 @@ enum class KomiTextRole(
 internal enum class KomiTextCase {
     AsWritten,
 
-    // In capitals only where the personality sets its headings in capitals (Manga).
+    // In capitals only where the type sets its headings in capitals.
     Heading,
     Upper,
     ;

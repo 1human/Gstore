@@ -182,20 +182,8 @@ class TweaksViewModel(
         }
 
         viewModelScope.launch {
-            tweaksRepository.getPersonality().collect { personality ->
-                _state.update { it.copy(selectedPersonality = personality) }
-            }
-        }
-
-        viewModelScope.launch {
             tweaksRepository.getAccentId().collect { accentId ->
                 _state.update { it.copy(selectedAccent = accentId) }
-            }
-        }
-
-        viewModelScope.launch {
-            tweaksRepository.getMangaPaper().collect { paper ->
-                _state.update { it.copy(mangaPaper = paper) }
             }
         }
 
@@ -211,14 +199,6 @@ class TweaksViewModel(
             tweaksRepository.getIsDarkTheme().collect { isDarkTheme ->
                 _state.update {
                     it.copy(isDarkTheme = isDarkTheme)
-                }
-            }
-        }
-
-        viewModelScope.launch {
-            tweaksRepository.getFontTheme().collect { fontTheme ->
-                _state.update {
-                    it.copy(selectedFontTheme = fontTheme)
                 }
             }
         }
@@ -469,13 +449,13 @@ class TweaksViewModel(
             }
         }
         viewModelScope.launch {
-            tweaksRepository.getYoudaoAppKey().collect { appKey ->
-                _state.update { it.copy(youdaoAppKey = appKey) }
+            tweaksRepository.getBaiduAppId().collect { appId ->
+                _state.update { it.copy(baiduAppId = appId) }
             }
         }
         viewModelScope.launch {
-            tweaksRepository.getYoudaoAppSecret().collect { appSecret ->
-                _state.update { it.copy(youdaoAppSecret = appSecret) }
+            tweaksRepository.getBaiduAppSecret().collect { appSecret ->
+                _state.update { it.copy(baiduAppSecret = appSecret) }
             }
         }
         viewModelScope.launch {
@@ -574,21 +554,9 @@ class TweaksViewModel(
                 // Handled in composable (navigates to the hidden-repositories screen).
             }
 
-            is TweaksAction.OnPersonalitySelected -> {
-                viewModelScope.launch {
-                    tweaksRepository.setPersonality(action.personality)
-                }
-            }
-
             is TweaksAction.OnAccentSelected -> {
                 viewModelScope.launch {
                     tweaksRepository.setAccentId(action.accent)
-                }
-            }
-
-            is TweaksAction.OnMangaPaperSelected -> {
-                viewModelScope.launch {
-                    tweaksRepository.setMangaPaper(action.paper)
                 }
             }
 
@@ -607,12 +575,6 @@ class TweaksViewModel(
             is TweaksAction.OnDarkThemeChange -> {
                 viewModelScope.launch {
                     tweaksRepository.setDarkTheme(action.isDarkTheme)
-                }
-            }
-
-            is TweaksAction.OnFontThemeSelected -> {
-                viewModelScope.launch {
-                    tweaksRepository.setFontTheme(action.fontTheme)
                 }
             }
 
@@ -1012,11 +974,11 @@ class TweaksViewModel(
                         }
                     }
 
-                    TranslationProvider.YOUDAO -> {
+                    TranslationProvider.BAIDU -> {
                         val current = _state.value
                         val hasCreds =
-                            current.youdaoAppKey.isNotBlank() &&
-                                current.youdaoAppSecret.isNotBlank()
+                            current.baiduAppId.isNotBlank() &&
+                                current.baiduAppSecret.isNotBlank()
                         if (hasCreds) {
                             _state.update { it.copy(draftTranslationProvider = null) }
                             viewModelScope.launch {
@@ -1025,7 +987,7 @@ class TweaksViewModel(
                             }
                         } else {
                             _state.update {
-                                it.copy(draftTranslationProvider = TranslationProvider.YOUDAO)
+                                it.copy(draftTranslationProvider = TranslationProvider.BAIDU)
                             }
                         }
                     }
@@ -1072,39 +1034,39 @@ class TweaksViewModel(
                 }
             }
 
-            is TweaksAction.OnYoudaoAppKeyChanged -> {
-                _state.update { it.copy(youdaoAppKey = action.appKey) }
+            is TweaksAction.OnBaiduAppIdChanged -> {
+                _state.update { it.copy(baiduAppId = action.appId) }
             }
 
-            is TweaksAction.OnYoudaoAppSecretChanged -> {
-                _state.update { it.copy(youdaoAppSecret = action.appSecret) }
+            is TweaksAction.OnBaiduAppSecretChanged -> {
+                _state.update { it.copy(baiduAppSecret = action.appSecret) }
             }
 
-            TweaksAction.OnYoudaoAppSecretVisibilityToggle -> {
+            TweaksAction.OnBaiduAppSecretVisibilityToggle -> {
                 _state.update {
-                    it.copy(isYoudaoAppSecretVisible = !it.isYoudaoAppSecretVisible)
+                    it.copy(isBaiduAppSecretVisible = !it.isBaiduAppSecretVisible)
                 }
             }
 
-            TweaksAction.OnYoudaoCredentialsSave -> {
+            TweaksAction.OnBaiduCredentialsSave -> {
                 val current = _state.value
                 viewModelScope.launch {
-                    tweaksRepository.setYoudaoAppKey(current.youdaoAppKey)
-                    tweaksRepository.setYoudaoAppSecret(current.youdaoAppSecret)
+                    tweaksRepository.setBaiduAppId(current.baiduAppId)
+                    tweaksRepository.setBaiduAppSecret(current.baiduAppSecret)
 
                     val shouldActivate =
-                        current.youdaoAppKey.isNotBlank() &&
-                            current.youdaoAppSecret.isNotBlank() &&
+                        current.baiduAppId.isNotBlank() &&
+                            current.baiduAppSecret.isNotBlank() &&
                             (
-                                current.translationProvider != TranslationProvider.YOUDAO ||
-                                    current.draftTranslationProvider == TranslationProvider.YOUDAO
+                                current.translationProvider != TranslationProvider.BAIDU ||
+                                    current.draftTranslationProvider == TranslationProvider.BAIDU
                             )
                     if (shouldActivate) {
-                        tweaksRepository.setTranslationProvider(TranslationProvider.YOUDAO)
+                        tweaksRepository.setTranslationProvider(TranslationProvider.BAIDU)
                     }
 
                     _state.update { it.copy(draftTranslationProvider = null) }
-                    _events.send(TweaksEvent.OnYoudaoCredentialsSaved)
+                    _events.send(TweaksEvent.OnBaiduCredentialsSaved)
                 }
             }
 

@@ -57,7 +57,6 @@ import zed.rainxch.core.presentation.components.GitHubStoreImage
 import zed.rainxch.core.presentation.components.InstalledAppIcon
 import zed.rainxch.core.presentation.components.chips.KomiChip
 import zed.rainxch.core.presentation.components.chips.KomiChipKind
-import zed.rainxch.core.presentation.components.chips.KomiChipSize
 import zed.rainxch.core.presentation.components.icon.KomiIcon
 import zed.rainxch.core.presentation.components.overlays.KomiTooltip
 import zed.rainxch.core.presentation.components.progress.KomiCircularProgress
@@ -241,7 +240,7 @@ fun AppHeader(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 val type = LocalPersonality.current.type
-                // BasicText keeps the repository's own case; KomiText would capitalize a display role in Manga.
+                // BasicText keeps the repository's own case where a display role would capitalize it.
                 androidx.compose.foundation.text.BasicText(
                     text = repository.name,
                     style = type.display.copy(color = colors.onSurface),
@@ -258,7 +257,6 @@ fun AppHeader(
                     KomiChip(
                         label = stringResource(Res.string.forked_repository),
                         kind = KomiChipKind.Info,
-                        size = KomiChipSize.Sm,
                         leadingIcon = Icons.AutoMirrored.Outlined.CallSplit,
                     )
                 }
@@ -346,7 +344,6 @@ fun AppHeader(
                             KomiChip(
                                 label = appLabel,
                                 kind = KomiChipKind.Filter,
-                                size = KomiChipSize.Sm,
                                 selected = true,
                                 leadingIcon = Icons.Default.UnfoldMore,
                                 onClick = onAppLabelClick,
@@ -357,7 +354,6 @@ fun AppHeader(
                         KomiChip(
                             label = app.appName,
                             kind = KomiChipKind.Filter,
-                            size = KomiChipSize.Sm,
                             selected = app.packageName == installedApp?.packageName,
                             leadingContent = {
                                 InstalledAppIcon(
@@ -386,7 +382,6 @@ fun AppHeader(
                         KomiChip(
                             label = platformChipLabel(platform.toLabel(), platformRelease),
                             kind = KomiChipKind.Info,
-                            size = KomiChipSize.Sm,
                             leadingContent = {
                                 platform.toIcon()?.let { icon ->
                                     KomiIcon(

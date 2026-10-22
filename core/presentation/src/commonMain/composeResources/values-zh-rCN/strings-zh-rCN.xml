@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Komi Store</string>
+    <string name="app_name">gStore</string>
 
     <string name="navigate_back">返回</string>
     <string name="check_for_updates">检查更新</string>
@@ -99,8 +99,6 @@
     <string name="language_restart_action">重新启动</string>
 
     <string name="theme_color">主题颜色</string>
-    <string name="amoled_black_theme">AMOLED 黑色主题</string>
-    <string name="amoled_black_description">深色模式下的纯黑背景</string>
 
 
     <string name="logout">退出登录</string>
@@ -187,9 +185,6 @@
     <string name="system_font">系统字体</string>
     <string name="system_font_description">使用设备字体以提高可读性</string>
 
-    <string name="theme_light">浅色</string>
-    <string name="theme_dark">深色</string>
-    <string name="theme_system">跟随系统</string>
 
     <string name="added_to_favourites">已添加到收藏</string>
     <string name="removed_from_favourites">已从收藏中移除</string>
@@ -447,7 +442,7 @@
     <string name="update_check_enabled_title">后台检查更新</string>
     <string name="update_check_enabled_description">在后台周期性检查更新。可关闭以节省电量 — 你随时可在任意应用的详情页手动检查。</string>
     <string name="battery_optimization_card_title">允许后台更新</string>
-    <string name="battery_optimization_card_description">你的设备会积极结束后台任务。把 Komi Store 加入电池优化白名单，定时更新检查和静默安装才能稳定运行。</string>
+    <string name="battery_optimization_card_description">你的设备会积极结束后台任务。把 gStore 加入电池优化白名单，定时更新检查和静默安装才能稳定运行。</string>
     <string name="battery_optimization_card_open">打开设置</string>
     <string name="battery_optimization_card_dismiss">稍后</string>
 
@@ -495,10 +490,6 @@
     <string name="update_package_mismatch">包名不匹配：APK 为 %1$s，但已安装的应用为 %2$s。更新已阻止。</string>
     <string name="update_signing_key_mismatch">签名密钥不匹配：更新由不同的开发者签名。更新已阻止。</string>
 
-    <string name="scrollbar_option_title">滚动条</string>
-    <string name="scrollbar_option_description">在可滚动列表中显示滚动条（桌面）</string>
-    <string name="content_width_title">内容宽度</string>
-    <string name="content_width_description">详情页内容列的最大宽度（桌面）</string>
     <string name="content_width_compact">紧凑</string>
     <string name="content_width_wide">宽</string>
     <string name="content_width_extra_wide">超宽</string>
@@ -517,7 +508,7 @@
     <string name="downloads_cleared">所有已下载的包已被删除。</string>
     <string name="unable_to_verify_attestation">无法验证</string>
     <string name="details_attestation_verified_explainer">此文件的 SHA-256 与该仓库在 GitHub 上发布的构建证明相符，因此它来自该仓库自己的构建。</string>
-    <string name="details_attestation_unverified_explainer">Komi Store 无法将此文件与该仓库的构建证明进行核对。仅凭这一点并不意味着它不安全。</string>
+    <string name="details_attestation_unverified_explainer">gStore 无法将此文件与该仓库的构建证明进行核对。仅凭这一点并不意味着它不安全。</string>
 
     <string name="recent_searches">最近搜索</string>
     <string name="clear_all_history">清除全部</string>
@@ -560,7 +551,7 @@
     <string name="variant_picker_stale_title">变体已更改 — 请重新选择</string>
     <string name="variant_picker_stale_was">原为：%1$s</string>
     <string name="variant_picker_auto_title">自动</string>
-    <string name="variant_picker_auto_subtitle">让 Komi Store 为您的设备选择最佳变体</string>
+    <string name="variant_picker_auto_subtitle">让 gStore 为您的设备选择最佳变体</string>
     <string name="markdown_alert_note">备注</string>
     <string name="markdown_alert_tip">提示</string>
     <string name="markdown_alert_important">重要</string>
@@ -585,15 +576,15 @@
 
     <string name="translation_intro">选择用于翻译 README 的服务。</string>
     <string name="translation_provider_title">翻译服务</string>
-    <string name="translation_provider_description">Google 全球可用，无需配置。有道可从中国大陆访问，但需要从有道开发者门户获取 API 凭据。</string>
+    <string name="translation_provider_description">Google 全球可用，无需配置。百度可从中国大陆访问，但需要从百度开发者门户获取 API 凭据。</string>
     <string name="translation_provider_google">Google</string>
-    <string name="translation_provider_youdao">有道</string>
+    <string name="translation_provider_baidu">百度</string>
     <string name="translation_provider_saved">翻译服务已更新</string>
-    <string name="translation_youdao_help">在 ai.youdao.com 注册以获取 App Key 和 App Secret。免费套餐足以满足日常使用。</string>
-    <string name="translation_youdao_app_key">App Key</string>
-    <string name="translation_youdao_app_secret">App Secret</string>
-    <string name="translation_youdao_save">保存凭据</string>
-    <string name="translation_youdao_saved">有道凭据已保存</string>
+    <string name="translation_baidu_help">在 fanyi-api.baidu.com 注册以获取 App ID 和 App Secret。免费套餐足以满足日常使用。</string>
+    <string name="translation_baidu_app_id">App ID</string>
+    <string name="translation_baidu_app_secret">App Secret</string>
+    <string name="translation_baidu_save">保存凭据</string>
+    <string name="translation_baidu_saved">百度凭据已保存</string>
 
     <!-- Releases status card (#417 / #390 follow-up) -->
     <string name="releases_load_failed">无法加载发布版本</string>
@@ -710,7 +701,7 @@
     <string name="external_import_installer_fdroid">F-Droid</string>
     <string name="external_import_installer_browser">浏览器</string>
     <string name="external_import_installer_sideload">Sideload</string>
-    <string name="external_import_installer_self">Komi Store</string>
+    <string name="external_import_installer_self">gStore</string>
     <string name="external_import_installer_unknown">未知来源</string>
     <string name="external_import_undo_linked">%1$s 已关联。</string>
     <string name="external_import_undo_skipped">%1$s 已跳过。</string>
@@ -940,13 +931,13 @@
     <string name="import_summary_collapse">隐藏详情</string>
     <string name="import_summary_expand">显示详情</string>
     <string name="import_summary_failed">%1$d 个失败</string>
-    <string name="import_summary_format_native">Komi Store</string>
+    <string name="import_summary_format_native">gStore</string>
     <string name="import_summary_format_obtainium">Obtainium</string>
     <string name="import_summary_imported">%1$d 个已导入</string>
     <string name="import_summary_non_github">%1$d 个非 GitHub</string>
     <string name="import_summary_non_github_caption">我们暂不追踪 GitLab、F-Droid 或 HTML 来源。</string>
     <string name="import_summary_title">导入结果 — %1$s</string>
-    <string name="import_summary_unknown_caption">这看起来不是 Komi Store 或 Obtainium 的导出文件。文件开头如下：</string>
+    <string name="import_summary_unknown_caption">这看起来不是 gStore 或 Obtainium 的导出文件。文件开头如下：</string>
     <string name="import_summary_unknown_format">无法读取该文件</string>
     <string name="installer_attribution_custom_apply">应用</string>
     <string name="installer_attribution_custom_error">请使用有效的 Android 包名（如 com.example.installer）</string>
@@ -1045,7 +1036,7 @@
     <string name="section_chip_your_device">你的设备</string>
     <string name="section_chip_for_transfer">用于转移</string>
     <string name="kao_banner_title">保持 Android 开放</string>
-    <string name="kao_banner_body">Google 的开发者验证政策威胁 Android 的开放分发。Komi Store 与联盟同行。</string>
+    <string name="kao_banner_body">Google 的开发者验证政策威胁 Android 的开放分发。gStore 与联盟同行。</string>
     <string name="kao_banner_cta">了解更多</string>
     <string name="kao_banner_dismiss_cd">关闭横幅</string>
 
@@ -1131,7 +1122,7 @@
     <string name="host_tokens_validation_host_required">必须填写主机</string>
     <string name="host_tokens_validation_token_required">必须填写令牌</string>
     <string name="host_tokens_validation_token_short">令牌太短</string>
-    <string name="menubar_help_about">关于 Komi Store</string>
+    <string name="menubar_help_about">关于 gStore</string>
     <string name="menubar_help_feedback">发送反馈…</string>
     <string name="menubar_help_licenses">开源许可证</string>
     <string name="menubar_file_menu">文件</string>
@@ -1157,7 +1148,6 @@
     <string name="section_app_block">应用</string>
     <string name="section_connectivity">连接</string>
     <string name="section_installs_and_updates">安装与更新</string>
-    <string name="section_look_and_feel">外观与显示</string>
     <string name="section_privacy_and_data">隐私与数据</string>
     <plurals name="skipped_updates_count">
         <item quantity="other">%1$d 个应用</item>
@@ -1198,7 +1188,7 @@
     <string name="translation_provider_deepl">DeepL</string>
     <string name="translation_provider_libre">LibreTranslate</string>
     <string name="translation_provider_microsoft">Microsoft</string>
-    <string name="tweaks_app_info_app_name">Komi Store</string>
+    <string name="tweaks_app_info_app_name">gStore</string>
     <string name="tweaks_app_info_licenses_subtitle">应用使用的开源库。</string>
     <string name="tweaks_app_info_licenses_title">开源许可证</string>
     <string name="tweaks_app_info_privacy_policy_subtitle">在 github-store.org 上查看。</string>
@@ -1252,7 +1242,7 @@
     <string name="tweaks_install_method_desktop_empty_title">安装方式仅限 Android</string>
     <string name="tweaks_language_intro_body">切换语言时应用会重启。</string>
     <string name="tweaks_licenses_intro_body">点按任意条目以打开其项目页面。</string>
-    <string name="tweaks_licenses_intro_title">Komi Store 依托于这些开源库。</string>
+    <string name="tweaks_licenses_intro_title">gStore 依托于这些开源库。</string>
     <string name="tweaks_licenses_title">开源许可证</string>
     <string name="tweaks_privacy_browsing_history_section">浏览记录</string>
     <string name="tweaks_privacy_clear_viewed_body">忘记你打开过哪些仓库。</string>
@@ -1292,7 +1282,6 @@
     <string name="profile_section_library">媒体库</string>
     <string name="profile_section_updates">更新</string>
     <string name="profile_section_account">账户</string>
-    <string name="appearance_section_mode">模式</string>
     <string name="appearance_section_display">显示</string>
     <string name="tweaks_accent_crimson">绯红</string>
     <string name="tweaks_accent_cobalt">钴蓝</string>
@@ -1415,27 +1404,10 @@
     <string name="repo_pages_pulls_empty_closed">没有已关闭的拉取请求。</string>
     <string name="repo_pages_pr_state_merged">已合并</string>
     <string name="repo_pages_pr_draft">草稿</string>
-    <string name="feed_end_cap">続く · TO BE CONTINUED</string>
     <string name="feed_layout_description_grid">切换为网格布局</string>
     <string name="feed_layout_description_list">切换为列表布局</string>
-    <string name="feed_masthead_subtitle">発見 · DISCOVER APPS</string>
-    <string name="home_masthead_subtitle">ランキング · CHARTS &amp; PICKS</string>
-    <string name="feed_platform_picker_title_jp">対応</string>
-    <string name="home_chart_popular_jp">人気</string>
-    <string name="home_chart_releases_jp">新着</string>
-    <string name="home_chart_trending_jp">急上昇</string>
-    <string name="sidebar_browse_jp">航行</string>
-    <string name="sidebar_categories_jp">部門</string>
-    <string name="sidebar_nav_charts_jp">ランキング</string>
-    <string name="sidebar_nav_explore_jp">発見</string>
-    <string name="sidebar_nav_search_jp">検索</string>
-    <string name="sidebar_nav_you_jp">あなた</string>
-    <string name="sidebar_platform_jp">対応</string>
-    <string name="feed_masthead_title">Komi Store</string>
-    <string name="feed_masthead_title_accent">Store</string>
+    <string name="feed_masthead_title">gStore</string>
     <string name="platform_section_ios">iOS</string>
-    <string name="paper_nord">Nord</string>
-    <string name="appearance_section_paper">纸张</string>
     <string name="bottom_nav_top_charts_title">排行榜</string>
     <string name="cd_more_actions">更多操作</string>
     <string name="feed_category_ai">人工智能</string>
@@ -1461,8 +1433,6 @@
     <string name="home_chart_trending">趋势</string>
     <string name="home_masthead_title">排行榜</string>
     <string name="home_platform_filter">筛选平台</string>
-    <string name="paper_day">白天</string>
-    <string name="paper_night">夜晚</string>
     <string name="repo_card_details">详情</string>
     <string name="sidebar_browse">浏览</string>
     <string name="sidebar_categories">分类</string>

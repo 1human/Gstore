@@ -29,7 +29,6 @@ import zed.rainxch.core.presentation.components.buttons.KomiIconButton
 import zed.rainxch.core.presentation.components.buttons.KomiIconButtonSize
 import zed.rainxch.core.presentation.components.chips.KomiChip
 import zed.rainxch.core.presentation.components.chips.KomiChipKind
-import zed.rainxch.core.presentation.components.chips.KomiChipSize
 import zed.rainxch.core.presentation.components.icon.KomiIcon
 import zed.rainxch.core.presentation.components.surfaces.KomiSurface
 import zed.rainxch.core.presentation.components.text.KomiText
@@ -134,7 +133,6 @@ fun RecentlyViewedItem(
                     KomiChip(
                         label = language,
                         kind = KomiChipKind.Info,
-                        size = KomiChipSize.Sm,
                         leadingContent = {
                             KomiIcon(
                                 imageVector = Icons.Default.Code,
@@ -149,7 +147,6 @@ fun RecentlyViewedItem(
                 KomiChip(
                     label = repo.viewedAtFormatted,
                     kind = KomiChipKind.Info,
-                    size = KomiChipSize.Sm,
                     leadingContent = {
                         KomiIcon(
                             imageVector = Icons.Default.Schedule,

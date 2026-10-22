@@ -188,6 +188,9 @@ fun InProgressAppCard(
                     onUnskipVersionClick = {
                         onRowAction(AppsAction.OnUnskipReleaseTag(item.installedApp.packageName))
                     },
+                    onUnlinkClick = {
+                        onRowAction(AppsAction.OnUnlinkApp(item.installedApp))
+                    },
                 )
             }
 

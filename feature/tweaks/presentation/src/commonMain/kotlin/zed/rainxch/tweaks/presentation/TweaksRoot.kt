@@ -47,10 +47,7 @@ import zed.rainxch.tweaks.presentation.components.desktop.TweaksDesktopContent
 import zed.rainxch.tweaks.presentation.components.sections.appSection
 import zed.rainxch.tweaks.presentation.components.sections.connectivitySection
 import zed.rainxch.tweaks.presentation.components.sections.installsSection
-import zed.rainxch.tweaks.presentation.components.sections.lookAndFeelSection
 import zed.rainxch.tweaks.presentation.components.sections.privacySection
-import zed.rainxch.tweaks.presentation.components.shell.TweaksDecorSlot
-import zed.rainxch.tweaks.presentation.components.shell.tweaksKicker
 import zed.rainxch.tweaks.presentation.feedback.components.FeedbackBottomSheet
 import zed.rainxch.tweaks.presentation.feedback.model.FeedbackChannel
 
@@ -147,8 +144,8 @@ fun TweaksRoot(
                 coroutineScope.launch { toastState.success(getString(Res.string.translation_provider_saved)) }
             }
 
-            TweaksEvent.OnYoudaoCredentialsSaved -> {
-                coroutineScope.launch { toastState.success(getString(Res.string.translation_youdao_saved)) }
+            TweaksEvent.OnBaiduCredentialsSaved -> {
+                coroutineScope.launch { toastState.success(getString(Res.string.translation_baidu_saved)) }
             }
 
             TweaksEvent.OnLibreTranslateCredentialsSaved -> {
@@ -172,16 +169,10 @@ fun TweaksRoot(
     if (isDesktop()) {
         KomiScaffold(
             toastState = toastState,
-            grid = false,
-            screentone = false
         ) { innerPadding ->
             TweaksDesktopContent(
                 state = state,
                 onAction = viewModel::onAction,
-                personality = state.selectedPersonality,
-                accent = state.selectedAccent,
-                onPersonalitySelected = { viewModel.onAction(TweaksAction.OnPersonalitySelected(it)) },
-                onAccentSelected = { viewModel.onAction(TweaksAction.OnAccentSelected(it)) },
                 currentLanguageLabel = currentLanguageLabel,
                 onOpenLanguage = { viewModel.onAction(TweaksAction.OnLanguagePickerOpen) },
                 onOpenFeedback = { viewModel.onAction(TweaksAction.OnFeedbackClick) },
@@ -197,13 +188,10 @@ fun TweaksRoot(
             topBar = {
                 KomiTopBar(
                     title = stringResource(Res.string.tweaks_title),
-                    titleAccent = tweaksKicker(TweaksDecorSlot.Settings),
                     onBack = onNavigateBack,
                 )
             },
             toastState = toastState,
-            grid = true,
-            screentone = true,
         ) { innerPadding ->
             Box(
                 modifier = Modifier
@@ -220,22 +208,6 @@ fun TweaksRoot(
                         .padding(top = 4.dp, bottom = 18.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    lookAndFeelSection(
-                        state = state,
-                        onAction = viewModel::onAction,
-                        personality = state.selectedPersonality,
-                        accent = state.selectedAccent,
-                        onPersonalitySelected = {
-                            viewModel.onAction(TweaksAction.OnPersonalitySelected(it))
-                        },
-                        onAccentSelected = {
-                            viewModel.onAction(TweaksAction.OnAccentSelected(it))
-                        },
-                        currentLanguageLabel = currentLanguageLabel,
-                        onOpenLanguage = {
-                            viewModel.onAction(TweaksAction.OnLanguagePickerOpen)
-                        },
-                    )
                     connectivitySection(
                         state = state,
                         onAction = viewModel::onAction,
@@ -254,17 +226,13 @@ fun TweaksRoot(
                         onNavigateToHiddenRepositories = onNavigateToHiddenRepositories,
                         onNavigateToHostTokens = onNavigateToHostTokens,
                     )
-                    appSection(onOpenFeedback = { viewModel.onAction(TweaksAction.OnFeedbackClick) })
-
-                    tweaksKicker(TweaksDecorSlot.Footer)?.let { footer ->
-                        KomiText(
-                            text = footer,
-                            role = KomiTextRole.Caption,
-                            color = LocalPersonality.current.colors.onSurfaceVariant,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
-                        )
-                    }
+                    appSection(
+                        onOpenFeedback = { viewModel.onAction(TweaksAction.OnFeedbackClick) },
+                        currentLanguageLabel = currentLanguageLabel,
+                        onOpenLanguage = {
+                            viewModel.onAction(TweaksAction.OnLanguagePickerOpen)
+                        },
+                    )
                 }
             }
         }

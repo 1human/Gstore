@@ -12,7 +12,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import zed.rainxch.core.presentation.locals.LocalPersonality
-import zed.rainxch.core.presentation.personality.MangaPersonality
 
 @Composable
 fun KomiHorizontalDivider(
@@ -21,15 +20,7 @@ fun KomiHorizontalDivider(
     color: Color = Color.Unspecified,
 ) {
     val personality = LocalPersonality.current
-    val isManga = personality is MangaPersonality
-    val resolvedThickness =
-        if (thickness != Dp.Unspecified) {
-            thickness
-        } else if (isManga) {
-            2.5.dp
-        } else {
-            1.dp
-        }
+    val resolvedThickness = if (thickness != Dp.Unspecified) thickness else 1.dp
     val resolvedColor =
         if (color != Color.Unspecified) {
             color
@@ -51,15 +42,7 @@ fun KomiVerticalDivider(
     color: Color = Color.Unspecified,
 ) {
     val personality = LocalPersonality.current
-    val isManga = personality is MangaPersonality
-    val resolvedThickness =
-        if (thickness != Dp.Unspecified) {
-            thickness
-        } else if (isManga) {
-            2.5.dp
-        } else {
-            1.dp
-        }
+    val resolvedThickness = if (thickness != Dp.Unspecified) thickness else 1.dp
     val resolvedColor =
         if (color != Color.Unspecified) {
             color

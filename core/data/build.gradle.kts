@@ -1,10 +1,12 @@
+import com.android.build.api.dsl.LibraryExtension
+
 plugins {
     alias(libs.plugins.convention.kmp.library)
     alias(libs.plugins.convention.room)
     alias(libs.plugins.convention.buildkonfig)
 }
 
-android {
+extensions.configure<LibraryExtension> {
     buildFeatures {
         aidl = true
     }

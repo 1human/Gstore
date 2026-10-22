@@ -1,7 +1,6 @@
 package zed.rainxch.githubstore.convention
 
 import org.gradle.api.Project
-import java.util.Locale
 
 fun Project.pathToPackageName(): String {
     val relativePackageName =

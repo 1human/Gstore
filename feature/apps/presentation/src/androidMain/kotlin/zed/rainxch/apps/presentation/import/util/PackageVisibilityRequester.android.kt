@@ -1,5 +1,6 @@
 package zed.rainxch.apps.presentation.import.util
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import androidx.compose.runtime.Composable
@@ -19,6 +20,8 @@ actual fun rememberPackageVisibilityRequester(): PackageVisibilityRequester {
 private class AndroidPackageVisibilityRequester(
     private val context: Context,
 ) : PackageVisibilityRequester {
+    // The app module declares QUERY_ALL_PACKAGES; lint cannot see it from this library.
+    @SuppressLint("QueryPermissionsNeeded")
     override suspend fun isGranted(): Boolean =
         withContext(Dispatchers.IO) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return@withContext true

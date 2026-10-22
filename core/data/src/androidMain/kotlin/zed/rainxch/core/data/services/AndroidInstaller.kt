@@ -1,5 +1,6 @@
 package zed.rainxch.core.data.services
 
+import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -82,6 +83,8 @@ class AndroidInstaller(
         }
     }
 
+    // The app module declares QUERY_ALL_PACKAGES; lint cannot see it from this library.
+    @SuppressLint("QueryPermissionsNeeded")
     override suspend fun install(
         filePath: String,
         extOrMime: String,

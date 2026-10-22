@@ -36,18 +36,12 @@ import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import zed.rainxch.core.presentation.components.badge.KomiBadge
-import zed.rainxch.core.presentation.components.badge.KomiBadgeSize
 import zed.rainxch.core.presentation.components.badge.KomiBadgedBox
 import zed.rainxch.core.presentation.components.text.KomiText
 import zed.rainxch.core.presentation.components.text.KomiTextRole
 import zed.rainxch.core.presentation.locals.LocalPersonality
 import zed.rainxch.core.presentation.personality.ClassicPersonality
-import zed.rainxch.core.presentation.personality.MangaPersonality
 import zed.rainxch.core.presentation.personality.classicPersonality
-import zed.rainxch.core.presentation.personality.manga.MangaAccent
-import zed.rainxch.core.presentation.personality.manga.MangaPaper
-import zed.rainxch.core.presentation.personality.manga.decoration.inkFocusRing
-import zed.rainxch.core.presentation.personality.mangaPersonality
 import zed.rainxch.core.presentation.personality.utils.PersonalityPreview
 
 @Composable
@@ -57,102 +51,12 @@ fun KomiBottomBar(
     onSelect: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    when (val personality = LocalPersonality.current) {
-        is MangaPersonality -> {
-            MangaBottomBar(
-                personality = personality,
-                items = items,
-                selectedId = selectedId,
-                onSelect = onSelect,
-                modifier = modifier,
-            )
-        }
-
-        is ClassicPersonality -> {
-            ClassicBottomBar(
-                items = items,
-                selectedId = selectedId,
-                onSelect = onSelect,
-                modifier = modifier,
-            )
-        }
-    }
-}
-
-@Composable
-private fun MangaBottomBar(
-    personality: MangaPersonality,
-    items: ImmutableList<KomiNavItem>,
-    selectedId: String,
-    onSelect: (String) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val colors = personality.colors
-    val pillShape =
-        remember(personality.shape.cornerSmall) { RoundedCornerShape(personality.shape.cornerSmall) }
-
-    Row(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .background(colors.surface)
-                .navigationBarsPadding()
-                .height(66.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        items.forEach { item ->
-            val selected = item.id == selectedId
-            val interaction = remember { MutableInteractionSource() }
-            val focused by interaction.collectIsFocusedAsState()
-
-            Column(
-                modifier =
-                    Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .clickable(
-                            interactionSource = interaction,
-                            indication = null,
-                            onClick = { onSelect(item.id) },
-                        ).inkFocusRing(focused = { focused }, color = colors.primary),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                KomiBadgedBox(
-                    badge = { KomiBadge(count = item.badgeCount, size = KomiBadgeSize.Sm) },
-                ) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .size(width = 48.dp, height = 30.dp)
-                                .background(
-                                    color = if (selected) colors.primary else Color.Transparent,
-                                    shape = pillShape,
-                                ).border(
-                                    width = 2.5.dp,
-                                    color = if (selected) colors.outline else Color.Transparent,
-                                    shape = pillShape,
-                                ),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            imageVector = if (selected) item.selectedIcon ?: item.icon else item.icon,
-                            contentDescription = item.label,
-                            modifier = Modifier.size(20.dp),
-                            tint = if (selected) colors.onPrimary else colors.onSurface,
-                        )
-                    }
-                }
-                Spacer(Modifier.height(4.dp))
-                KomiText(
-                    text = item.label,
-                    role = KomiTextRole.LabelSmall,
-                    color = if (selected) colors.onSurface else colors.onSurfaceVariant,
-                    maxLines = 1,
-                )
-            }
-        }
-    }
+    ClassicBottomBar(
+        items = items,
+        selectedId = selectedId,
+        onSelect = onSelect,
+        modifier = modifier,
+    )
 }
 
 @Composable
@@ -171,7 +75,7 @@ private fun ClassicBottomBar(
                 onClick = { onSelect(item.id) },
                 icon = {
                     KomiBadgedBox(
-                        badge = { KomiBadge(count = item.badgeCount, size = KomiBadgeSize.Sm) },
+                        badge = { KomiBadge(count = item.badgeCount) },
                     ) {
                         Icon(
                             imageVector = if (selected) item.selectedIcon ?: item.icon else item.icon,
@@ -203,23 +107,6 @@ private val PreviewNav =
 @Composable
 private fun PreviewBottomBar() {
     KomiBottomBar(items = PreviewNav, selectedId = "home", onSelect = {})
-}
-
-@Preview
-@Composable
-private fun KomiBottomBarMangaPreview() {
-    PersonalityPreview(mangaPersonality()) { PreviewBottomBar() }
-}
-
-@Preview
-@Composable
-private fun KomiBottomBarMangaNightPreview() {
-    PersonalityPreview(
-        mangaPersonality(
-            paper = MangaPaper.NIGHT,
-            accent = MangaAccent.SUN,
-        ),
-    ) { PreviewBottomBar() }
 }
 
 @Preview

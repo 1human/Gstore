@@ -21,13 +21,9 @@ import coil3.svg.SvgDecoder
 import kotlinx.coroutines.channels.Channel
 import org.koin.compose.viewmodel.koinViewModel
 import zed.rainxch.core.domain.model.appearance.AccentId
-import zed.rainxch.core.domain.model.appearance.AppPersonality
 import zed.rainxch.core.presentation.ProfileAvatarSpec
 import zed.rainxch.core.presentation.personality.classic.systemWallpaperColorScheme
 import zed.rainxch.core.presentation.personality.classicPersonality
-import zed.rainxch.core.presentation.personality.mangaPersonality
-import zed.rainxch.core.presentation.personality.toMangaAccent
-import zed.rainxch.core.presentation.personality.toMangaPaper
 import zed.rainxch.core.presentation.personality.utils.PersonalityTheme
 import zed.rainxch.core.presentation.utils.ObserveTimeZoneChanges
 import zed.rainxch.githubstore.app.components.RateLimitDialog
@@ -108,32 +104,23 @@ fun App(
         }
     }
 
-    val resolvedDarkTheme = mainState.isDarkTheme ?: isSystemInDarkTheme()
+    // Dark mode always follows the system, and the accent always comes from the wallpaper
+    // (Monet). Both settings are no longer user-configurable, so no preference is read here.
+    val resolvedDarkTheme = isSystemInDarkTheme()
     LaunchedEffect(resolvedDarkTheme) { onResolvedDarkTheme(resolvedDarkTheme) }
 
+    val wallpaper = systemWallpaperColorScheme(resolvedDarkTheme)
     val personality =
-        when (mainState.personality) {
-            AppPersonality.MANGA -> {
-                mangaPersonality(
-                    paper = mainState.mangaPaper.toMangaPaper(),
-                    accent = mainState.accent.toMangaAccent(),
-                )
-            }
-
-            AppPersonality.CLASSIC -> {
-                val wallpaper = if (mainState.accent == AccentId.WALLPAPER) systemWallpaperColorScheme(resolvedDarkTheme) else null
-                remember(resolvedDarkTheme, mainState.isAmoledTheme, mainState.accent, wallpaper) {
-                    classicPersonality(
-                        dark = resolvedDarkTheme,
-                        amoled = mainState.isAmoledTheme,
-                        accent = mainState.accent,
-                        wallpaper = wallpaper,
-                    )
-                }
-            }
+        remember(resolvedDarkTheme, wallpaper) {
+            classicPersonality(
+                dark = resolvedDarkTheme,
+                amoled = false,
+                accent = AccentId.WALLPAPER,
+                wallpaper = wallpaper,
+            )
         }
 
-    PersonalityTheme(personality, languageTag = mainState.appLanguageTag) {
+    PersonalityTheme(personality) {
         AppNavigation(
             navController = navController,
             isScrollbarEnabled = mainState.isScrollbarEnabled,

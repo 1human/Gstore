@@ -3,11 +3,8 @@ package zed.rainxch.core.domain.repository
 import kotlinx.coroutines.flow.Flow
 import zed.rainxch.core.domain.model.announcement.AnnouncementCategory
 import zed.rainxch.core.domain.model.appearance.AccentId
-import zed.rainxch.core.domain.model.appearance.AppPersonality
 import zed.rainxch.core.domain.model.appearance.AppTheme
 import zed.rainxch.core.domain.model.appearance.ContentWidth
-import zed.rainxch.core.domain.model.appearance.FontTheme
-import zed.rainxch.core.domain.model.appearance.MangaPaperId
 import zed.rainxch.core.domain.model.installation.InstallerType
 import zed.rainxch.core.domain.model.repository.DiscoveryPlatform
 import zed.rainxch.core.domain.model.settings.TranslationProvider
@@ -24,18 +21,6 @@ interface TweaksRepository {
     fun getAmoledTheme(): Flow<Boolean>
 
     suspend fun setAmoledTheme(enabled: Boolean)
-
-    fun getMangaPaper(): Flow<MangaPaperId>
-
-    suspend fun setMangaPaper(paper: MangaPaperId)
-
-    fun getFontTheme(): Flow<FontTheme>
-
-    suspend fun setFontTheme(fontTheme: FontTheme)
-
-    fun getPersonality(): Flow<AppPersonality>
-
-    suspend fun setPersonality(personality: AppPersonality)
 
     fun getAccentId(): Flow<AccentId>
 
@@ -89,13 +74,13 @@ interface TweaksRepository {
 
     suspend fun setTranslationProvider(provider: TranslationProvider)
 
-    fun getYoudaoAppKey(): Flow<String>
+    fun getBaiduAppId(): Flow<String>
 
-    suspend fun setYoudaoAppKey(appKey: String)
+    suspend fun setBaiduAppId(appId: String)
 
-    fun getYoudaoAppSecret(): Flow<String>
+    fun getBaiduAppSecret(): Flow<String>
 
-    suspend fun setYoudaoAppSecret(appSecret: String)
+    suspend fun setBaiduAppSecret(appSecret: String)
 
     fun getLibreTranslateBaseUrl(): Flow<String>
 

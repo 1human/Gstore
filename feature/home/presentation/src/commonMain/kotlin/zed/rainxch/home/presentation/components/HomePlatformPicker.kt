@@ -16,7 +16,6 @@ import zed.rainxch.core.presentation.utils.toLabel
 import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.feed_platform_all
 import zed.rainxch.githubstore.core.presentation.res.feed_platform_picker_title
-import zed.rainxch.githubstore.core.presentation.res.feed_platform_picker_title_jp
 
 @Composable
 fun HomePlatformPicker(
@@ -30,7 +29,6 @@ fun HomePlatformPicker(
         onDismiss = onDismiss,
         placement = KomiSheetPlacement.Bottom,
         title = stringResource(Res.string.feed_platform_picker_title),
-        titleJp = stringResource(Res.string.feed_platform_picker_title_jp),
     ) {
         KomiMenuList(
             entries =

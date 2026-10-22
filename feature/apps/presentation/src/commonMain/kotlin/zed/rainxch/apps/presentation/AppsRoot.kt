@@ -52,6 +52,7 @@ import zed.rainxch.apps.presentation.components.KaoBanner
 import zed.rainxch.apps.presentation.components.LinkAppBottomSheet
 import zed.rainxch.apps.presentation.components.PendingDiscardSheet
 import zed.rainxch.apps.presentation.components.PendingUninstallSheet
+import zed.rainxch.apps.presentation.components.PendingUnlinkSheet
 import zed.rainxch.apps.presentation.components.UpdatesBanner
 import zed.rainxch.apps.presentation.components.VariantPickerDialog
 import zed.rainxch.apps.presentation.import.components.ImportProposalBanner
@@ -207,6 +208,13 @@ fun AppsRoot(
         PendingDiscardSheet(
             app = app,
             onAction = viewModel::onAction
+        )
+    }
+
+    state.appPendingUnlink?.let { app ->
+        PendingUnlinkSheet(
+            app = app,
+            onAction = viewModel::onAction,
         )
     }
 }
@@ -701,6 +709,13 @@ private fun AppItemCardWithActions(
                 )
             )
         },
+        onUnlinkClick = {
+            onAction(
+                AppsAction.OnUnlinkApp(
+                    appItem.installedApp
+                )
+            )
+        },
     )
 }
 
@@ -740,6 +755,7 @@ private fun CompactAppRowWithActions(
             onAction(AppsAction.OnOpenVariantPicker(app = app, resumeUpdateAfterPick = false))
         },
         onUninstallClick = { onAction(AppsAction.OnUninstallApp(app)) },
+        onUnlinkClick = { onAction(AppsAction.OnUnlinkApp(app)) },
         onTogglePreReleases = { enabled ->
             onAction(AppsAction.OnTogglePreReleases(app.packageName, enabled))
         },

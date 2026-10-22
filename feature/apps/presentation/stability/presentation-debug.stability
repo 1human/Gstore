@@ -70,7 +70,7 @@ public fun zed.rainxch.apps.presentation.components.AdvancedAppSettingsBottomShe
     - onAction: STABLE (function type)
 
 @Composable
-internal fun zed.rainxch.apps.presentation.components.AppCardToolbar(appItem: zed.rainxch.apps.presentation.model.AppItem, onAdvancedSettingsClick: kotlin.Function0<kotlin.Unit>, onPickVariantClick: kotlin.Function0<kotlin.Unit>, onTogglePreReleases: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onToggleUpdateCheck: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onSkipVersionClick: kotlin.Function0<kotlin.Unit>, onUnskipVersionClick: kotlin.Function0<kotlin.Unit>, controlsEnabled: kotlin.Boolean): kotlin.Unit
+internal fun zed.rainxch.apps.presentation.components.AppCardToolbar(appItem: zed.rainxch.apps.presentation.model.AppItem, onAdvancedSettingsClick: kotlin.Function0<kotlin.Unit>, onPickVariantClick: kotlin.Function0<kotlin.Unit>, onTogglePreReleases: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onToggleUpdateCheck: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onSkipVersionClick: kotlin.Function0<kotlin.Unit>, onUnskipVersionClick: kotlin.Function0<kotlin.Unit>, onUnlinkClick: kotlin.Function0<kotlin.Unit>, controlsEnabled: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -81,6 +81,7 @@ internal fun zed.rainxch.apps.presentation.components.AppCardToolbar(appItem: ze
     - onToggleUpdateCheck: STABLE (function type)
     - onSkipVersionClick: STABLE (function type)
     - onUnskipVersionClick: STABLE (function type)
+    - onUnlinkClick: STABLE (function type)
     - controlsEnabled: STABLE (primitive type)
 
 @Composable
@@ -117,7 +118,7 @@ public fun zed.rainxch.apps.presentation.components.AppGroupStack(header: zed.ra
     - content: STABLE (composable function type)
 
 @Composable
-public fun zed.rainxch.apps.presentation.components.AppItemCard(appItem: zed.rainxch.apps.presentation.model.AppItem, onOpenClick: kotlin.Function0<kotlin.Unit>, onUpdateClick: kotlin.Function0<kotlin.Unit>, onUninstallClick: kotlin.Function0<kotlin.Unit>, onRepoClick: kotlin.Function0<kotlin.Unit>, onTogglePreReleases: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onToggleUpdateCheck: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onAdvancedSettingsClick: kotlin.Function0<kotlin.Unit>, onPickVariantClick: kotlin.Function0<kotlin.Unit>, onInstallPendingClick: kotlin.Function0<kotlin.Unit>, onDiscardPendingClick: kotlin.Function0<kotlin.Unit>, onSkipVersionClick: kotlin.Function0<kotlin.Unit>, onUnskipVersionClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun zed.rainxch.apps.presentation.components.AppItemCard(appItem: zed.rainxch.apps.presentation.model.AppItem, onOpenClick: kotlin.Function0<kotlin.Unit>, onUpdateClick: kotlin.Function0<kotlin.Unit>, onUninstallClick: kotlin.Function0<kotlin.Unit>, onRepoClick: kotlin.Function0<kotlin.Unit>, onTogglePreReleases: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onToggleUpdateCheck: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onAdvancedSettingsClick: kotlin.Function0<kotlin.Unit>, onPickVariantClick: kotlin.Function0<kotlin.Unit>, onInstallPendingClick: kotlin.Function0<kotlin.Unit>, onDiscardPendingClick: kotlin.Function0<kotlin.Unit>, onSkipVersionClick: kotlin.Function0<kotlin.Unit>, onUnskipVersionClick: kotlin.Function0<kotlin.Unit>, onUnlinkClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -134,6 +135,7 @@ public fun zed.rainxch.apps.presentation.components.AppItemCard(appItem: zed.rai
     - onDiscardPendingClick: STABLE (function type)
     - onSkipVersionClick: STABLE (function type)
     - onUnskipVersionClick: STABLE (function type)
+    - onUnlinkClick: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
@@ -157,7 +159,7 @@ public fun zed.rainxch.apps.presentation.components.AppsTopbar(onAction: kotlin.
     - state: UNSTABLE (has mutable properties or unstable members)
 
 @Composable
-public fun zed.rainxch.apps.presentation.components.CompactAppRow(appItem: zed.rainxch.apps.presentation.model.AppItem, onOpenClick: kotlin.Function0<kotlin.Unit>, onInstallPendingClick: kotlin.Function0<kotlin.Unit>, onDiscardPendingClick: kotlin.Function0<kotlin.Unit>, onAdvancedSettingsClick: kotlin.Function0<kotlin.Unit>, onPickVariantClick: kotlin.Function0<kotlin.Unit>, onUninstallClick: kotlin.Function0<kotlin.Unit>, onTogglePreReleases: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onToggleUpdateCheck: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onUnskipVersionClick: kotlin.Function0<kotlin.Unit>, onRowClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, framed: kotlin.Boolean): kotlin.Unit
+public fun zed.rainxch.apps.presentation.components.CompactAppRow(appItem: zed.rainxch.apps.presentation.model.AppItem, onOpenClick: kotlin.Function0<kotlin.Unit>, onInstallPendingClick: kotlin.Function0<kotlin.Unit>, onDiscardPendingClick: kotlin.Function0<kotlin.Unit>, onAdvancedSettingsClick: kotlin.Function0<kotlin.Unit>, onPickVariantClick: kotlin.Function0<kotlin.Unit>, onUninstallClick: kotlin.Function0<kotlin.Unit>, onUnlinkClick: kotlin.Function0<kotlin.Unit>, onTogglePreReleases: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onToggleUpdateCheck: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onUnskipVersionClick: kotlin.Function0<kotlin.Unit>, onRowClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, framed: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -168,6 +170,7 @@ public fun zed.rainxch.apps.presentation.components.CompactAppRow(appItem: zed.r
     - onAdvancedSettingsClick: STABLE (function type)
     - onPickVariantClick: STABLE (function type)
     - onUninstallClick: STABLE (function type)
+    - onUnlinkClick: STABLE (function type)
     - onTogglePreReleases: STABLE (function type)
     - onToggleUpdateCheck: STABLE (function type)
     - onUnskipVersionClick: STABLE (function type)
@@ -176,7 +179,7 @@ public fun zed.rainxch.apps.presentation.components.CompactAppRow(appItem: zed.r
     - framed: STABLE (primitive type)
 
 @Composable
-private fun zed.rainxch.apps.presentation.components.CompactRowOverflow(appName: kotlin.String, isBusy: kotlin.Boolean, isPending: kotlin.Boolean, isPreReleaseEnabled: kotlin.Boolean, isUpdateCheckEnabled: kotlin.Boolean, hasSkippedReleaseTag: kotlin.Boolean, onAdvancedSettingsClick: kotlin.Function0<kotlin.Unit>, onPickVariantClick: kotlin.Function0<kotlin.Unit>, onUninstallClick: kotlin.Function0<kotlin.Unit>, onTogglePreReleases: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onToggleUpdateCheck: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onDiscardPendingClick: kotlin.Function0<kotlin.Unit>, onUnskipVersionClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun zed.rainxch.apps.presentation.components.CompactRowOverflow(appName: kotlin.String, isBusy: kotlin.Boolean, isPending: kotlin.Boolean, isPreReleaseEnabled: kotlin.Boolean, isUpdateCheckEnabled: kotlin.Boolean, hasSkippedReleaseTag: kotlin.Boolean, isExternallyLinked: kotlin.Boolean, onAdvancedSettingsClick: kotlin.Function0<kotlin.Unit>, onPickVariantClick: kotlin.Function0<kotlin.Unit>, onUninstallClick: kotlin.Function0<kotlin.Unit>, onUnlinkClick: kotlin.Function0<kotlin.Unit>, onTogglePreReleases: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onToggleUpdateCheck: kotlin.Function1<kotlin.Boolean, kotlin.Unit>, onDiscardPendingClick: kotlin.Function0<kotlin.Unit>, onUnskipVersionClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -186,9 +189,11 @@ private fun zed.rainxch.apps.presentation.components.CompactRowOverflow(appName:
     - isPreReleaseEnabled: STABLE (primitive type)
     - isUpdateCheckEnabled: STABLE (primitive type)
     - hasSkippedReleaseTag: STABLE (primitive type)
+    - isExternallyLinked: STABLE (primitive type)
     - onAdvancedSettingsClick: STABLE (function type)
     - onPickVariantClick: STABLE (function type)
     - onUninstallClick: STABLE (function type)
+    - onUnlinkClick: STABLE (function type)
     - onTogglePreReleases: STABLE (function type)
     - onToggleUpdateCheck: STABLE (function type)
     - onDiscardPendingClick: STABLE (function type)
@@ -289,6 +294,15 @@ public fun zed.rainxch.apps.presentation.components.PendingUninstallSheet(app: z
   params:
     - app: STABLE (class with no mutable properties)
     - onAction: STABLE (function type)
+
+@Composable
+public fun zed.rainxch.apps.presentation.components.PendingUnlinkSheet(app: zed.rainxch.apps.presentation.model.InstalledAppUi, onAction: kotlin.Function1<zed.rainxch.apps.presentation.AppsAction, kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - app: STABLE (class with no mutable properties)
+    - onAction: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun zed.rainxch.apps.presentation.components.PickAppStep(deviceApps: kotlinx.collections.immutable.ImmutableList<zed.rainxch.apps.presentation.model.DeviceAppUi>, searchQuery: kotlin.String, onSearchChange: kotlin.Function1<kotlin.String, kotlin.Unit>, onAppSelected: kotlin.Function1<zed.rainxch.apps.presentation.model.DeviceAppUi, kotlin.Unit>): kotlin.Unit

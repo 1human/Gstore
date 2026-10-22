@@ -139,11 +139,15 @@ private fun zed.rainxch.details.presentation.components.AttestationBadge(attesta
     - attestationStatus: STABLE (class with no mutable properties)
 
 @Composable
-private fun zed.rainxch.details.presentation.components.Coachmark(onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun zed.rainxch.details.presentation.components.AttestationChip(container: androidx.compose.ui.graphics.Color, content: androidx.compose.ui.graphics.Color, icon: androidx.compose.ui.graphics.vector.ImageVector?, label: kotlin.String, checking: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
-    - onDismiss: STABLE (function type)
+    - container: STABLE (marked @Stable or @Immutable)
+    - content: STABLE (marked @Stable or @Immutable)
+    - icon: STABLE (marked @Stable or @Immutable)
+    - label: STABLE (String is immutable)
+    - checking: STABLE (primitive type)
 
 @Composable
 private fun zed.rainxch.details.presentation.components.CompatibilitySection(inspection: zed.rainxch.core.domain.model.apk.ApkInspection): kotlin.Unit
@@ -504,6 +508,15 @@ private fun zed.rainxch.details.presentation.components.SourceChip(label: kotlin
     - label: STABLE (String is immutable)
 
 @Composable
+private fun zed.rainxch.details.presentation.components.StatBox(label: kotlin.String, value: kotlin.String, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - label: STABLE (String is immutable)
+    - value: STABLE (String is immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
 public fun zed.rainxch.details.presentation.components.StatItem(label: kotlin.String, stat: kotlin.Int, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
@@ -617,6 +630,12 @@ private fun zed.rainxch.details.presentation.components.copyableOnLongPress(valu
     - value: STABLE (String is immutable)
 
 @Composable
+private fun zed.rainxch.details.presentation.components.installOptions(): kotlinx.collections.immutable.ImmutableList<zed.rainxch.core.presentation.components.overlays.KomiMenuEntry>
+  skippable: true
+  restartable: true
+  params:
+
+@Composable
 private fun zed.rainxch.details.presentation.components.protectionStyle(level: zed.rainxch.core.domain.model.apk.ProtectionLevel): kotlin.Pair<androidx.compose.ui.graphics.Color, kotlin.String>
   skippable: true
   restartable: true
@@ -649,13 +668,6 @@ private fun zed.rainxch.details.presentation.components.sections.ChannelChip(lab
     - contentDescriptionText: STABLE (class with no mutable properties)
 
 @Composable
-private fun zed.rainxch.details.presentation.components.sections.ChannelChipCoachmark(onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - onDismiss: STABLE (function type)
-
-@Composable
 private fun zed.rainxch.details.presentation.components.sections.ExpandableMarkdownContent(release: zed.rainxch.core.domain.model.account.github.GithubRelease, collapsedHeight: androidx.compose.ui.unit.Dp, isExpanded: kotlin.Boolean, onToggleExpanded: kotlin.Function0<kotlin.Unit>, measuredHeightPx: kotlin.Float?, onMeasured: kotlin.Function1<kotlin.Float, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
@@ -666,16 +678,6 @@ private fun zed.rainxch.details.presentation.components.sections.ExpandableMarkd
     - onToggleExpanded: STABLE (function type)
     - measuredHeightPx: STABLE (class with no mutable properties)
     - onMeasured: STABLE (function type)
-
-@Composable
-private fun zed.rainxch.details.presentation.components.sections.InstallOptionItem(title: kotlin.String, subtitle: kotlin.String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - title: STABLE (String is immutable)
-    - subtitle: STABLE (String is immutable)
-    - icon: STABLE (marked @Stable or @Immutable)
-    - onClick: STABLE (function type)
 
 @Composable
 public fun zed.rainxch.details.presentation.components.sections.MarkdownContent(rawMarkdown: kotlin.String, isDark: kotlin.Boolean, imageTransformer: com.mikepenz.markdown.model.ImageTransformer, modifier: androidx.compose.ui.Modifier): kotlin.Unit

@@ -81,6 +81,16 @@ sealed interface AppsAction {
 
     data object OnDismissUninstallDialog : AppsAction
 
+    data class OnUnlinkApp(
+        val app: InstalledAppUi,
+    ) : AppsAction
+
+    data class OnUnlinkConfirmed(
+        val app: InstalledAppUi,
+    ) : AppsAction
+
+    data object OnDismissUnlinkDialog : AppsAction
+
     data object OnAddByLinkClick : AppsAction
 
     data object OnDismissLinkSheet : AppsAction

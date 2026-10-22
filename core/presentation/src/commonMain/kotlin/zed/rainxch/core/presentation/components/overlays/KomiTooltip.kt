@@ -20,7 +20,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -29,9 +28,6 @@ import zed.rainxch.core.presentation.components.buttons.KomiButtonSize
 import zed.rainxch.core.presentation.components.buttons.KomiButtonVariant
 import zed.rainxch.core.presentation.components.text.KomiText
 import zed.rainxch.core.presentation.components.text.KomiTextRole
-import zed.rainxch.core.presentation.locals.LocalPersonality
-import zed.rainxch.core.presentation.personality.ClassicPersonality
-import zed.rainxch.core.presentation.personality.MangaPersonality
 import zed.rainxch.core.presentation.personality.classicPersonality
 import zed.rainxch.core.presentation.personality.utils.PersonalityPreview
 
@@ -122,23 +118,8 @@ fun KomiCoachmark(
 
 @Composable
 private fun TooltipScope.KomiPlainTooltip(text: String) {
-    when (val personality = LocalPersonality.current) {
-        is MangaPersonality -> {
-            PlainTooltip(
-                caretShape = TooltipDefaults.caretShape(),
-                shape = RectangleShape,
-                containerColor = personality.colors.onSurface,
-                contentColor = personality.colors.surface,
-            ) {
-                KomiText(text = text, role = KomiTextRole.Caption, color = personality.colors.surface)
-            }
-        }
-
-        is ClassicPersonality -> {
-            PlainTooltip(caretShape = TooltipDefaults.caretShape()) {
-                KomiText(text = text, role = KomiTextRole.Caption, color = LocalContentColor.current)
-            }
-        }
+    PlainTooltip(caretShape = TooltipDefaults.caretShape()) {
+        KomiText(text = text, role = KomiTextRole.Caption, color = LocalContentColor.current)
     }
 }
 
@@ -148,36 +129,12 @@ private fun TooltipScope.KomiRichTooltipPanel(
     text: String,
     action: (@Composable () -> Unit)? = null,
 ) {
-    when (val personality = LocalPersonality.current) {
-        is MangaPersonality -> {
-            val ink = personality.colors.onSurface
-            val paper = personality.colors.surface
-            RichTooltip(
-                caretShape = TooltipDefaults.caretShape(),
-                shape = RectangleShape,
-                colors =
-                    TooltipDefaults.richTooltipColors(
-                        containerColor = ink,
-                        contentColor = paper,
-                        titleContentColor = paper,
-                        actionContentColor = paper,
-                    ),
-                title = { KomiText(text = title, role = KomiTextRole.CardTitle, color = paper) },
-                action = action,
-            ) {
-                KomiText(text = text, role = KomiTextRole.Body, color = paper)
-            }
-        }
-
-        is ClassicPersonality -> {
-            RichTooltip(
-                caretShape = TooltipDefaults.caretShape(),
-                title = { KomiText(text = title, role = KomiTextRole.CardTitle, color = LocalContentColor.current) },
-                action = action,
-            ) {
-                KomiText(text = text, role = KomiTextRole.Body, color = LocalContentColor.current)
-            }
-        }
+    RichTooltip(
+        caretShape = TooltipDefaults.caretShape(),
+        title = { KomiText(text = title, role = KomiTextRole.CardTitle, color = LocalContentColor.current) },
+        action = action,
+    ) {
+        KomiText(text = text, role = KomiTextRole.Body, color = LocalContentColor.current)
     }
 }
 

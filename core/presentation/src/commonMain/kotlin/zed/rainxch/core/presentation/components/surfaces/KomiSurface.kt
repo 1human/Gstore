@@ -37,16 +37,7 @@ import zed.rainxch.core.presentation.components.text.KomiText
 import zed.rainxch.core.presentation.components.text.KomiTextRole
 import zed.rainxch.core.presentation.locals.LocalPersonality
 import zed.rainxch.core.presentation.personality.ClassicPersonality
-import zed.rainxch.core.presentation.personality.MangaPersonality
 import zed.rainxch.core.presentation.personality.classicPersonality
-import zed.rainxch.core.presentation.personality.manga.MangaAccent
-import zed.rainxch.core.presentation.personality.manga.MangaPaper
-import zed.rainxch.core.presentation.personality.manga.decoration.hardShadow
-import zed.rainxch.core.presentation.personality.manga.decoration.inkFocusRing
-import zed.rainxch.core.presentation.personality.manga.decoration.inkPress
-import zed.rainxch.core.presentation.personality.manga.decoration.screentoneCorner
-import zed.rainxch.core.presentation.personality.manga.decoration.screentoneFill
-import zed.rainxch.core.presentation.personality.mangaPersonality
 import zed.rainxch.core.presentation.personality.utils.PersonalityPreview
 import zed.rainxch.core.presentation.spacing.Spacing
 
@@ -55,35 +46,12 @@ fun KomiSurface(
     modifier: Modifier = Modifier,
     elevation: KomiSurfaceElevation = KomiSurfaceElevation.Card,
     paper: KomiSurfacePaper = KomiSurfacePaper.Surface,
-    screentone: KomiScreentone = KomiScreentone.None,
-    screentoneBoost: Float = 1f,
     onClick: (() -> Unit)? = null,
     onLongClick: (() -> Unit)? = null,
-    hoverEnabled: Boolean? = null,
-    tilt: Float = 0f,
-    topEdgeOnly: Boolean = false,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     content: @Composable () -> Unit,
 ) {
     when (val personality = LocalPersonality.current) {
-        is MangaPersonality -> {
-            MangaSurface(
-                personality = personality,
-                modifier = modifier,
-                elevation = elevation,
-                paper = paper,
-                screentone = screentone,
-                screentoneBoost = screentoneBoost,
-                onClick = onClick,
-                onLongClick = onLongClick,
-                hoverEnabled = hoverEnabled,
-                tilt = tilt,
-                topEdgeOnly = topEdgeOnly,
-                contentPadding = contentPadding,
-                content = content,
-            )
-        }
-
         is ClassicPersonality -> {
             ClassicSurface(
                 personality = personality,
@@ -95,144 +63,6 @@ fun KomiSurface(
                 contentPadding = contentPadding,
                 content = content,
             )
-        }
-    }
-}
-
-private data class MangaElevation(
-    val shadow: Dp,
-    val border: Dp,
-)
-
-private fun mangaElevation(elevation: KomiSurfaceElevation): MangaElevation =
-    when (elevation) {
-        KomiSurfaceElevation.Flat -> MangaElevation(0.dp, 3.dp)
-        KomiSurfaceElevation.Card -> MangaElevation(6.dp, 3.dp)
-        KomiSurfaceElevation.Raised -> MangaElevation(10.dp, 3.dp)
-        KomiSurfaceElevation.Modal -> MangaElevation(14.dp, 4.dp)
-    }
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun MangaSurface(
-    personality: MangaPersonality,
-    modifier: Modifier = Modifier,
-    elevation: KomiSurfaceElevation,
-    paper: KomiSurfacePaper,
-    screentone: KomiScreentone,
-    screentoneBoost: Float,
-    onClick: (() -> Unit)?,
-    onLongClick: (() -> Unit)?,
-    hoverEnabled: Boolean?,
-    tilt: Float,
-    topEdgeOnly: Boolean,
-    contentPadding: PaddingValues,
-    content: @Composable () -> Unit,
-) {
-    val colors = personality.colors
-    val elev = mangaElevation(elevation)
-    val borderWidth = if (topEdgeOnly) maxOf(elev.border, 4.dp) else elev.border
-    val shape = remember(personality.shape.corner) { RoundedCornerShape(personality.shape.corner) }
-    val needsClip = personality.shape.corner > 0.dp
-    val fill =
-        when (paper) {
-            KomiSurfacePaper.Surface -> colors.surface
-            KomiSurfacePaper.Background -> colors.background
-        }
-    val contentInk =
-        when (paper) {
-            KomiSurfacePaper.Surface -> colors.onSurface
-            KomiSurfacePaper.Background -> colors.onBackground
-        }
-
-    val pressable = onClick != null || onLongClick != null
-    val tiltModifier = if (tilt != 0f) Modifier.rotate(tilt) else Modifier
-
-    val depthModifier =
-        if (pressable) {
-            val interaction = remember { MutableInteractionSource() }
-            val pressed by interaction.collectIsPressedAsState()
-            val hovered by interaction.collectIsHoveredAsState()
-            val focused by interaction.collectIsFocusedAsState()
-            val hover = hoverEnabled ?: true
-            val pressProgress =
-                animateFloatAsState(if (pressed) 1f else 0f, label = "komiSurfacePress")
-            val hoverProgress =
-                animateFloatAsState(if (hovered && hover) 1f else 0f, label = "komiSurfaceHover")
-            Modifier
-                .inkFocusRing(focused = { focused }, color = colors.primary)
-                .inkPress(
-                    pressProgress = { pressProgress.value },
-                    hoverProgress = { hoverProgress.value },
-                    shadow = DpOffset(elev.shadow, elev.shadow),
-                    shadowColor = colors.shadow,
-                    shape = shape,
-                    pressInset = 2.dp,
-                    hoverLift = 3.dp,
-                ).combinedClickable(
-                    interactionSource = interaction,
-                    indication = null,
-                    onClick = onClick ?: {},
-                    onLongClick = onLongClick,
-                )
-        } else if (elev.shadow > 0.dp) {
-            Modifier.hardShadow(
-                offset = DpOffset(elev.shadow, elev.shadow),
-                color = colors.shadow,
-                shape = shape,
-            )
-        } else {
-            Modifier
-        }
-
-    val toneModifier =
-        when (screentone) {
-            KomiScreentone.None -> {
-                Modifier
-            }
-
-            KomiScreentone.Corner -> {
-                Modifier.screentoneCorner(
-                    colors.onSurface,
-                    colors.screentoneOpacity,
-                    boost = screentoneBoost,
-                )
-            }
-
-            KomiScreentone.Fill -> {
-                Modifier.screentoneFill(
-                    colors.onSurface,
-                    colors.screentoneOpacity,
-                )
-            }
-        }
-
-    val borderModifier =
-        if (topEdgeOnly) {
-            Modifier.drawBehind {
-                drawRect(
-                    color = colors.outline,
-                    topLeft = Offset.Zero,
-                    size = Size(size.width, borderWidth.toPx()),
-                )
-            }
-        } else {
-            Modifier.border(width = borderWidth, color = colors.outline, shape = shape)
-        }
-
-    Box(
-        modifier =
-            modifier
-                .then(tiltModifier)
-                .then(depthModifier)
-                .then(if (needsClip) Modifier.clip(shape) else Modifier)
-                .background(color = fill, shape = shape)
-                .then(toneModifier)
-                .then(borderModifier)
-                .padding(contentPadding),
-    ) {
-        CompositionLocalProvider(LocalContentColor provides contentInk) {
-            content()
         }
     }
 }
@@ -300,64 +130,6 @@ private fun PreviewPanelBody() {
         KomiText("Ollama", role = KomiTextRole.CardTitle)
         KomiText("Run large language models locally.", role = KomiTextRole.Body)
         KomiText("v0.5.4 · 174M", role = KomiTextRole.Mono)
-    }
-}
-
-@Preview
-@Composable
-private fun KomiSurfaceMangaCardPreview() {
-    PersonalityPreview(mangaPersonality()) {
-        KomiSurface(
-            elevation = KomiSurfaceElevation.Card,
-            screentone = KomiScreentone.Corner,
-            onClick = {},
-            contentPadding = PaddingValues(Spacing.lg),
-        ) {
-            PreviewPanelBody()
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun KomiSurfaceMangaModalPreview() {
-    PersonalityPreview(mangaPersonality()) {
-        KomiSurface(
-            elevation = KomiSurfaceElevation.Modal,
-            paper = KomiSurfacePaper.Background,
-            contentPadding = PaddingValues(Spacing.lg),
-        ) {
-            PreviewPanelBody()
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun KomiSurfaceMangaFillTiltPreview() {
-    PersonalityPreview(mangaPersonality()) {
-        KomiSurface(
-            elevation = KomiSurfaceElevation.Raised,
-            screentone = KomiScreentone.Fill,
-            tilt = -0.4f,
-            contentPadding = PaddingValues(Spacing.lg),
-        ) {
-            PreviewPanelBody()
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun KomiSurfaceMangaNightPreview() {
-    PersonalityPreview(mangaPersonality(paper = MangaPaper.NIGHT, accent = MangaAccent.FROST)) {
-        KomiSurface(
-            screentone = KomiScreentone.Corner,
-            onClick = {},
-            contentPadding = PaddingValues(Spacing.lg),
-        ) {
-            PreviewPanelBody()
-        }
     }
 }
 

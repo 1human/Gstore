@@ -24,8 +24,8 @@ The current locale is supplied by `LocalizationManager.getCurrentLanguageCode()`
 / `getPrimaryLanguageCode()`, so the resolution honours the in-app language
 override exposed in Tweaks, not just the OS locale.
 
-Existing locale folders: `ar`, `bn`, `es`, `fr`, `hi`, `it`, `ja`, `ko`, `pl`,
-`ru`, `tr`, `zh-CN`.
+Existing locale folders: `zh-CN`. The app ships English and Simplified Chinese
+only, so any other language falls back to the English entries above.
 
 ## Schema
 

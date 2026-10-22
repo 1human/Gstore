@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,17 +50,10 @@ import zed.rainxch.core.presentation.components.text.KomiText
 import zed.rainxch.core.presentation.components.text.KomiTextRole
 import zed.rainxch.core.presentation.locals.LocalPersonality
 import zed.rainxch.core.presentation.personality.ClassicPersonality
-import zed.rainxch.core.presentation.personality.MangaPersonality
 import zed.rainxch.core.presentation.personality.classicPersonality
-import zed.rainxch.core.presentation.personality.manga.MangaAccent
-import zed.rainxch.core.presentation.personality.manga.MangaPaper
-import zed.rainxch.core.presentation.personality.manga.decoration.hardShadow
-import zed.rainxch.core.presentation.personality.manga.decoration.inkFocusRing
-import zed.rainxch.core.presentation.personality.mangaPersonality
 import zed.rainxch.core.presentation.personality.utils.PersonalityPreview
 import zed.rainxch.core.presentation.spacing.Spacing
 
-private val SelectionBarWidth = 5.dp
 private val ClassicDividerInset = 56.dp
 private const val DISABLED_ALPHA = 0.45f
 
@@ -73,31 +65,20 @@ fun KomiList(
     items: ImmutableList<KomiListItem>,
     modifier: Modifier = Modifier,
 ) {
-    when (val personality = LocalPersonality.current) {
-        is MangaPersonality -> {
-            KomiListContainer(modifier = modifier) {
-                items.forEachIndexed { index, item ->
-                    ItemRow(item = item, showDivider = index < items.lastIndex)
-                }
-            }
-        }
-
-        is ClassicPersonality -> {
-            Column(
-                modifier = modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
-            ) {
-                items.forEachIndexed { index, item ->
-                    ItemRow(
-                        item = item,
-                        showDivider = false,
-                        modifier =
-                            Modifier
-                                .clip(ListItemDefaults.segmentedShapes(index, items.size).shape)
-                                .background(personality.colors.surfaceContainer),
-                    )
-                }
-            }
+    val personality = LocalPersonality.current
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
+    ) {
+        items.forEachIndexed { index, item ->
+            ItemRow(
+                item = item,
+                showDivider = false,
+                modifier =
+                    Modifier
+                        .clip(ListItemDefaults.segmentedShapes(index, items.size).shape)
+                        .background(personality.colors.surfaceContainer),
+            )
         }
     }
 }
@@ -128,33 +109,17 @@ fun KomiListContainer(
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    when (val personality = LocalPersonality.current) {
-        is MangaPersonality -> {
-            val colors = personality.colors
-            Column(
-                modifier =
-                    modifier
-                        .fillMaxWidth()
-                        .hardShadow(offset = DpOffset(4.dp, 4.dp), color = colors.shadow, shape = RectangleShape)
-                        .background(color = colors.surface)
-                        .border(width = personality.shape.borderPanel, color = colors.outline),
-                content = content,
-            )
-        }
-
-        is ClassicPersonality -> {
-            val colors = personality.colors
-            Column(
-                modifier =
-                    modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(personality.shape.corner))
-                        .background(color = colors.surfaceContainer)
-                        .padding(6.dp),
-                content = content,
-            )
-        }
-    }
+    val personality = LocalPersonality.current
+    val colors = personality.colors
+    Column(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(personality.shape.corner))
+                .background(color = colors.surfaceContainer)
+                .padding(6.dp),
+        content = content,
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -176,63 +141,41 @@ fun KomiListRow(
     val personality = LocalPersonality.current
     val colors = personality.colors
     val shape = personality.shape
-    val isManga = personality is MangaPersonality
     val interaction = remember { MutableInteractionSource() }
     val hovered by interaction.collectIsHoveredAsState()
-    val focused by interaction.collectIsFocusedAsState()
     val titleColor =
         when {
             destructive -> colors.error
-            selected && !isManga -> colors.onPrimaryContainer
+            selected -> colors.onPrimaryContainer
             else -> colors.onSurface
         }
     val subtitleColor =
-        if (selected && !isManga) colors.onPrimaryContainer else colors.onSurfaceVariant
+        if (selected) colors.onPrimaryContainer else colors.onSurfaceVariant
     val clickModifier =
-        when {
-            onClick == null && onLongClick == null -> {
-                Modifier
-            }
-
-            isManga -> {
-                Modifier.combinedClickable(
-                    interactionSource = interaction,
-                    indication = null,
-                    enabled = enabled,
-                    onLongClick = onLongClick,
-                    onClick = onClick ?: {},
-                )
-            }
-
-            else -> {
-                Modifier.combinedClickable(enabled = enabled, onLongClick = onLongClick, onClick = onClick ?: {})
-            }
+        if (onClick == null && onLongClick == null) {
+            Modifier
+        } else {
+            Modifier.combinedClickable(enabled = enabled, onLongClick = onLongClick, onClick = onClick ?: {})
         }
     Row(
         modifier =
             modifier
                 .fillMaxWidth()
-                .then(if (isManga) Modifier.inkFocusRing(focused = { focused }, color = colors.primary) else Modifier)
-                .then(if (!isManga) Modifier.clip(RoundedCornerShape(shape.cornerSmall)) else Modifier)
-                .then(rowFill(selected, hovered, isManga, colors.surfaceVariant, colors.primaryContainer))
-                .then(rowDivider(showDivider, isManga, icon != null, colors.outline, colors.outlineVariant))
-                .then(selectionBar(selected && isManga, colors.primary))
+                .clip(RoundedCornerShape(shape.cornerSmall))
+                .then(rowFill(selected, hovered, colors.primaryContainer))
+                .then(rowDivider(showDivider, icon != null, colors.outlineVariant))
                 .then(clickModifier)
-                .padding(
-                    horizontal = if (isManga) 14.dp else 12.dp,
-                    vertical = if (isManga) 12.dp else 10.dp,
-                ).alpha(if (enabled) 1f else DISABLED_ALPHA),
+                .padding(horizontal = 12.dp, vertical = 10.dp)
+                .alpha(if (enabled) 1f else DISABLED_ALPHA),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(if (isManga) 14.dp else 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         if (icon != null) {
             RowLeadingIcon(
                 icon = icon,
-                isManga = isManga,
                 selected = selected,
                 destructive = destructive,
                 colors = colors,
-                borderWidth = shape.borderChip,
             )
         }
 
@@ -263,81 +206,57 @@ fun KomiListRow(
 @Composable
 private fun RowLeadingIcon(
     icon: ImageVector,
-    isManga: Boolean,
     selected: Boolean,
     destructive: Boolean,
     colors: zed.rainxch.core.presentation.personality.model.PersonalityColors,
-    borderWidth: androidx.compose.ui.unit.Dp,
 ) {
-    if (isManga) {
-        Box(
-            modifier =
-                Modifier
-                    .size(42.dp)
-                    .background(color = colors.background)
-                    .border(width = borderWidth, color = colors.outline),
-            contentAlignment = Alignment.Center,
-        ) {
-            KomiIcon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = if (destructive) colors.error else colors.onSurface,
-                modifier = Modifier.size(22.dp),
-            )
-        }
-    } else {
-        Box(
-            modifier =
-                Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(if (selected) colors.primary else colors.surfaceContainerHigh),
-            contentAlignment = Alignment.Center,
-        ) {
-            KomiIcon(
-                imageVector = icon,
-                contentDescription = null,
-                tint =
-                    when {
-                        selected -> colors.onPrimary
-                        destructive -> colors.error
-                        else -> colors.onSurfaceVariant
-                    },
-                modifier = Modifier.size(22.dp),
-            )
-        }
+    Box(
+        modifier =
+            Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(if (selected) colors.primary else colors.surfaceContainerHigh),
+        contentAlignment = Alignment.Center,
+    ) {
+        KomiIcon(
+            imageVector = icon,
+            contentDescription = null,
+            tint =
+                when {
+                    selected -> colors.onPrimary
+                    destructive -> colors.error
+                    else -> colors.onSurfaceVariant
+                },
+            modifier = Modifier.size(22.dp),
+        )
     }
 }
 
 private fun rowFill(
     selected: Boolean,
     hovered: Boolean,
-    isManga: Boolean,
-    mangaFill: androidx.compose.ui.graphics.Color,
-    classicFill: androidx.compose.ui.graphics.Color,
+    fill: androidx.compose.ui.graphics.Color,
 ): Modifier =
-    when {
-        selected -> Modifier.background(if (isManga) mangaFill else classicFill)
-        hovered && isManga -> Modifier.background(mangaFill)
-        else -> Modifier
+    if (selected || hovered) {
+        Modifier.background(fill)
+    } else {
+        Modifier
     }
 
 private fun rowDivider(
     show: Boolean,
-    isManga: Boolean,
     hasLeading: Boolean,
-    mangaColor: androidx.compose.ui.graphics.Color,
-    classicColor: androidx.compose.ui.graphics.Color,
+    color: androidx.compose.ui.graphics.Color,
 ): Modifier =
     if (!show) {
         Modifier
     } else {
         Modifier.drawBehind {
-            val stroke = (if (isManga) 2.dp else 1.dp).toPx()
-            val startX = if (!isManga && hasLeading) ClassicDividerInset.toPx() else 0f
+            val stroke = 1.dp.toPx()
+            val startX = if (hasLeading) ClassicDividerInset.toPx() else 0f
             val y = size.height - stroke / 2f
             drawLine(
-                color = if (isManga) mangaColor else classicColor,
+                color = color,
                 start = Offset(startX, y),
                 end = Offset(size.width, y),
                 strokeWidth = stroke,
@@ -345,22 +264,9 @@ private fun rowDivider(
         }
     }
 
-private fun selectionBar(
-    show: Boolean,
-    color: androidx.compose.ui.graphics.Color,
-): Modifier =
-    if (!show) {
-        Modifier
-    } else {
-        Modifier.drawBehind {
-            drawRect(color = color, size = Size(SelectionBarWidth.toPx(), size.height))
-        }
-    }
-
 @Composable
 private fun RowTrailing(trailing: KomiListTrailing) {
     val colors = LocalPersonality.current.colors
-    val isManga = LocalPersonality.current is MangaPersonality
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -384,15 +290,15 @@ private fun RowTrailing(trailing: KomiListTrailing) {
                 Box(
                     modifier =
                         Modifier
-                            .then(if (isManga) Modifier else Modifier.clip(RoundedCornerShape(50)))
-                            .background(if (isManga) colors.primary else colors.error)
+                            .clip(RoundedCornerShape(50))
+                            .background(colors.error)
                             .padding(horizontal = 6.dp, vertical = 2.dp),
                     contentAlignment = Alignment.Center,
                 ) {
                     KomiText(
                         text = trailing.count.toString(),
                         role = KomiTextRole.Mono,
-                        color = if (isManga) colors.onPrimary else colors.onError,
+                        color = colors.onError,
                         maxLines = 1,
                     )
                 }
@@ -405,7 +311,7 @@ private fun RowTrailing(trailing: KomiListTrailing) {
                     modifier =
                         Modifier
                             .size(8.dp)
-                            .then(if (isManga) Modifier else Modifier.clip(CircleShape))
+                            .clip(CircleShape)
                             .background(colors.error),
                 )
 
@@ -501,24 +407,6 @@ private fun PreviewLists() {
                 ),
         )
     }
-}
-
-@Preview
-@Composable
-private fun KomiListMangaDayPreview() {
-    PersonalityPreview(mangaPersonality()) { PreviewLists() }
-}
-
-@Preview
-@Composable
-private fun KomiListMangaNightPreview() {
-    PersonalityPreview(mangaPersonality(paper = MangaPaper.NIGHT, accent = MangaAccent.SUN)) { PreviewLists() }
-}
-
-@Preview
-@Composable
-private fun KomiListMangaNordPreview() {
-    PersonalityPreview(mangaPersonality(paper = MangaPaper.NORD, accent = MangaAccent.FROST)) { PreviewLists() }
 }
 
 @Preview

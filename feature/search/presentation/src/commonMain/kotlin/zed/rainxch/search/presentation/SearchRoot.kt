@@ -675,10 +675,18 @@ fun PlatformPicker(
                     .background(
                         if (state.selectedSearchPlatform == platform) {
                             colors.primaryTint
-                        } else colors.surface,
+                        } else colors.surfaceContainerHigh,
                         shape = shape
                     )
-                    .border(1.dp, colors.primary.copy(alpha = 0.4f), shape)
+                    .border(
+                        width = 1.dp,
+                        color = if (state.selectedSearchPlatform == platform) {
+                            colors.primary.copy(alpha = 0.4f)
+                        } else {
+                            colors.outlineVariant
+                        },
+                        shape = shape,
+                    )
                     .clickable(onClick = {
                         onAction(SearchAction.OnPlatformTypeSelected(platform))
                     })
@@ -887,9 +895,11 @@ private fun FiltersPillButton(
 ) {
     val colors = LocalPersonality.current.colors
     val shape = RoundedCornerShape(LocalPersonality.current.shape.cornerSmall)
+    // Raised control fill, the same step as the filter pills on other screens and KomiActionBar;
+    // `colors.surface` is the card step and reads a shade too dark next to them.
     val container =
         if (activeCount > 0) colors.primary
-        else colors.surface
+        else colors.surfaceContainerHigh
     val content =
         if (activeCount > 0) colors.onPrimary
         else colors.onSurface

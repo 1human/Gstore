@@ -235,33 +235,21 @@ AI coding tools are welcome. These keep such PRs easy to review:
 
 ## Translations
 
-Komi Store ships in 14 languages. String resources live in:
+Komi Store ships in two languages: English and Simplified Chinese. String resources live in:
 
 ```text
 core/presentation/src/commonMain/composeResources/
-  values/strings.xml             # Default (English)
-  values-ar/strings-ar.xml       # Arabic
-  values-bn/strings-bn.xml       # Bengali
-  values-es/strings-es.xml       # Spanish
-  values-fr/strings-fr.xml       # French
-  values-hi/strings-hi.xml       # Hindi
-  values-it/strings-it.xml       # Italian
-  values-ja/strings-ja.xml       # Japanese
-  values-ko/strings-ko.xml       # Korean
-  values-pl/strings-pl.xml       # Polish
-  values-ru/strings-ru.xml       # Russian
-  values-tr/strings-tr.xml       # Turkish
-  values-zh-rCN/strings-zh-rCN.xml  # Chinese (Simplified)
-  values-zh-rTW/strings-zh-rTW.xml  # Chinese (Traditional)
+  values/strings.xml                     # Default (English)
+  values-zh-rCN/strings-zh-rCN.xml       # Chinese (Simplified)
 ```
 
-To add a translation:
+To keep a translation up to date:
 
 1. Find the missing or new key in `values/strings.xml`.
-2. Add the localized version to the matching `values-<lang>/strings-<lang>.xml`.
-3. Open a PR titled `i18n: <language> — <short note>` (e.g., `i18n: Spanish — translate APK Inspect strings`).
+2. Add the localized version to `values-zh-rCN/strings-zh-rCN.xml`.
+3. Open a PR titled `i18n: zh-CN — <short note>`.
 
-If you're adding a brand-new locale, ping a maintainer first so we can wire up the locale file and any locale-specific resources.
+`AppLanguages.ALL` (`core/domain/.../model/settings/AppLanguages.kt`) is the single source of truth for what the in-app language picker offers; adding a locale means adding a `values-<lang>` folder and an entry there.
 
 Don't machine-translate without verification — bad translations are worse than missing ones because they push out fallback English.
 

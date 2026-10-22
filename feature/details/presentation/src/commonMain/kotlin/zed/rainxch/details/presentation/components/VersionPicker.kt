@@ -44,7 +44,6 @@ import zed.rainxch.core.domain.model.repository.DiscoveryPlatform
 import zed.rainxch.core.domain.utils.VersionMath
 import zed.rainxch.core.presentation.components.chips.KomiChip
 import zed.rainxch.core.presentation.components.chips.KomiChipKind
-import zed.rainxch.core.presentation.components.chips.KomiChipSize
 import zed.rainxch.core.presentation.components.dividers.KomiHorizontalDivider
 import zed.rainxch.core.presentation.components.icon.KomiIcon
 import zed.rainxch.core.presentation.components.overlays.KomiSheet
@@ -182,7 +181,6 @@ fun VersionPicker(
                         KomiChip(
                             label = stringResource(Res.string.category_all),
                             kind = KomiChipKind.Filter,
-                            size = KomiChipSize.Sm,
                             selected = lineFilter == null,
                             onClick = { lineFilter = null },
                         )
@@ -191,7 +189,6 @@ fun VersionPicker(
                         KomiChip(
                             label = releaseLineLabel(line, repoName),
                             kind = KomiChipKind.Filter,
-                            size = KomiChipSize.Sm,
                             selected = lineFilter == line,
                             onClick = { lineFilter = line },
                         )

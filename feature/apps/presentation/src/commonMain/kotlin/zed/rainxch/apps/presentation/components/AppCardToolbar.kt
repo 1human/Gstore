@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material.icons.rounded.LinkOff
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,10 +22,12 @@ import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.toImmutableList
 import org.jetbrains.compose.resources.stringResource
 import zed.rainxch.apps.presentation.model.AppItem
+import zed.rainxch.core.domain.model.installation.InstallSource
 import zed.rainxch.core.presentation.components.icon.KomiIcon
 import zed.rainxch.core.presentation.components.inputs.KomiCheckbox
 import zed.rainxch.core.presentation.components.overlays.KomiDropdown
 import zed.rainxch.core.presentation.components.overlays.KomiMenuItem
+import zed.rainxch.core.presentation.components.overlays.KomiMenuTone
 import zed.rainxch.core.presentation.components.text.KomiText
 import zed.rainxch.core.presentation.components.text.KomiTextRole
 import zed.rainxch.core.presentation.locals.LocalPersonality
@@ -35,6 +38,7 @@ import zed.rainxch.githubstore.core.presentation.res.apps_ignore_updates
 import zed.rainxch.githubstore.core.presentation.res.apps_menu_item_active
 import zed.rainxch.githubstore.core.presentation.res.apps_skip_version
 import zed.rainxch.githubstore.core.presentation.res.apps_skip_version_unskip
+import zed.rainxch.githubstore.core.presentation.res.details_unlink_external_app_menu
 import zed.rainxch.githubstore.core.presentation.res.pre_release_badge
 import zed.rainxch.githubstore.core.presentation.res.variant_picker_open
 
@@ -47,6 +51,7 @@ internal fun AppCardToolbar(
     onToggleUpdateCheck: (Boolean) -> Unit,
     onSkipVersionClick: () -> Unit,
     onUnskipVersionClick: () -> Unit,
+    onUnlinkClick: () -> Unit,
     controlsEnabled: Boolean = !appItem.isBusy,
 ) {
     val colors = LocalPersonality.current.colors
@@ -132,6 +137,7 @@ internal fun AppCardToolbar(
                 stringResource(Res.string.apps_menu_item_active, ignoreUpdatesBase)
             val unskipLabel = stringResource(Res.string.apps_skip_version_unskip)
             val skipLabel = stringResource(Res.string.apps_skip_version)
+            val unlinkLabel = stringResource(Res.string.details_unlink_external_app_menu)
             val rowOverflowEntries = buildList {
                 add(
                     KomiMenuItem(
@@ -144,6 +150,16 @@ internal fun AppCardToolbar(
                 } else if (appItem.canSkipVersion) {
                     add(KomiMenuItem(id = "skip_version", label = skipLabel))
                 }
+                if (app.installSource == InstallSource.MANUAL) {
+                    add(
+                        KomiMenuItem(
+                            id = "unlink",
+                            label = unlinkLabel,
+                            icon = Icons.Rounded.LinkOff,
+                            tone = KomiMenuTone.Danger,
+                        ),
+                    )
+                }
             }.toImmutableList()
 
             KomiDropdown(
@@ -153,6 +169,7 @@ internal fun AppCardToolbar(
                         "toggle_update_check" -> onToggleUpdateCheck(!app.updateCheckEnabled)
                         "unskip_version" -> onUnskipVersionClick()
                         "skip_version" -> onSkipVersionClick()
+                        "unlink" -> onUnlinkClick()
                     }
                 },
                 trigger = { onClick ->

@@ -52,22 +52,17 @@ import zed.rainxch.core.presentation.components.scaffold.KomiScaffold
 import zed.rainxch.core.presentation.components.text.KomiText
 import zed.rainxch.core.presentation.components.text.KomiTextRole
 import zed.rainxch.core.presentation.locals.LocalPersonality
-import zed.rainxch.core.presentation.personality.usesDecor
-import zed.rainxch.core.presentation.personality.ClassicPersonality
-import zed.rainxch.core.presentation.personality.MangaPersonality
 import zed.rainxch.core.presentation.utils.ObserveAsEvents
 import zed.rainxch.core.presentation.layout.CardGridSpec
 import zed.rainxch.core.presentation.layout.rememberWidthCappedStaggeredCells
 import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.feed_empty_title
-import zed.rainxch.githubstore.core.presentation.res.feed_end_cap
 import zed.rainxch.githubstore.core.presentation.res.home_finding_repositories
 import zed.rainxch.githubstore.core.presentation.res.home_platform_filter
 import zed.rainxch.githubstore.core.presentation.res.home_retry
 import zed.rainxch.home.presentation.components.HomeChartTabs
 import zed.rainxch.core.domain.isDesktop
 import zed.rainxch.core.presentation.components.bars.KomiTopBar
-import zed.rainxch.githubstore.core.presentation.res.home_masthead_subtitle
 import zed.rainxch.githubstore.core.presentation.res.home_masthead_title
 import zed.rainxch.home.presentation.components.HomePlatformPicker
 import zed.rainxch.home.presentation.components.RepositoryActionsSheet
@@ -134,7 +129,6 @@ private fun HomeScreen(
         topBar = {
             KomiTopBar(
                 title = stringResource(Res.string.home_masthead_title),
-                titleAccent = stringResource(Res.string.home_masthead_subtitle),
                 actions = {
                     RepoLayoutToggle(
                         isGridLayout = state.isGridLayout,
@@ -245,11 +239,6 @@ private fun HomeChartFeed(
                 selected = state.selectedChart,
                 onSelect = { onAction(HomeAction.OnChartSelected(it)) },
             )
-
-            when (LocalPersonality.current) {
-                is MangaPersonality -> KomiHorizontalDivider(thickness = 3.dp, color = colors.outline)
-                is ClassicPersonality -> Unit
-            }
         }
 
         LazyVerticalStaggeredGrid(
@@ -332,13 +321,6 @@ private fun HomeEndCap() {
             thickness = 2.dp,
             color = LocalPersonality.current.colors.divider,
         )
-        if (LocalPersonality.current.usesDecor) {
-            KomiText(
-                text = stringResource(Res.string.feed_end_cap),
-                role = KomiTextRole.Overline,
-                color = LocalPersonality.current.colors.onSurfaceVariant,
-            )
-        }
         KomiHorizontalDivider(
             modifier = Modifier.weight(1f),
             thickness = 2.dp,

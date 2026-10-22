@@ -60,7 +60,7 @@ object FeedbackComposer {
         if (state.attachDiagnostics) {
             state.diagnostics?.let { d ->
                 builder.append("\n\n---\n**Diagnostics**\n")
-                builder.append("- App: Komi Store v").append(d.appVersion).append('\n')
+                builder.append("- App: gStore v").append(d.appVersion).append('\n')
                 builder
                     .append("- Platform: ")
                     .append(d.platform)

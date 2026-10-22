@@ -75,6 +75,7 @@ data class AppsState(
     val importSummary: ImportResult? = null,
     val expandedImportBuckets: ImmutableSet<ImportSummaryBucket> = persistentSetOf(),
     val appPendingUninstall: InstalledAppUi? = null,
+    val appPendingUnlink: InstalledAppUi? = null,
     val appPendingDiscard: InstalledAppUi? = null,
     val pendingExternalImportCount: Int = 0,
     val showImportProposalBanner: Boolean = false,

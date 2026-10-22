@@ -6,6 +6,7 @@ import zed.rainxch.githubstore.convention.configureJvmTarget
 import zed.rainxch.githubstore.convention.configureStabilityAnalyzer
 import zed.rainxch.githubstore.convention.libs
 
+@Suppress("unused")
 class CmpApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {

@@ -3,6 +3,7 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
 import zed.rainxch.githubstore.convention.libs
 
+@Suppress("unused")
 class CmpFeatureConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {

@@ -1,8 +1,11 @@
+import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
+import org.gradle.kotlin.dsl.withType
 
+@Suppress("unused")
 class QualityConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
@@ -16,6 +19,10 @@ class QualityConventionPlugin : Plugin<Project> {
                 config.setFrom(rootProject.file("config/detekt/detekt.yml"))
                 baseline = file("detekt-baseline.xml")
                 source.setFrom(fileTree("src") { include("*/kotlin/**/*.kt") })
+            }
+
+            tasks.withType<Detekt>().configureEach {
+                jvmTarget = "17"
             }
         }
     }

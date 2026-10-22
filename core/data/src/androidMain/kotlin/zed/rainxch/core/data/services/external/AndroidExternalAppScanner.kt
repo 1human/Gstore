@@ -1,5 +1,6 @@
 package zed.rainxch.core.data.services.external
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
@@ -66,6 +67,8 @@ class AndroidExternalAppScanner(
             toCandidate(info, nowMillis())
         }
 
+    // The app module declares QUERY_ALL_PACKAGES; lint cannot see it from this library.
+    @SuppressLint("QueryPermissionsNeeded")
     private fun listInstalledPackages(includeMeta: Boolean): List<PackageInfo> {
         val baseFlags =
             if (includeMeta) PackageManager.GET_META_DATA.toLong() else 0L

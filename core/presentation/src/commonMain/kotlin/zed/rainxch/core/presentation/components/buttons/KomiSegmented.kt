@@ -43,13 +43,7 @@ import zed.rainxch.core.presentation.components.text.KomiText
 import zed.rainxch.core.presentation.components.text.KomiTextRole
 import zed.rainxch.core.presentation.locals.LocalPersonality
 import zed.rainxch.core.presentation.personality.ClassicPersonality
-import zed.rainxch.core.presentation.personality.MangaPersonality
 import zed.rainxch.core.presentation.personality.classicPersonality
-import zed.rainxch.core.presentation.personality.manga.MangaAccent
-import zed.rainxch.core.presentation.personality.manga.MangaPaper
-import zed.rainxch.core.presentation.personality.manga.decoration.hardShadow
-import zed.rainxch.core.presentation.personality.manga.decoration.inkFocusRing
-import zed.rainxch.core.presentation.personality.mangaPersonality
 import zed.rainxch.core.presentation.personality.utils.PersonalityPreview
 import zed.rainxch.core.presentation.spacing.Spacing
 
@@ -64,107 +58,13 @@ fun <T> KomiSegmented(
     modifier: Modifier = Modifier,
     size: KomiIconButtonSize = KomiIconButtonSize.Md,
 ) {
-    when (val personality = LocalPersonality.current) {
-        is MangaPersonality -> {
-            MangaSegmented(
-                personality = personality,
-                selected = selected,
-                items = items,
-                onSelect = onSelect,
-                modifier = modifier,
-                size = size,
-            )
-        }
-
-        is ClassicPersonality -> {
-            ClassicSegmented(
-                selected = selected,
-                items = items,
-                onSelect = onSelect,
-                modifier = modifier,
-                size = size,
-            )
-        }
-    }
-}
-
-@Composable
-private fun <T> MangaSegmented(
-    personality: MangaPersonality,
-    selected: T,
-    items: ImmutableList<KomiSegmentedItem<T>>,
-    onSelect: (T) -> Unit,
-    modifier: Modifier = Modifier,
-    size: KomiIconButtonSize,
-) {
-    val colors = personality.colors
-    val metrics = size.metrics
-    val shape = remember(personality.shape.cornerSmall) { RoundedCornerShape(personality.shape.cornerSmall) }
-
-    Row(
-        modifier =
-            modifier
-                .height(metrics.box)
-                .hardShadow(offset = DpOffset(metrics.shadow, metrics.shadow), color = colors.shadow, shape = shape)
-                .background(colors.surface, shape)
-                .border(metrics.border, colors.outline, shape)
-                .clip(shape),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        items.forEachIndexed { index, item ->
-            if (index > 0) {
-                Box(
-                    modifier =
-                        Modifier
-                            .width(metrics.border)
-                            .fillMaxHeight()
-                            .background(colors.outline),
-                )
-            }
-
-            MangaSegmentCell(
-                item = item,
-                active = selected == item.value,
-                colors = colors,
-                metrics = metrics,
-                onSelect = onSelect,
-            )
-        }
-    }
-}
-
-@Composable
-private fun <T> MangaSegmentCell(
-    item: KomiSegmentedItem<T>,
-    active: Boolean,
-    colors: zed.rainxch.core.presentation.personality.model.PersonalityColors,
-    metrics: KomiIconButtonMetrics,
-    onSelect: (T) -> Unit,
-) {
-    val interaction = remember { MutableInteractionSource() }
-    val hovered by interaction.collectIsHoveredAsState()
-    val focused by interaction.collectIsFocusedAsState()
-    val background =
-        when {
-            active -> colors.primary
-            hovered -> colors.surfaceVariant
-            else -> Color.Transparent
-        }
-    val contentColor = if (active) colors.onPrimary else colors.onSurface
-
-    Box(
-        modifier =
-            Modifier
-                .fillMaxHeight()
-                .defaultMinSize(minWidth = metrics.box)
-                .inkFocusRing(focused = { focused }, color = colors.primary)
-                .background(background)
-                .clickable(interactionSource = interaction, indication = null) { onSelect(item.value) }
-                .padding(horizontal = Spacing.md),
-        contentAlignment = Alignment.Center,
-    ) {
-        SegmentContent(item = item, contentColor = contentColor, iconSize = metrics.icon, textRole = KomiTextRole.Stamp)
-    }
+    ClassicSegmented(
+        selected = selected,
+        items = items,
+        onSelect = onSelect,
+        modifier = modifier,
+        size = size,
+    )
 }
 
 @Composable
@@ -316,24 +216,6 @@ private fun PreviewStack() {
 
         KomiSegmented(selected = "auto", items = previewLabeledItems, onSelect = {})
     }
-}
-
-@Preview
-@Composable
-private fun KomiSegmentedMangaPreview() {
-    PersonalityPreview(mangaPersonality()) { PreviewStack() }
-}
-
-@Preview
-@Composable
-private fun KomiSegmentedMangaNightPreview() {
-    PersonalityPreview(mangaPersonality(paper = MangaPaper.NIGHT, accent = MangaAccent.SUN)) { PreviewStack() }
-}
-
-@Preview
-@Composable
-private fun KomiSegmentedMangaNordPreview() {
-    PersonalityPreview(mangaPersonality(paper = MangaPaper.NORD, accent = MangaAccent.FROST)) { PreviewStack() }
 }
 
 @Preview

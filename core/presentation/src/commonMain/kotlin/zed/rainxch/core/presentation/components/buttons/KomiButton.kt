@@ -55,14 +55,7 @@ import zed.rainxch.core.presentation.components.text.KomiText
 import zed.rainxch.core.presentation.components.text.KomiTextRole
 import zed.rainxch.core.presentation.locals.LocalPersonality
 import zed.rainxch.core.presentation.personality.ClassicPersonality
-import zed.rainxch.core.presentation.personality.MangaPersonality
 import zed.rainxch.core.presentation.personality.classicPersonality
-import zed.rainxch.core.presentation.personality.manga.MangaAccent
-import zed.rainxch.core.presentation.personality.manga.MangaPaper
-import zed.rainxch.core.presentation.personality.manga.decoration.inkFocusRing
-import zed.rainxch.core.presentation.personality.manga.decoration.inkPress
-import zed.rainxch.core.presentation.personality.manga.decoration.speedLines
-import zed.rainxch.core.presentation.personality.mangaPersonality
 import zed.rainxch.core.presentation.personality.utils.PersonalityPreview
 import zed.rainxch.core.presentation.spacing.Spacing
 import kotlin.math.roundToInt
@@ -76,7 +69,6 @@ fun KomiButton(
     size: KomiButtonSize = KomiButtonSize.Md,
     enabled: Boolean = true,
     loading: Boolean = false,
-    emphasized: Boolean = false,
     fullWidth: Boolean = false,
     leadingIcon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
@@ -84,25 +76,6 @@ fun KomiButton(
     contentColor: Color = Color.Unspecified,
 ) {
     when (val personality = LocalPersonality.current) {
-        is MangaPersonality -> {
-            MangaButton(
-                personality = personality,
-                onClick = onClick,
-                label = label,
-                modifier = modifier,
-                variant = variant,
-                size = size,
-                enabled = enabled,
-                loading = loading,
-                emphasized = emphasized,
-                fullWidth = fullWidth,
-                leadingIcon = leadingIcon,
-                trailingIcon = trailingIcon,
-                containerColor = containerColor,
-                contentColor = contentColor,
-            )
-        }
-
         is ClassicPersonality -> {
             ClassicButton(
                 personality = personality,
@@ -120,120 +93,6 @@ fun KomiButton(
                 contentColor = contentColor,
             )
         }
-    }
-}
-
-@Composable
-private fun MangaButton(
-    personality: MangaPersonality,
-    onClick: () -> Unit,
-    label: String,
-    modifier: Modifier = Modifier,
-    variant: KomiButtonVariant,
-    size: KomiButtonSize,
-    enabled: Boolean,
-    loading: Boolean,
-    emphasized: Boolean,
-    fullWidth: Boolean,
-    leadingIcon: ImageVector?,
-    trailingIcon: ImageVector?,
-    containerColor: Color,
-    contentColor: Color,
-) {
-    val colors = personality.colors
-    val metrics = buttonMetrics(size)
-    val shape =
-        remember(personality.shape.cornerSmall) { RoundedCornerShape(personality.shape.cornerSmall) }
-    val active = enabled && !loading
-    val alpha = if (active) 1f else 0.45f
-
-    val flat = variant == KomiButtonVariant.Text
-    val ambientInk = LocalContentColor.current
-    val overrideColorsGiven =
-        containerColor != Color.Unspecified && contentColor != Color.Unspecified
-    val container =
-        if (overrideColorsGiven) containerColor else mangaButtonContainer(variant, colors)
-    val resolvedContentColor =
-        if (overrideColorsGiven) contentColor else mangaButtonContent(variant, colors, ambientInk)
-    val borderColor =
-        if (overrideColorsGiven || container == Color.Transparent) resolvedContentColor else colors.outline
-    val stamped = !flat && container != Color.Transparent
-    val sweep =
-        emphasized && active &&
-            (variant == KomiButtonVariant.Primary || variant == KomiButtonVariant.Destructive)
-    val clipNeeded = personality.shape.cornerSmall > 0.dp || sweep
-
-    val interaction = remember { MutableInteractionSource() }
-    val pressed by interaction.collectIsPressedAsState()
-    val hovered by interaction.collectIsHoveredAsState()
-    val focused by interaction.collectIsFocusedAsState()
-    val pressProgress =
-        animateFloatAsState(if (pressed && active) 1f else 0f, label = "komiButtonPress")
-    val hoverProgress =
-        animateFloatAsState(if (hovered && active) 1f else 0f, label = "komiButtonHover")
-
-    val pressModifier =
-        if (!stamped) {
-            Modifier.offset { IntOffset(0, (1.dp.toPx() * pressProgress.value).roundToInt()) }
-        } else {
-            Modifier.inkPress(
-                pressProgress = { pressProgress.value },
-                hoverProgress = { hoverProgress.value },
-                shadow = DpOffset(metrics.shadow, metrics.shadow),
-                shadowColor = colors.shadow.copy(alpha = alpha),
-                shape = shape,
-            )
-        }
-
-    Row(
-        modifier =
-            modifier
-                .then(if (fullWidth) Modifier.fillMaxWidth() else Modifier)
-                .inkFocusRing(
-                    focused = { focused },
-                    color = if (overrideColorsGiven) resolvedContentColor else colors.primary,
-                ).then(pressModifier)
-                .then(if (clipNeeded) Modifier.clip(shape) else Modifier)
-                .background(color = container.copy(alpha = container.alpha * alpha), shape = shape)
-                .then(
-                    if (sweep) {
-                        Modifier.speedLines(
-                            color = resolvedContentColor,
-                            opacity = 0.16f,
-                        )
-                    } else {
-                        Modifier
-                    },
-                ).then(
-                    if (!flat) {
-                        Modifier.border(
-                            width = metrics.border,
-                            color = borderColor.copy(alpha = borderColor.alpha * alpha),
-                            shape = shape,
-                        )
-                    } else {
-                        Modifier
-                    },
-                ).clickable(
-                    enabled = active,
-                    interactionSource = interaction,
-                    indication = null,
-                    onClick = onClick,
-                ).height(metrics.height)
-                .padding(horizontal = metrics.hPadding),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        KomiButtonContent(
-            label = label,
-            contentColor = resolvedContentColor.copy(alpha = resolvedContentColor.alpha * alpha),
-            iconSize = metrics.icon,
-            gap = metrics.gap,
-            labelRole = metrics.labelRole,
-            loading = loading,
-            leadingIcon = leadingIcon,
-            trailingIcon = trailingIcon,
-        )
     }
 }
 
@@ -467,40 +326,9 @@ private fun PreviewButtonStack() {
             onClick = {},
             label = "Install Now · 78 MB",
             variant = KomiButtonVariant.Primary,
-            emphasized = true,
             fullWidth = true,
             leadingIcon = Icons.Default.Add,
         )
-    }
-}
-
-@Preview
-@Composable
-private fun KomiButtonMangaPreview() {
-    PersonalityPreview(mangaPersonality()) { PreviewButtonStack() }
-}
-
-@Preview
-@Composable
-private fun KomiButtonMangaNightPreview() {
-    PersonalityPreview(
-        mangaPersonality(
-            paper = MangaPaper.NIGHT,
-            accent = MangaAccent.SUN,
-        ),
-    ) { PreviewButtonStack() }
-}
-
-@Preview
-@Composable
-private fun KomiButtonMangaStatesPreview() {
-    PersonalityPreview(mangaPersonality()) {
-        Column(verticalArrangement = Arrangement.spacedBy(Spacing.md)) {
-            KomiButton(onClick = {}, label = "Loading", loading = true)
-            KomiButton(onClick = {}, label = "Disabled", enabled = false)
-            KomiButton(onClick = {}, label = "Small", size = KomiButtonSize.Sm)
-            KomiButton(onClick = {}, label = "Large", size = KomiButtonSize.Lg)
-        }
     }
 }
 

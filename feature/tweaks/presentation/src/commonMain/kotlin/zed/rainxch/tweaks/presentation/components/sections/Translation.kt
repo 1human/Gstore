@@ -75,7 +75,7 @@ fun translationSectionContent(
                 }
             }
             when (provider) {
-                TranslationProvider.YOUDAO -> YoudaoCredentialsForm(state, onAction)
+                TranslationProvider.BAIDU -> BaiduCredentialsForm(state, onAction)
                 TranslationProvider.LIBRE_TRANSLATE -> LibreTranslateCredentialsForm(state, onAction)
                 TranslationProvider.DEEPL -> DeeplCredentialsForm(state, onAction)
                 TranslationProvider.MICROSOFT -> MicrosoftCredentialsForm(state, onAction)
@@ -115,7 +115,7 @@ fun translationSectionContent(
 private fun providerLabel(provider: TranslationProvider): String =
     when (provider) {
         TranslationProvider.GOOGLE -> stringResource(Res.string.translation_provider_google)
-        TranslationProvider.YOUDAO -> stringResource(Res.string.translation_provider_youdao)
+        TranslationProvider.BAIDU -> stringResource(Res.string.translation_provider_baidu)
         TranslationProvider.LIBRE_TRANSLATE -> stringResource(Res.string.translation_provider_libre)
         TranslationProvider.DEEPL -> stringResource(Res.string.translation_provider_deepl)
         TranslationProvider.MICROSOFT -> stringResource(Res.string.translation_provider_microsoft)
@@ -180,32 +180,32 @@ private fun TranslationTargetDropdown(
 }
 
 @Composable
-private fun YoudaoCredentialsForm(
+private fun BaiduCredentialsForm(
     state: TweaksState,
     onAction: (TweaksAction) -> Unit,
 ) {
-    val canSave = state.youdaoAppKey.isNotBlank() && state.youdaoAppSecret.isNotBlank()
+    val canSave = state.baiduAppId.isNotBlank() && state.baiduAppSecret.isNotBlank()
     Column(
         modifier = Modifier.padding(top = 12.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         KomiTextField(
-            value = state.youdaoAppKey,
-            onValueChange = { onAction(TweaksAction.OnYoudaoAppKeyChanged(it)) },
-            label = stringResource(Res.string.translation_youdao_app_key),
+            value = state.baiduAppId,
+            onValueChange = { onAction(TweaksAction.OnBaiduAppIdChanged(it)) },
+            label = stringResource(Res.string.translation_baidu_app_id),
             modifier = Modifier.fillMaxWidth(),
         )
         KomiTextField(
-            value = state.youdaoAppSecret,
-            onValueChange = { onAction(TweaksAction.OnYoudaoAppSecretChanged(it)) },
-            label = stringResource(Res.string.translation_youdao_app_secret),
+            value = state.baiduAppSecret,
+            onValueChange = { onAction(TweaksAction.OnBaiduAppSecretChanged(it)) },
+            label = stringResource(Res.string.translation_baidu_app_secret),
             password = true,
             keyboardType = KeyboardType.Password,
             modifier = Modifier.fillMaxWidth(),
         )
         KomiButton(
-            onClick = { onAction(TweaksAction.OnYoudaoCredentialsSave) },
-            label = stringResource(Res.string.translation_youdao_save),
+            onClick = { onAction(TweaksAction.OnBaiduCredentialsSave) },
+            label = stringResource(Res.string.translation_baidu_save),
             variant = KomiButtonVariant.Tonal,
             size = KomiButtonSize.Sm,
             enabled = canSave,

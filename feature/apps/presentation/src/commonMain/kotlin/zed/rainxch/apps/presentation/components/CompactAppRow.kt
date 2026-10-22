@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material.icons.rounded.LinkOff
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,6 +38,7 @@ import kotlinx.collections.immutable.toImmutableList
 import org.jetbrains.compose.resources.stringResource
 import zed.rainxch.apps.presentation.model.AppItem
 import zed.rainxch.apps.presentation.model.UpdateState
+import zed.rainxch.core.domain.model.installation.InstallSource
 import zed.rainxch.core.presentation.components.InstalledAppIcon
 import zed.rainxch.core.presentation.components.buttons.KomiButton
 import zed.rainxch.core.presentation.components.buttons.KomiButtonSize
@@ -56,6 +58,7 @@ import zed.rainxch.githubstore.core.presentation.res.apps_ignore_updates
 import zed.rainxch.githubstore.core.presentation.res.apps_menu_item_active
 import zed.rainxch.githubstore.core.presentation.res.apps_skip_version_unskip
 import zed.rainxch.githubstore.core.presentation.res.delete_task
+import zed.rainxch.githubstore.core.presentation.res.details_unlink_external_app_menu
 import zed.rainxch.githubstore.core.presentation.res.download_failed
 import zed.rainxch.githubstore.core.presentation.res.error_with_message
 import zed.rainxch.githubstore.core.presentation.res.install
@@ -74,6 +77,7 @@ fun CompactAppRow(
     onAdvancedSettingsClick: () -> Unit,
     onPickVariantClick: () -> Unit,
     onUninstallClick: () -> Unit,
+    onUnlinkClick: () -> Unit,
     onTogglePreReleases: (Boolean) -> Unit,
     onToggleUpdateCheck: (Boolean) -> Unit,
     onUnskipVersionClick: () -> Unit,
@@ -95,6 +99,8 @@ fun CompactAppRow(
     val rowShape = RoundedCornerShape(shape.corner)
 
     val showVersionMigration = app.isPendingInstall && appItem.versionTargetVersion != null
+    // Only manually linked (externally imported) apps carry a link that can be removed.
+    val isExternallyLinked = app.installSource == InstallSource.MANUAL
 
     Row(
         modifier =
@@ -223,9 +229,11 @@ fun CompactAppRow(
             isPreReleaseEnabled = app.includePreReleases,
             isUpdateCheckEnabled = app.updateCheckEnabled,
             hasSkippedReleaseTag = app.skippedReleaseTag != null,
+            isExternallyLinked = isExternallyLinked,
             onAdvancedSettingsClick = onAdvancedSettingsClick,
             onPickVariantClick = onPickVariantClick,
             onUninstallClick = onUninstallClick,
+            onUnlinkClick = onUnlinkClick,
             onTogglePreReleases = onTogglePreReleases,
             onToggleUpdateCheck = onToggleUpdateCheck,
             onDiscardPendingClick = onDiscardPendingClick,
@@ -242,9 +250,11 @@ private fun CompactRowOverflow(
     isPreReleaseEnabled: Boolean,
     isUpdateCheckEnabled: Boolean,
     hasSkippedReleaseTag: Boolean,
+    isExternallyLinked: Boolean,
     onAdvancedSettingsClick: () -> Unit,
     onPickVariantClick: () -> Unit,
     onUninstallClick: () -> Unit,
+    onUnlinkClick: () -> Unit,
     onTogglePreReleases: (Boolean) -> Unit,
     onToggleUpdateCheck: (Boolean) -> Unit,
     onDiscardPendingClick: () -> Unit,
@@ -260,6 +270,7 @@ private fun CompactRowOverflow(
     val unskipLabel = stringResource(Res.string.apps_skip_version_unskip)
     val deleteTaskLabel = stringResource(Res.string.delete_task)
     val uninstallLabel = stringResource(Res.string.uninstall)
+    val unlinkLabel = stringResource(Res.string.details_unlink_external_app_menu)
     val preReleaseActive = stringResource(Res.string.apps_menu_item_active, preReleaseBase)
     val ignoreUpdatesActive = stringResource(Res.string.apps_menu_item_active, ignoreUpdatesBase)
 
@@ -281,6 +292,16 @@ private fun CompactRowOverflow(
             )
             if (hasSkippedReleaseTag) {
                 add(KomiMenuItem(id = "unskip_version", label = unskipLabel))
+            }
+            if (isExternallyLinked && !isPending) {
+                add(
+                    KomiMenuItem(
+                        id = "unlink",
+                        label = unlinkLabel,
+                        icon = Icons.Rounded.LinkOff,
+                        tone = KomiMenuTone.Danger,
+                    ),
+                )
             }
             if (isPending) {
                 add(
@@ -312,6 +333,7 @@ private fun CompactRowOverflow(
                 "toggle_pre_releases" -> onTogglePreReleases(!isPreReleaseEnabled)
                 "toggle_update_check" -> onToggleUpdateCheck(!isUpdateCheckEnabled)
                 "unskip_version" -> onUnskipVersionClick()
+                "unlink" -> onUnlinkClick()
                 "discard_pending" -> onDiscardPendingClick()
                 "uninstall" -> onUninstallClick()
             }

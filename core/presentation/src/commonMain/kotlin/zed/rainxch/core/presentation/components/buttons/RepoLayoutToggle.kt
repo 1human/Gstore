@@ -6,6 +6,7 @@ import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import org.jetbrains.compose.resources.stringResource
+import zed.rainxch.core.presentation.locals.LocalPersonality
 import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.feed_layout_description_grid
 import zed.rainxch.githubstore.core.presentation.res.feed_layout_description_list
@@ -17,6 +18,7 @@ fun RepoLayoutToggle(
     modifier: Modifier = Modifier,
     size: KomiIconButtonSize = KomiIconButtonSize.Md,
 ) {
+    val colors = LocalPersonality.current.colors
     KomiIconButton(
         icon = if (isGridLayout) Icons.AutoMirrored.Rounded.ViewList else Icons.Rounded.GridView,
         contentDescription =
@@ -26,6 +28,10 @@ fun RepoLayoutToggle(
         onClick = onToggle,
         variant = KomiButtonVariant.Primary,
         size = size,
+        // Neutral raised fill, matching the filter pill it sits next to. A primary fill reads as a
+        // much heavier block than every other control in the same bar.
+        containerColor = colors.surfaceContainerHigh,
+        contentColor = colors.onSurface,
         modifier = modifier,
     )
 }

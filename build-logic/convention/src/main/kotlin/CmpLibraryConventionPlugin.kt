@@ -3,8 +3,8 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
 import zed.rainxch.githubstore.convention.configureStabilityAnalyzer
 import zed.rainxch.githubstore.convention.libs
-import kotlin.text.get
 
+@Suppress("unused")
 class CmpLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {

@@ -30,7 +30,6 @@ import org.jetbrains.compose.resources.stringResource
 import zed.rainxch.core.presentation.components.GitHubStoreImage
 import zed.rainxch.core.presentation.components.chips.KomiChip
 import zed.rainxch.core.presentation.components.chips.KomiChipKind
-import zed.rainxch.core.presentation.components.chips.KomiChipSize
 import zed.rainxch.core.presentation.components.icon.KomiIcon
 import zed.rainxch.core.presentation.components.surfaces.KomiSurface
 import zed.rainxch.core.presentation.components.text.KomiText
@@ -142,7 +141,6 @@ fun FavouriteRepositoryItem(
                     KomiChip(
                         label = language,
                         kind = KomiChipKind.Info,
-                        size = KomiChipSize.Sm,
                         leadingContent = {
                             KomiIcon(
                                 imageVector = Icons.Default.Code,
@@ -158,7 +156,6 @@ fun FavouriteRepositoryItem(
                     KomiChip(
                         label = release,
                         kind = KomiChipKind.Info,
-                        size = KomiChipSize.Sm,
                         leadingContent = {
                             KomiIcon(
                                 imageVector = Icons.Default.NewReleases,
@@ -173,7 +170,6 @@ fun FavouriteRepositoryItem(
                 KomiChip(
                     label = favouriteRepository.addedAtFormatter,
                     kind = KomiChipKind.Info,
-                    size = KomiChipSize.Sm,
                     leadingContent = {
                         KomiIcon(
                             imageVector = Icons.Default.CalendarToday,

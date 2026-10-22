@@ -51,8 +51,6 @@ fun LicensesRoot(
             )
         },
         toastState = toastState,
-        grid = true,
-        screentone = true
     ) { innerPadding ->
         val colors = LocalPersonality.current.colors
         Column(

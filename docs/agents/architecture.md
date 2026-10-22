@@ -8,7 +8,7 @@ Clean Architecture with MVVM. **Domain** holds contracts, models and pure logic.
 composeApp/            entry points, navigation, DI wiring (commonMain / androidMain / jvmMain)
 core/domain            interfaces, models, use cases (no framework deps)
 core/data              repositories, Ktor, Room, Koin, platform implementations
-core/presentation      Personality design system (Classic / Manga), Komi* components, 14-locale strings
+core/presentation      Personality design system (Classic), Komi* components, English + zh-CN strings
 feature/               apps auth details dev-profile favourites feed home profile recently-viewed repo-pages search starred tweaks
 konsist-test/          architecture rules
 build-logic/convention convention plugins

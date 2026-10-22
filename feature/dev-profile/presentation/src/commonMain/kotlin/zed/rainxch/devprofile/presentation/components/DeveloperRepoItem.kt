@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import zed.rainxch.core.presentation.components.chips.KomiChip
 import zed.rainxch.core.presentation.components.chips.KomiChipKind
-import zed.rainxch.core.presentation.components.chips.KomiChipSize
 import zed.rainxch.core.presentation.components.icon.KomiIcon
 import zed.rainxch.core.presentation.components.surfaces.KomiSurface
 import zed.rainxch.core.presentation.components.text.KomiText
@@ -125,7 +124,6 @@ fun DeveloperRepoItem(
                     KomiChip(
                         label = formatCount(repository.stargazersCount),
                         kind = KomiChipKind.Info,
-                        size = KomiChipSize.Sm,
                         leadingContent = {
                             KomiIcon(
                                 imageVector = Icons.Outlined.StarOutline,
@@ -140,7 +138,6 @@ fun DeveloperRepoItem(
                     KomiChip(
                         label = formatCount(repository.forksCount),
                         kind = KomiChipKind.Info,
-                        size = KomiChipSize.Sm,
                         leadingContent = {
                             KomiIcon(
                                 imageVector = Icons.AutoMirrored.Outlined.CallSplit,
@@ -155,7 +152,6 @@ fun DeveloperRepoItem(
                     KomiChip(
                         label = formatCount(repository.openIssuesCount),
                         kind = KomiChipKind.Info,
-                        size = KomiChipSize.Sm,
                         leadingContent = {
                             KomiIcon(
                                 imageVector = Icons.Outlined.WarningAmber,
@@ -170,7 +166,6 @@ fun DeveloperRepoItem(
                     KomiChip(
                         label = language,
                         kind = KomiChipKind.Info,
-                        size = KomiChipSize.Sm,
                         leadingContent = {
                             KomiIcon(
                                 imageVector = Icons.Outlined.Code,

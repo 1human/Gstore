@@ -8,7 +8,6 @@
     <ID>CyclomaticComplexMethod:HostTokensRoot.kt$@Composable private fun TokenRow( token: HostToken, isValidating: Boolean, validation: ValidationLine?, onValidate: () -&gt; Unit, onDelete: () -&gt; Unit, onReplace: () -&gt; Unit, onEditLabel: () -&gt; Unit, onOpenManagePage: (ForgeKind) -&gt; Unit, last: Boolean, )</ID>
     <ID>CyclomaticComplexMethod:HostTokensViewModel.kt$HostTokensViewModel$fun onAction(action: HostTokensAction)</ID>
     <ID>CyclomaticComplexMethod:PasteProxyUrlSheet.kt$fun parseProxyUrl(raw: String): PastedProxy?</ID>
-    <ID>CyclomaticComplexMethod:TweaksKicker.kt$private fun mangaKicker(slot: TweaksDecorSlot): String</ID>
     <ID>CyclomaticComplexMethod:TweaksRoot.kt$@Composable fun TweaksRoot( onNavigateBack: () -&gt; Unit, onNavigateToHostTokens: () -&gt; Unit, onNavigateToMirrorPicker: () -&gt; Unit, onNavigateToSkippedUpdates: () -&gt; Unit, onNavigateToHiddenRepositories: () -&gt; Unit, viewModel: TweaksViewModel = koinViewModel(), )</ID>
     <ID>CyclomaticComplexMethod:TweaksViewModel.kt$TweaksViewModel$fun onAction(action: TweaksAction)</ID>
     <ID>CyclomaticComplexMethod:TweaksViewModel.kt$TweaksViewModel$private fun loadProxyConfig()</ID>
@@ -29,7 +28,6 @@
     <ID>MagicNumber:TweaksViewModel.kt$TweaksViewModel$65535</ID>
     <ID>MatchingDeclarationName:PasteProxyUrlSheet.kt$PastedProxy</ID>
     <ID>MatchingDeclarationName:TweaksDesktopContent.kt$DesktopSection</ID>
-    <ID>MatchingDeclarationName:TweaksKicker.kt$TweaksDecorSlot</ID>
     <ID>MaxLineLength:Installation.kt$.</ID>
     <ID>MaxLineLength:Installation.kt$DhizukuAvailability.NOT_RUNNING -&gt; LocalStatusColors.current.statusError to stringResource(Res.string.dhizuku_status_not_running)</ID>
     <ID>MaxLineLength:Installation.kt$DhizukuAvailability.PERMISSION_NEEDED -&gt; LocalStatusColors.current.statusWarning to stringResource(Res.string.dhizuku_status_permission_needed)</ID>

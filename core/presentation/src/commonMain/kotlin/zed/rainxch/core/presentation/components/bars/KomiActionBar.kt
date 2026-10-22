@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -30,10 +29,7 @@ import zed.rainxch.core.presentation.components.buttons.KomiCookieButton
 import zed.rainxch.core.presentation.components.buttons.KomiFab
 import zed.rainxch.core.presentation.components.buttons.KomiIconButton
 import zed.rainxch.core.presentation.locals.LocalPersonality
-import zed.rainxch.core.presentation.personality.ClassicPersonality
-import zed.rainxch.core.presentation.personality.MangaPersonality
 import zed.rainxch.core.presentation.personality.classicPersonality
-import zed.rainxch.core.presentation.personality.mangaPersonality
 import zed.rainxch.core.presentation.personality.utils.PersonalityPreview
 import zed.rainxch.core.presentation.spacing.Spacing
 import zed.rainxch.githubstore.core.presentation.res.Res
@@ -59,46 +55,21 @@ fun KomiActionBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         onBack?.let { back ->
-            when (personality) {
-                is ClassicPersonality -> {
-                    val colors = personality.colors
-                    KomiCookieButton(
-                        icon = Icons.AutoMirrored.Rounded.ArrowBack,
-                        contentDescription = stringResource(Res.string.navigate_back),
-                        onClick = back,
-                        containerColor = colors.surfaceContainerHigh,
-                        contentColor = colors.onSurface,
-                    )
-                }
-
-                is MangaPersonality -> {
-                    KomiIconButton(
-                        icon = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(Res.string.navigate_back),
-                        onClick = back,
-                    )
-                }
-            }
+            KomiCookieButton(
+                icon = Icons.AutoMirrored.Rounded.ArrowBack,
+                contentDescription = stringResource(Res.string.navigate_back),
+                onClick = back,
+                containerColor = personality.colors.surfaceContainerHigh,
+                contentColor = personality.colors.onSurface,
+            )
         }
         Spacer(modifier = Modifier.weight(1f))
         actions?.let { content ->
-            when (personality) {
-                is ClassicPersonality -> {
-                    ClassicActions(content = content)
-                }
-
-                is MangaPersonality -> {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
-                        content = content,
-                    )
-                }
-            }
+            ClassicActions(content = content)
         }
-        // In a Classic bar the screen's FAB turns into a cookie too (KomiFab reads LocalInBar).
+        // The screen's FAB turns into a cookie in the bar (KomiFab reads LocalInBar).
         floatingActionButton?.let { fab ->
-            CompositionLocalProvider(LocalInBar provides (personality is ClassicPersonality), content = fab)
+            CompositionLocalProvider(LocalInBar provides true, content = fab)
         }
     }
 }
@@ -146,10 +117,4 @@ private fun KomiActionBarClassicPreview() {
 @Composable
 private fun KomiActionBarClassicDarkPreview() {
     PersonalityPreview(classicPersonality(dark = true)) { PreviewActionBar() }
-}
-
-@Preview
-@Composable
-private fun KomiActionBarMangaPreview() {
-    PersonalityPreview(mangaPersonality()) { PreviewActionBar() }
 }

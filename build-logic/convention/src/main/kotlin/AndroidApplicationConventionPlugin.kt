@@ -3,8 +3,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 import zed.rainxch.githubstore.convention.configureKotlinAndroid
-import zed.rainxch.githubstore.convention.libs
 
+@Suppress("unused")
 class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
@@ -15,33 +15,25 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             extensions.configure<ApplicationExtension> {
                 namespace = "zed.rainxch.githubstore"
                 compileSdk =
-                    libs
-                        .findVersion("projectCompileSdkVersion")
-                        .get()
-                        .toString()
-                        .toInt()
+                    findProperty("projectCompileSdkVersion")?.toString()?.toInt() ?: 37
+                val compileSdkExt =
+                    findProperty("projectCompileSdkExtension")?.toString()?.toInt()
+                if (compileSdkExt != null) {
+                    compileSdkExtension = compileSdkExt
+                }
 
                 defaultConfig {
-                    applicationId = libs.findVersion("projectApplicationId").get().toString()
+                    applicationId =
+                        findProperty("projectApplicationId")?.toString()
+                            ?: "zed.rainxch.githubstore"
                     minSdk =
-                        libs
-                            .findVersion("projectMinSdkVersion")
-                            .get()
-                            .toString()
-                            .toInt()
+                        findProperty("projectMinSdkVersion")?.toString()?.toInt() ?: 26
                     targetSdk =
-                        libs
-                            .findVersion("projectTargetSdkVersion")
-                            .get()
-                            .toString()
-                            .toInt()
+                        findProperty("projectTargetSdkVersion")?.toString()?.toInt() ?: 37
                     versionCode =
-                        libs
-                            .findVersion("projectVersionCode")
-                            .get()
-                            .toString()
-                            .toInt()
-                    versionName = libs.findVersion("projectVersionName").get().toString()
+                        findProperty("projectVersionCode")?.toString()?.toInt() ?: 1
+                    versionName =
+                        findProperty("projectVersionName")?.toString() ?: "1.0"
                 }
                 packaging {
                     resources {
@@ -52,6 +44,13 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                     getByName("release") {
                         isMinifyEnabled = true
                         isShrinkResources = true
+
+                        // Ship a single arm64-v8a slice: every device we support is 64-bit ARM,
+                        // so the other ABIs only inflate the APK/AAB.
+                        ndk {
+                            abiFilters.clear()
+                            abiFilters.add("arm64-v8a")
+                        }
 
                         proguardFiles(
                             getDefaultProguardFile("proguard-android-optimize.txt"),

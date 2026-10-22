@@ -63,12 +63,7 @@ import zed.rainxch.core.presentation.components.text.KomiTextRole
 import zed.rainxch.core.presentation.locals.LocalPersonality
 import zed.rainxch.core.presentation.locals.LocalStatusColors
 import zed.rainxch.core.presentation.personality.ClassicPersonality
-import zed.rainxch.core.presentation.personality.MangaPersonality
 import zed.rainxch.core.presentation.personality.classicPersonality
-import zed.rainxch.core.presentation.personality.manga.MangaAccent
-import zed.rainxch.core.presentation.personality.manga.MangaPaper
-import zed.rainxch.core.presentation.personality.manga.decoration.hardShadow
-import zed.rainxch.core.presentation.personality.mangaPersonality
 import zed.rainxch.core.presentation.personality.model.MotionLevel
 import zed.rainxch.core.presentation.personality.utils.PersonalityPreview
 import zed.rainxch.core.presentation.status.StatusColors
@@ -149,7 +144,6 @@ private fun KomiToastItem(
     ) {
         KomiToastSurface(
             data = data,
-            progress = { progress.value },
             interaction = interaction,
             onClose = beginClose,
         )
@@ -159,172 +153,12 @@ private fun KomiToastItem(
 @Composable
 private fun KomiToastSurface(
     data: KomiToastData,
-    progress: () -> Float,
     interaction: MutableInteractionSource,
     onClose: () -> Unit,
 ) {
     when (val personality = LocalPersonality.current) {
-        is MangaPersonality -> MangaToastPanel(personality, data, progress, interaction, onClose)
         is ClassicPersonality -> ClassicToastPanel(data, interaction, onClose)
     }
-}
-
-@Composable
-private fun MangaToastPanel(
-    personality: MangaPersonality,
-    data: KomiToastData,
-    progress: () -> Float,
-    interaction: MutableInteractionSource,
-    onClose: () -> Unit,
-) {
-    val colors = personality.colors
-    val status = LocalStatusColors.current
-    val accent = colors.primary
-    val cue = toneCue(data.tone, status, accent, colors.onSurface)
-    val cueOn = if (data.tone == KomiToastTone.Info) colors.background else colors.onError
-    val barColor = if (data.tone == KomiToastTone.Default) accent else cue
-    val showEmblem = data.tone != KomiToastTone.Default
-    val hasAction = data.actionLabel != null
-    val showX = data.dismissible ?: !hasAction
-    val motionFull = personality.motion.level == MotionLevel.FULL
-
-    Box(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .widthIn(max = ToastMaxWidth)
-                .hoverable(interaction)
-                .hardShadow(DpOffset(5.dp, 5.dp), colors.shadow)
-                .background(colors.surface)
-                .border(3.dp, colors.outline),
-    ) {
-        Column {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(start = 12.dp, end = 12.dp, top = 11.dp, bottom = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(11.dp),
-            ) {
-                if (showEmblem) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .size(30.dp)
-                                .rotate(-4f)
-                                .background(cue)
-                                .border(2.5.dp, colors.outline),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            imageVector = toneIcon(data.tone),
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp),
-                            tint = cueOn,
-                        )
-                    }
-                }
-                KomiText(
-                    text = data.message,
-                    modifier = Modifier.weight(1f),
-                    role = KomiTextRole.Body,
-                    color = colors.onSurface,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                if (hasAction) {
-                    KomiText(
-                        text = data.actionLabel,
-                        modifier =
-                            Modifier.clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                            ) {
-                                data.onAction?.invoke()
-                                onClose()
-                            },
-                        role = KomiTextRole.Label,
-                        color = accent,
-                    )
-                }
-                if (showX) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .size(26.dp)
-                                .background(colors.background)
-                                .border(2.dp, colors.outline)
-                                .clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null,
-                                    onClick = onClose,
-                                ),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Dismiss",
-                            modifier = Modifier.size(13.dp),
-                            tint = colors.onSurface,
-                        )
-                    }
-                }
-            }
-
-            if (!data.persistent) {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(4.dp)
-                            .graphicsLayer {
-                                scaleX = progress()
-                                transformOrigin = TransformOrigin(0f, 0.5f)
-                            }.background(barColor),
-                )
-            }
-        }
-
-        if (motionFull && data.sfx != null) {
-            SfxKicker(
-                text = data.sfx,
-                color = cue,
-                modifier = Modifier.align(Alignment.TopEnd).padding(end = 10.dp),
-            )
-        }
-    }
-}
-
-@Composable
-private fun SfxKicker(
-    text: String,
-    color: Color,
-    modifier: Modifier = Modifier,
-) {
-    val personality = LocalPersonality.current
-    val scaleAnim = remember { Animatable(0.4f) }
-    val alphaAnim = remember { Animatable(0f) }
-    val scope = rememberCoroutineScope()
-    val motion = personality.motion
-    LaunchedEffect(Unit) {
-        scope.launch {
-            alphaAnim.animateTo(1f, motion.short())
-            alphaAnim.animateTo(0f, motion.long(delayMillis = motion.mediumMs))
-        }
-        scaleAnim.animateTo(1.15f, motion.short())
-        scaleAnim.animateTo(1f, motion.short())
-    }
-    Text(
-        text = text,
-        modifier =
-            modifier.graphicsLayer {
-                scaleX = scaleAnim.value
-                scaleY = scaleAnim.value
-                alpha = alphaAnim.value
-                rotationZ = -8f
-            },
-        // A comic sound effect, so it stays in Anton; buttons no longer are.
-        style = personality.type.sectionTitle,
-        color = color,
-    )
 }
 
 @Composable
@@ -379,20 +213,6 @@ private fun ClassicToastPanel(
     }
 }
 
-private fun toneCue(
-    tone: KomiToastTone,
-    status: StatusColors,
-    accent: Color,
-    ink: Color,
-): Color =
-    when (tone) {
-        KomiToastTone.Default -> accent
-        KomiToastTone.Success -> status.statusReady
-        KomiToastTone.Warning -> status.statusWarning
-        KomiToastTone.Danger -> status.statusError
-        KomiToastTone.Info -> ink
-    }
-
 private fun toneTintOrNull(
     tone: KomiToastTone,
     status: StatusColors,
@@ -420,13 +240,11 @@ private fun PreviewToastStack() {
         val interaction = remember { MutableInteractionSource() }
         KomiToastSurface(
             data = KomiToastData(id = 1, message = "Link copied to clipboard."),
-            progress = { 0.7f },
             interaction = interaction,
             onClose = {},
         )
         KomiToastSurface(
             data = KomiToastData(id = 2, message = "immich v2.7.5 installed.", tone = KomiToastTone.Success),
-            progress = { 0.45f },
             interaction = interaction,
             onClose = {},
         )
@@ -439,29 +257,15 @@ private fun PreviewToastStack() {
                     actionLabel = "Update",
                     onAction = {},
                 ),
-            progress = { 0.85f },
             interaction = interaction,
             onClose = {},
         )
         KomiToastSurface(
             data = KomiToastData(id = 4, message = "Download failed.", tone = KomiToastTone.Danger, actionLabel = "Retry", onAction = {}),
-            progress = { 0.3f },
             interaction = interaction,
             onClose = {},
         )
     }
-}
-
-@Preview
-@Composable
-private fun KomiToastMangaPreview() {
-    PersonalityPreview(mangaPersonality()) { PreviewToastStack() }
-}
-
-@Preview
-@Composable
-private fun KomiToastMangaNightPreview() {
-    PersonalityPreview(mangaPersonality(paper = MangaPaper.NIGHT, accent = MangaAccent.SUN)) { PreviewToastStack() }
 }
 
 @Preview

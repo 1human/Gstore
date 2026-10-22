@@ -27,11 +27,8 @@ import zed.rainxch.core.data.secure.safeGetFlow
 import zed.rainxch.core.data.secure.safePut
 import zed.rainxch.core.domain.model.announcement.AnnouncementCategory
 import zed.rainxch.core.domain.model.appearance.AccentId
-import zed.rainxch.core.domain.model.appearance.AppPersonality
 import zed.rainxch.core.domain.model.appearance.AppTheme
 import zed.rainxch.core.domain.model.appearance.ContentWidth
-import zed.rainxch.core.domain.model.appearance.FontTheme
-import zed.rainxch.core.domain.model.appearance.MangaPaperId
 import zed.rainxch.core.domain.model.installation.InstallerType
 import zed.rainxch.core.domain.model.repository.DiscoveryPlatform
 import zed.rainxch.core.domain.model.settings.AppLanguages
@@ -88,28 +85,6 @@ class TweaksRepositoryImpl(
     override suspend fun setAmoledTheme(enabled: Boolean) {
         migrationDeferred.await()
         ksafe.safePut(K_AMOLED, enabled)
-    }
-
-    override fun getMangaPaper(): Flow<MangaPaperId> = gatedGetFlow(K_MANGA_PAPER, "").map { MangaPaperId.fromName(it.ifEmpty { null }) }
-
-    override suspend fun setMangaPaper(paper: MangaPaperId) {
-        migrationDeferred.await()
-        ksafe.safePut(K_MANGA_PAPER, paper.name)
-    }
-
-    override fun getFontTheme(): Flow<FontTheme> = gatedGetFlow(K_FONT, "").map { FontTheme.fromName(it.ifEmpty { null }) }
-
-    override suspend fun setFontTheme(fontTheme: FontTheme) {
-        migrationDeferred.await()
-        ksafe.safePut(K_FONT, fontTheme.name)
-    }
-
-    override fun getPersonality(): Flow<AppPersonality> =
-        gatedGetFlow(K_PERSONALITY, "").map { AppPersonality.fromName(it.ifEmpty { null }) }
-
-    override suspend fun setPersonality(personality: AppPersonality) {
-        migrationDeferred.await()
-        ksafe.safePut(K_PERSONALITY, personality.name)
     }
 
     override fun getAccentId(): Flow<AccentId> = gatedGetFlow(K_ACCENT, "").map { AccentId.fromName(it.ifEmpty { null }) }
@@ -257,20 +232,20 @@ class TweaksRepositoryImpl(
         ksafe.safePut(K_TRANSLATION_PROVIDER, provider.name)
     }
 
-    override fun getYoudaoAppKey(): Flow<String> = gatedGetFlow(K_YOUDAO_APP_KEY, "")
+    override fun getBaiduAppId(): Flow<String> = gatedGetFlow(K_BAIDU_APP_ID, "")
 
-    override suspend fun setYoudaoAppKey(appKey: String) {
+    override suspend fun setBaiduAppId(appId: String) {
         migrationDeferred.await()
-        val trimmed = appKey.trim()
-        if (trimmed.isEmpty()) ksafe.safeDelete(K_YOUDAO_APP_KEY) else ksafe.safePut(K_YOUDAO_APP_KEY, trimmed)
+        val trimmed = appId.trim()
+        if (trimmed.isEmpty()) ksafe.safeDelete(K_BAIDU_APP_ID) else ksafe.safePut(K_BAIDU_APP_ID, trimmed)
     }
 
-    override fun getYoudaoAppSecret(): Flow<String> = gatedGetFlow(K_YOUDAO_APP_SECRET, "")
+    override fun getBaiduAppSecret(): Flow<String> = gatedGetFlow(K_BAIDU_APP_SECRET, "")
 
-    override suspend fun setYoudaoAppSecret(appSecret: String) {
+    override suspend fun setBaiduAppSecret(appSecret: String) {
         migrationDeferred.await()
         val trimmed = appSecret.trim()
-        if (trimmed.isEmpty()) ksafe.safeDelete(K_YOUDAO_APP_SECRET) else ksafe.safePut(K_YOUDAO_APP_SECRET, trimmed)
+        if (trimmed.isEmpty()) ksafe.safeDelete(K_BAIDU_APP_SECRET) else ksafe.safePut(K_BAIDU_APP_SECRET, trimmed)
     }
 
     override fun getLibreTranslateBaseUrl(): Flow<String> = gatedGetFlow(K_LIBRE_BASE_URL, "")
@@ -500,7 +475,6 @@ class TweaksRepositoryImpl(
             MigrationEntry(stringPreferencesKey("app_theme"), K_THEME),
             MigrationEntry(booleanPreferencesKey("amoled_theme"), K_AMOLED),
             MigrationEntry(booleanPreferencesKey("is_dark_theme"), K_IS_DARK),
-            MigrationEntry(stringPreferencesKey("font_theme"), K_FONT),
             MigrationEntry(stringSetPreferencesKey("discovery_platforms"), K_DISCOVERY_PLATFORMS),
             MigrationEntry(booleanPreferencesKey("auto_detect_clipboard_links"), K_AUTO_DETECT_CLIPBOARD),
             MigrationEntry(stringPreferencesKey("installer_type"), K_INSTALLER_TYPE),
@@ -512,8 +486,8 @@ class TweaksRepositoryImpl(
             MigrationEntry(booleanPreferencesKey("hide_seen_enabled"), K_HIDE_SEEN_ENABLED),
             MigrationEntry(booleanPreferencesKey("scrollbar_enabled"), K_SCROLLBAR_ENABLED),
             MigrationEntry(stringPreferencesKey("translation_provider"), K_TRANSLATION_PROVIDER),
-            MigrationEntry(stringPreferencesKey("youdao_app_key"), K_YOUDAO_APP_KEY),
-            MigrationEntry(stringPreferencesKey("youdao_app_secret"), K_YOUDAO_APP_SECRET),
+            MigrationEntry(stringPreferencesKey("baidu_app_id"), K_BAIDU_APP_ID),
+            MigrationEntry(stringPreferencesKey("baidu_app_secret"), K_BAIDU_APP_SECRET),
             MigrationEntry(stringPreferencesKey("app_language"), K_APP_LANGUAGE),
             MigrationEntry(booleanPreferencesKey("auto_translate_enabled"), K_AUTO_TRANSLATE_ENABLED),
             MigrationEntry(stringPreferencesKey("auto_translate_target_lang"), K_AUTO_TRANSLATE_TARGET),
@@ -569,8 +543,6 @@ class TweaksRepositoryImpl(
         private const val K_THEME = "app_theme"
         private const val K_AMOLED = "amoled_theme"
         private const val K_IS_DARK = "is_dark_theme"
-        private const val K_FONT = "font_theme"
-        private const val K_PERSONALITY = "app_personality"
         private const val K_ACCENT = "app_accent"
         private const val K_DISCOVERY_PLATFORMS = "discovery_platforms"
         private const val K_AUTO_DETECT_CLIPBOARD = "auto_detect_clipboard_links"
@@ -583,8 +555,8 @@ class TweaksRepositoryImpl(
         private const val K_HIDE_SEEN_ENABLED = "hide_seen_enabled"
         private const val K_SCROLLBAR_ENABLED = "scrollbar_enabled"
         private const val K_TRANSLATION_PROVIDER = "translation_provider"
-        private const val K_YOUDAO_APP_KEY = "youdao_app_key"
-        private const val K_YOUDAO_APP_SECRET = "youdao_app_secret"
+        private const val K_BAIDU_APP_ID = "baidu_app_id"
+        private const val K_BAIDU_APP_SECRET = "baidu_app_secret"
         private const val K_LIBRE_BASE_URL = "libre_translate_base_url"
         private const val K_LIBRE_API_KEY = "libre_translate_api_key"
         private const val K_DEEPL_AUTH_KEY = "deepl_auth_key"
@@ -603,7 +575,6 @@ class TweaksRepositoryImpl(
         private const val K_REPO_GRID_LAYOUT = "repo_grid_layout"
         private const val K_BATTERY_OPT_PROMPT_DISMISSED = "battery_opt_prompt_dismissed"
         private const val K_LAST_SEEN_WHATS_NEW_VERSION_CODE = "last_seen_whats_new_version_code"
-        private const val K_MANGA_PAPER = "manga_paper"
         private const val K_ANNOUNCEMENTS_DISMISSED_IDS = "announcements_dismissed_ids"
         private const val K_ANNOUNCEMENTS_ACKNOWLEDGED_IDS = "announcements_acknowledged_ids"
         private const val K_ANNOUNCEMENTS_MUTED_CATEGORIES = "announcements_muted_categories"

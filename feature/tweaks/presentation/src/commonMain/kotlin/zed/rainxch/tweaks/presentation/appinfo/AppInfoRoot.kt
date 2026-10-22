@@ -98,8 +98,6 @@ fun AppInfoRoot(
                 onBack = onNavigateBack,
             )
         },
-        grid = true,
-        screentone = true,
         toastState = toastState
     ) { innerPadding ->
         Box(

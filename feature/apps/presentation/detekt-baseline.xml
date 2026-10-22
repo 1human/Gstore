@@ -2,13 +2,14 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>CyclomaticComplexMethod:AppItemCard.kt$@Composable fun AppItemCard( appItem: AppItem, onOpenClick: () -&gt; Unit, onUpdateClick: () -&gt; Unit, onUninstallClick: () -&gt; Unit, onRepoClick: () -&gt; Unit, onTogglePreReleases: (Boolean) -&gt; Unit, onToggleUpdateCheck: (Boolean) -&gt; Unit, onAdvancedSettingsClick: () -&gt; Unit, onPickVariantClick: () -&gt; Unit, onInstallPendingClick: () -&gt; Unit, onDiscardPendingClick: () -&gt; Unit, onSkipVersionClick: () -&gt; Unit, onUnskipVersionClick: () -&gt; Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>CyclomaticComplexMethod:AppItemCard.kt$@Composable fun AppItemCard( appItem: AppItem, onOpenClick: () -&gt; Unit, onUpdateClick: () -&gt; Unit, onUninstallClick: () -&gt; Unit, onRepoClick: () -&gt; Unit, onTogglePreReleases: (Boolean) -&gt; Unit, onToggleUpdateCheck: (Boolean) -&gt; Unit, onAdvancedSettingsClick: () -&gt; Unit, onPickVariantClick: () -&gt; Unit, onInstallPendingClick: () -&gt; Unit, onDiscardPendingClick: () -&gt; Unit, onSkipVersionClick: () -&gt; Unit, onUnskipVersionClick: () -&gt; Unit, onUnlinkClick: () -&gt; Unit, modifier: Modifier = Modifier, )</ID>
     <ID>CyclomaticComplexMethod:AppsRoot.kt$@Composable fun AppsRoot( onNavigateBack: () -&gt; Unit, onNavigateToRepo: (repoId: Long, sourceHost: String?, owner: String?, repo: String?, packageName: String?) -&gt; Unit, onNavigateToExternalImport: () -&gt; Unit, onNavigateToStarredPicker: () -&gt; Unit, viewModel: AppsViewModel = koinViewModel(), state: AppsState, )</ID>
     <ID>CyclomaticComplexMethod:AppsRoot.kt$@Composable fun AppsScreen( state: AppsState, onAction: (AppsAction) -&gt; Unit, toastState: KomiToastState, )</ID>
     <ID>CyclomaticComplexMethod:AppsViewModel.kt$AppsViewModel$fun onAction(action: AppsAction)</ID>
     <ID>CyclomaticComplexMethod:AppsViewModel.kt$AppsViewModel$private fun updateSingleApp( app: InstalledAppUi, waitForInstallGate: Boolean = false, )</ID>
     <ID>CyclomaticComplexMethod:AppsViewModel.kt$AppsViewModel$private fun validateAndLinkRepo()</ID>
-    <ID>CyclomaticComplexMethod:CompactAppRow.kt$@Composable fun CompactAppRow( appItem: AppItem, onOpenClick: () -&gt; Unit, onInstallPendingClick: () -&gt; Unit, onDiscardPendingClick: () -&gt; Unit, onAdvancedSettingsClick: () -&gt; Unit, onPickVariantClick: () -&gt; Unit, onUninstallClick: () -&gt; Unit, onTogglePreReleases: (Boolean) -&gt; Unit, onToggleUpdateCheck: (Boolean) -&gt; Unit, onUnskipVersionClick: () -&gt; Unit, onRowClick: () -&gt; Unit, modifier: Modifier = Modifier, framed: Boolean = true, )</ID>
+    <ID>CyclomaticComplexMethod:CompactAppRow.kt$@Composable fun CompactAppRow( appItem: AppItem, onOpenClick: () -&gt; Unit, onInstallPendingClick: () -&gt; Unit, onDiscardPendingClick: () -&gt; Unit, onAdvancedSettingsClick: () -&gt; Unit, onPickVariantClick: () -&gt; Unit, onUninstallClick: () -&gt; Unit, onUnlinkClick: () -&gt; Unit, onTogglePreReleases: (Boolean) -&gt; Unit, onToggleUpdateCheck: (Boolean) -&gt; Unit, onUnskipVersionClick: () -&gt; Unit, onRowClick: () -&gt; Unit, modifier: Modifier = Modifier, framed: Boolean = true, )</ID>
+    <ID>CyclomaticComplexMethod:CompactAppRow.kt$@Composable private fun CompactRowOverflow( appName: String, isBusy: Boolean, isPending: Boolean, isPreReleaseEnabled: Boolean, isUpdateCheckEnabled: Boolean, hasSkippedReleaseTag: Boolean, isExternallyLinked: Boolean, onAdvancedSettingsClick: () -&gt; Unit, onPickVariantClick: () -&gt; Unit, onUninstallClick: () -&gt; Unit, onUnlinkClick: () -&gt; Unit, onTogglePreReleases: (Boolean) -&gt; Unit, onToggleUpdateCheck: (Boolean) -&gt; Unit, onDiscardPendingClick: () -&gt; Unit, onUnskipVersionClick: () -&gt; Unit, )</ID>
     <ID>CyclomaticComplexMethod:ExternalImportRoot.kt$@Composable fun ExternalImportRoot( onNavigateBack: () -&gt; Unit, onNavigateToDetails: (repoId: Long) -&gt; Unit, onAddManually: () -&gt; Unit, viewModel: ExternalImportViewModel = koinViewModel(), )</ID>
     <ID>CyclomaticComplexMethod:ExternalImportViewModel.kt$ExternalImportViewModel$fun onAction(action: ExternalImportAction)</ID>
     <ID>CyclomaticComplexMethod:LinkAppBottomSheet.kt$@Composable private fun DeviceAppItem( app: DeviceAppUi, onClick: () -&gt; Unit, )</ID>
@@ -61,9 +62,7 @@
     <ID>TooManyFunctions:AppsViewModel.kt$AppsViewModel : ViewModel</ID>
     <ID>TooManyFunctions:ExternalImportViewModel.kt$ExternalImportViewModel : ViewModel</ID>
     <ID>UnusedPrivateMember:AppsViewModel.kt$AppsViewModel$private fun parseGithubUrl(input: String): Pair&lt;String, String&gt;?</ID>
-    <ID>UseCheckOrError:AppsViewModel.kt$AppsViewModel$throw IllegalStateException("Could not determine primary asset")</ID>
     <ID>UseCheckOrError:AppsViewModel.kt$AppsViewModel$throw IllegalStateException("Failed to fetch latest release: ${e.message}")</ID>
-    <ID>UseCheckOrError:AppsViewModel.kt$AppsViewModel$throw IllegalStateException("No installable assets found for this platform")</ID>
     <ID>UseCheckOrError:AppsViewModel.kt$AppsViewModel$throw IllegalStateException("No release found for ${app.appName}")</ID>
   </CurrentIssues>
 </SmellBaseline>

@@ -35,7 +35,6 @@ import org.jetbrains.compose.resources.stringResource
 import zed.rainxch.core.presentation.components.GitHubStoreImage
 import zed.rainxch.core.presentation.components.chips.KomiChip
 import zed.rainxch.core.presentation.components.chips.KomiChipKind
-import zed.rainxch.core.presentation.components.chips.KomiChipSize
 import zed.rainxch.core.presentation.components.icon.KomiIcon
 import zed.rainxch.core.presentation.components.surfaces.KomiSurface
 import zed.rainxch.core.presentation.components.text.KomiText
@@ -193,7 +192,6 @@ private fun StatChipNeutral(
     KomiChip(
         label = label,
         kind = KomiChipKind.Info,
-        size = KomiChipSize.Sm,
         leadingContent = {
             KomiIcon(
                 imageVector = icon,

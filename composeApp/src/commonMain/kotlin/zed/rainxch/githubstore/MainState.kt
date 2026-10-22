@@ -1,9 +1,7 @@
 package zed.rainxch.githubstore
 
 import zed.rainxch.core.domain.model.appearance.AccentId
-import zed.rainxch.core.domain.model.appearance.AppPersonality
 import zed.rainxch.core.domain.model.appearance.ContentWidth
-import zed.rainxch.core.domain.model.appearance.MangaPaperId
 import zed.rainxch.core.domain.model.error.RateLimitInfo
 
 data class MainState(
@@ -11,9 +9,7 @@ data class MainState(
     val rateLimitInfo: RateLimitInfo? = null,
     val showRateLimitDialog: Boolean = false,
     val showSessionExpiredDialog: Boolean = false,
-    val personality: AppPersonality = AppPersonality.MANGA,
     val accent: AccentId = AccentId.CRIMSON,
-    val mangaPaper: MangaPaperId = MangaPaperId.DAY,
     val isAmoledTheme: Boolean = false,
     val isDarkTheme: Boolean? = null,
     val isScrollbarEnabled: Boolean = false,

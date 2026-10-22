@@ -32,38 +32,27 @@ import zed.rainxch.core.presentation.components.buttons.KomiIconButton
 import zed.rainxch.core.presentation.components.text.KomiText
 import zed.rainxch.core.presentation.components.text.KomiTextRole
 import zed.rainxch.core.presentation.locals.LocalPersonality
-import zed.rainxch.core.presentation.personality.MangaPersonality
-import zed.rainxch.core.domain.model.appearance.AccentId
-import zed.rainxch.core.presentation.personality.manga.decoration.gridPaper
-import zed.rainxch.core.presentation.personality.manga.decoration.hardShadow
 import zed.rainxch.githubstore.core.presentation.res.Res
+import zed.rainxch.githubstore.core.presentation.res.navigate_back
 import zed.rainxch.githubstore.core.presentation.res.section_app_block
 import zed.rainxch.githubstore.core.presentation.res.section_connectivity
-import zed.rainxch.githubstore.core.presentation.res.section_look_and_feel
 import zed.rainxch.githubstore.core.presentation.res.section_privacy_and_data
 import zed.rainxch.githubstore.core.presentation.res.tweaks_title
-import zed.rainxch.githubstore.core.presentation.res.navigate_back
 import zed.rainxch.tweaks.presentation.TweaksAction
 import zed.rainxch.tweaks.presentation.TweaksState
-import zed.rainxch.core.domain.model.appearance.AppPersonality
 import zed.rainxch.tweaks.presentation.components.sections.appSection
-import zed.rainxch.tweaks.presentation.components.shell.TweaksDecorSlot
-import zed.rainxch.tweaks.presentation.components.shell.tweaksKicker
 import zed.rainxch.tweaks.presentation.components.sections.connectivitySection
-import zed.rainxch.tweaks.presentation.components.sections.lookAndFeelSection
 import zed.rainxch.tweaks.presentation.components.sections.privacySection
 
-enum class DesktopSection(val slot: TweaksDecorSlot) {
-    LOOK(TweaksDecorSlot.LookAndFeel),
-    CONNECTIVITY(TweaksDecorSlot.Connectivity),
-    PRIVACY(TweaksDecorSlot.PrivacyData),
-    APP(TweaksDecorSlot.App),
+enum class DesktopSection {
+    CONNECTIVITY,
+    PRIVACY,
+    APP,
 }
 
 @Composable
 private fun DesktopSection.label(): String =
     when (this) {
-        DesktopSection.LOOK -> stringResource(Res.string.section_look_and_feel)
         DesktopSection.CONNECTIVITY -> stringResource(Res.string.section_connectivity)
         DesktopSection.PRIVACY -> stringResource(Res.string.section_privacy_and_data)
         DesktopSection.APP -> stringResource(Res.string.section_app_block)
@@ -73,10 +62,6 @@ private fun DesktopSection.label(): String =
 fun TweaksDesktopContent(
     state: TweaksState,
     onAction: (TweaksAction) -> Unit,
-    personality: AppPersonality,
-    accent: AccentId,
-    onPersonalitySelected: (AppPersonality) -> Unit,
-    onAccentSelected: (AccentId) -> Unit,
     currentLanguageLabel: String,
     onOpenLanguage: () -> Unit,
     onOpenFeedback: () -> Unit,
@@ -87,7 +72,6 @@ fun TweaksDesktopContent(
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalPersonality.current.colors
-    val isManga = LocalPersonality.current is MangaPersonality
 
     Row(modifier = modifier.fillMaxSize()) {
         Column(
@@ -97,15 +81,14 @@ fun TweaksDesktopContent(
                     .fillMaxHeight()
                     .background(colors.surface)
                     .drawBehind {
-                        val stroke = (if (isManga) 3.dp else 1.dp).toPx()
+                        val stroke = 1.dp.toPx()
                         drawLine(
-                            color = if (isManga) colors.outline else colors.outlineVariant,
+                            color = colors.outlineVariant,
                             start = Offset(size.width - stroke / 2f, 0f),
                             end = Offset(size.width - stroke / 2f, size.height),
                             strokeWidth = stroke,
                         )
-                    }
-                    .padding(horizontal = 12.dp, vertical = 18.dp),
+                    }.padding(horizontal = 12.dp, vertical = 18.dp),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -123,18 +106,9 @@ fun TweaksDesktopContent(
                     modifier = Modifier.padding(start = 6.dp),
                 )
             }
-            tweaksKicker(TweaksDecorSlot.SettingsNavTitle)?.let { navKicker ->
-                KomiText(
-                    text = navKicker,
-                    role = KomiTextRole.Caption,
-                    color = colors.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 6.dp, bottom = 14.dp),
-                )
-            }
             DesktopSection.entries.forEach { entry ->
                 NavRow(
                     label = entry.label(),
-                    kicker = tweaksKicker(entry.slot),
                     active = state.desktopSection == entry,
                     onClick = { onAction(TweaksAction.OnDesktopSectionSelected(entry)) },
                 )
@@ -146,7 +120,6 @@ fun TweaksDesktopContent(
                 Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .gridPaper(colors.onSurface, colors.gridOpacity)
                     .verticalScroll(rememberScrollState()),
         ) {
             Column(
@@ -159,34 +132,30 @@ fun TweaksDesktopContent(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 when (state.desktopSection) {
-                    DesktopSection.LOOK ->
-                        lookAndFeelSection(
-                            state = state,
-                            onAction = onAction,
-                            personality = personality,
-                            accent = accent,
-                            onPersonalitySelected = onPersonalitySelected,
-                            onAccentSelected = onAccentSelected,
-                            currentLanguageLabel = currentLanguageLabel,
-                            onOpenLanguage = onOpenLanguage,
-                        )
-
-                    DesktopSection.CONNECTIVITY ->
+                    DesktopSection.CONNECTIVITY -> {
                         connectivitySection(
                             state = state,
                             onAction = onAction,
                             onNavigateToMirrorPicker = onNavigateToMirrorPicker,
                         )
+                    }
 
-                    DesktopSection.PRIVACY ->
+                    DesktopSection.PRIVACY -> {
                         privacySection(
                             state = state,
                             onAction = onAction,
                             onNavigateToHiddenRepositories = onNavigateToHiddenRepositories,
                             onNavigateToHostTokens = onNavigateToHostTokens,
                         )
+                    }
 
-                    DesktopSection.APP -> appSection(onOpenFeedback = onOpenFeedback)
+                    DesktopSection.APP -> {
+                        appSection(
+                            onOpenFeedback = onOpenFeedback,
+                            currentLanguageLabel = currentLanguageLabel,
+                            onOpenLanguage = onOpenLanguage,
+                        )
+                    }
                 }
             }
         }
@@ -196,12 +165,10 @@ fun TweaksDesktopContent(
 @Composable
 private fun NavRow(
     label: String,
-    kicker: String?,
     active: Boolean,
     onClick: () -> Unit,
 ) {
     val colors = LocalPersonality.current.colors
-    val isManga = LocalPersonality.current is MangaPersonality
     val shape = RoundedCornerShape(LocalPersonality.current.shape.cornerSmall)
     Row(
         modifier =
@@ -209,20 +176,7 @@ private fun NavRow(
                 .fillMaxWidth()
                 .padding(bottom = 6.dp)
                 .clip(shape)
-                .then(
-                    if (active) {
-                        if (isManga) {
-                            Modifier
-                                .hardShadow(DpOffset(3.dp, 3.dp), colors.shadow, shape)
-                                .background(colors.primary, shape)
-                                .border(2.5.dp, colors.outline, shape)
-                        } else {
-                            Modifier.background(colors.primary, shape)
-                        }
-                    } else {
-                        Modifier
-                    },
-                )
+                .then(if (active) Modifier.background(colors.primary, shape) else Modifier)
                 .height(40.dp)
                 .clickable(onClick = onClick)
                 .padding(horizontal = 11.dp),
@@ -235,12 +189,5 @@ private fun NavRow(
             color = if (active) colors.onPrimary else colors.onSurface,
             modifier = Modifier.weight(1f),
         )
-        if (kicker != null) {
-            KomiText(
-                text = kicker,
-                role = KomiTextRole.Caption,
-                color = if (active) colors.onPrimary else colors.onSurfaceVariant,
-            )
-        }
     }
 }

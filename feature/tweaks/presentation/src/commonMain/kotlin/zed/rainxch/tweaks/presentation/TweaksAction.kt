@@ -1,11 +1,8 @@
 package zed.rainxch.tweaks.presentation
 
 import zed.rainxch.core.domain.model.appearance.AccentId
-import zed.rainxch.core.domain.model.appearance.AppPersonality
 import zed.rainxch.core.domain.model.appearance.AppTheme
 import zed.rainxch.core.domain.model.appearance.ContentWidth
-import zed.rainxch.core.domain.model.appearance.FontTheme
-import zed.rainxch.core.domain.model.appearance.MangaPaperId
 import zed.rainxch.core.domain.model.installation.InstallerType
 import zed.rainxch.core.domain.model.settings.ProxyScope
 import zed.rainxch.core.domain.model.settings.TranslationProvider
@@ -15,16 +12,8 @@ import zed.rainxch.tweaks.presentation.model.ProxyType
 sealed interface TweaksAction {
     data object OnNavigateBackClick : TweaksAction
 
-    data class OnPersonalitySelected(
-        val personality: AppPersonality,
-    ) : TweaksAction
-
     data class OnAccentSelected(
         val accent: AccentId,
-    ) : TweaksAction
-
-    data class OnMangaPaperSelected(
-        val paper: MangaPaperId,
     ) : TweaksAction
 
     data class OnThemeColorSelected(
@@ -37,10 +26,6 @@ sealed interface TweaksAction {
 
     data class OnDarkThemeChange(
         val isDarkTheme: Boolean?,
-    ) : TweaksAction
-
-    data class OnFontThemeSelected(
-        val fontTheme: FontTheme,
     ) : TweaksAction
 
     data class OnScrollbarToggled(
@@ -188,17 +173,17 @@ sealed interface TweaksAction {
         val provider: TranslationProvider,
     ) : TweaksAction
 
-    data class OnYoudaoAppKeyChanged(
-        val appKey: String,
+    data class OnBaiduAppIdChanged(
+        val appId: String,
     ) : TweaksAction
 
-    data class OnYoudaoAppSecretChanged(
+    data class OnBaiduAppSecretChanged(
         val appSecret: String,
     ) : TweaksAction
 
-    data object OnYoudaoAppSecretVisibilityToggle : TweaksAction
+    data object OnBaiduAppSecretVisibilityToggle : TweaksAction
 
-    data object OnYoudaoCredentialsSave : TweaksAction
+    data object OnBaiduCredentialsSave : TweaksAction
 
     data class OnLibreTranslateBaseUrlChanged(
         val url: String,

@@ -31,7 +31,7 @@ sealed interface TweaksEvent {
 
     data object OnTranslationProviderSaved : TweaksEvent
 
-    data object OnYoudaoCredentialsSaved : TweaksEvent
+    data object OnBaiduCredentialsSaved : TweaksEvent
 
     data object OnLibreTranslateCredentialsSaved : TweaksEvent
 

@@ -36,11 +36,7 @@ import zed.rainxch.core.presentation.components.text.KomiText
 import zed.rainxch.core.presentation.components.text.KomiTextRole
 import zed.rainxch.core.presentation.locals.LocalPersonality
 import zed.rainxch.core.presentation.personality.ClassicPersonality
-import zed.rainxch.core.presentation.personality.MangaPersonality
 import zed.rainxch.core.presentation.personality.classicPersonality
-import zed.rainxch.core.presentation.personality.manga.MangaAccent
-import zed.rainxch.core.presentation.personality.manga.MangaPaper
-import zed.rainxch.core.presentation.personality.mangaPersonality
 import zed.rainxch.core.presentation.personality.utils.PersonalityPreview
 import zed.rainxch.core.presentation.spacing.Spacing
 import zed.rainxch.githubstore.core.presentation.res.Res
@@ -58,7 +54,6 @@ fun KomiActionRow(
 ) {
     val gap =
         when (LocalPersonality.current) {
-            is MangaPersonality -> if (showLabels) Spacing.lg else Spacing.md
             is ClassicPersonality -> if (showLabels) Spacing.lg else Spacing.sm
         }
     val dividerHeight = size.metrics.box * DIVIDER_HEIGHT_FRACTION
@@ -66,7 +61,6 @@ fun KomiActionRow(
     val inBar = LocalInBar.current
     val overflowVariant =
         when (LocalPersonality.current) {
-            is MangaPersonality -> KomiButtonVariant.Tonal
             is ClassicPersonality -> KomiButtonVariant.Text
         }
 
@@ -222,34 +216,6 @@ private fun PreviewStack() {
 
         KomiActionRow(items = previewDestructiveActions)
     }
-}
-
-@Preview
-@Composable
-private fun KomiActionRowMangaPreview() {
-    PersonalityPreview(mangaPersonality()) { PreviewStack() }
-}
-
-@Preview
-@Composable
-private fun KomiActionRowMangaNightPreview() {
-    PersonalityPreview(
-        mangaPersonality(
-            paper = MangaPaper.NIGHT,
-            accent = MangaAccent.SUN,
-        ),
-    ) { PreviewStack() }
-}
-
-@Preview
-@Composable
-private fun KomiActionRowMangaNordPreview() {
-    PersonalityPreview(
-        mangaPersonality(
-            paper = MangaPaper.NORD,
-            accent = MangaAccent.FROST,
-        ),
-    ) { PreviewStack() }
 }
 
 @Preview

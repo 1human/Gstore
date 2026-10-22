@@ -3,10 +3,10 @@ import com.codingfeline.buildkonfig.gradle.BuildKonfigExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
-import zed.rainxch.githubstore.convention.libs
 import zed.rainxch.githubstore.convention.pathToPackageName
 import java.util.Properties
 
+@Suppress("unused")
 class BuildKonfigConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
@@ -30,8 +30,10 @@ class BuildKonfigConventionPlugin : Plugin<Project> {
                                 ?: "Ov23linTY28VFpFjFiI9"
                         ).trim()
 
-                    val versionName = libs.findVersion("projectVersionName").get().toString()
-                    val versionCode = libs.findVersion("projectVersionCode").get().toString()
+                    val versionName =
+                        findProperty("projectVersionName")?.toString() ?: "1.0"
+                    val versionCode =
+                        findProperty("projectVersionCode")?.toString() ?: "1"
 
                     buildConfigField(FieldSpec.Type.STRING, "GITHUB_CLIENT_ID", githubClientId)
                     buildConfigField(FieldSpec.Type.STRING, "VERSION_NAME", versionName)

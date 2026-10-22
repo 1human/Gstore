@@ -17,8 +17,6 @@ import androidx.compose.ui.unit.dp
 import zed.rainxch.core.presentation.locals.LocalPersonality
 import zed.rainxch.core.presentation.locals.appLocale
 import zed.rainxch.core.presentation.personality.classicPersonality
-import zed.rainxch.core.presentation.personality.manga.MangaAccent
-import zed.rainxch.core.presentation.personality.manga.MangaPaper
 import zed.rainxch.core.presentation.personality.utils.PersonalityPreview
 
 @Composable
@@ -108,22 +106,6 @@ private fun KomiTextRolesPreview() {
 
 @Preview
 @Composable
-private fun KomiTextNightPreview() {
-    PersonalityPreview(paper = MangaPaper.NIGHT, accent = MangaAccent.SUN) {
-        KomiTextScale()
-    }
-}
-
-@Preview
-@Composable
-private fun KomiTextNordPreview() {
-    PersonalityPreview(paper = MangaPaper.NORD, accent = MangaAccent.FROST) {
-        KomiTextScale()
-    }
-}
-
-@Preview
-@Composable
 private fun KomiTextEllipsisPreview() {
     PersonalityPreview {
         KomiText(
@@ -132,14 +114,6 @@ private fun KomiTextEllipsisPreview() {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-    }
-}
-
-@Preview
-@Composable
-private fun KomiTextClassicPreview() {
-    PersonalityPreview(classicPersonality()) {
-        KomiTextScale()
     }
 }
 

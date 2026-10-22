@@ -7,11 +7,8 @@ import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import zed.rainxch.core.domain.model.appearance.AccentId
-import zed.rainxch.core.domain.model.appearance.AppPersonality
 import zed.rainxch.core.domain.model.appearance.AppTheme
 import zed.rainxch.core.domain.model.appearance.ContentWidth
-import zed.rainxch.core.domain.model.appearance.FontTheme
-import zed.rainxch.core.domain.model.appearance.MangaPaperId
 import zed.rainxch.core.domain.model.installation.DhizukuAvailability
 import zed.rainxch.core.domain.model.installation.InstallerAttribution
 import zed.rainxch.core.domain.model.installation.InstallerType
@@ -26,11 +23,8 @@ import zed.rainxch.tweaks.presentation.model.LanguagePickerOption
 import zed.rainxch.tweaks.presentation.model.ProxyScopeFormState
 
 data class TweaksState(
-    val selectedPersonality: AppPersonality = AppPersonality.MANGA,
     val selectedAccent: AccentId = AccentId.CRIMSON,
-    val mangaPaper: MangaPaperId = MangaPaperId.DAY,
     val selectedThemeColor: AppTheme = AppTheme.NORD,
-    val selectedFontTheme: FontTheme = FontTheme.CUSTOM,
     val isAmoledThemeEnabled: Boolean = false,
     val isDarkTheme: Boolean? = null,
     val versionName: String = "",
@@ -56,9 +50,9 @@ data class TweaksState(
     val contentWidth: ContentWidth = ContentWidth.COMPACT,
     val translationProvider: TranslationProvider = TranslationProvider.Default,
     val draftTranslationProvider: TranslationProvider? = null,
-    val youdaoAppKey: String = "",
-    val youdaoAppSecret: String = "",
-    val isYoudaoAppSecretVisible: Boolean = false,
+    val baiduAppId: String = "",
+    val baiduAppSecret: String = "",
+    val isBaiduAppSecretVisible: Boolean = false,
     val libreTranslateBaseUrl: String = "",
     val libreTranslateApiKey: String = "",
     val isLibreTranslateApiKeyVisible: Boolean = false,
@@ -88,7 +82,7 @@ data class TweaksState(
     val proxyPasteUrlError: Boolean = false,
     val connectionMasterExpanded: Boolean = false,
     val expandedProxyScope: ProxyScope? = null,
-    val desktopSection: DesktopSection = DesktopSection.LOOK,
+    val desktopSection: DesktopSection = DesktopSection.CONNECTIVITY,
     val showBatteryOptimizationCard: Boolean = false,
     val customForgeHosts: ImmutableSet<String> = persistentSetOf(),
     val showCustomForgesDialog: Boolean = false,

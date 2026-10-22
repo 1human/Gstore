@@ -44,13 +44,7 @@ import zed.rainxch.core.presentation.components.text.KomiText
 import zed.rainxch.core.presentation.components.text.KomiTextRole
 import zed.rainxch.core.presentation.locals.LocalPersonality
 import zed.rainxch.core.presentation.locals.appLocale
-import zed.rainxch.core.presentation.personality.ClassicPersonality
-import zed.rainxch.core.presentation.personality.MangaPersonality
 import zed.rainxch.core.presentation.personality.classicPersonality
-import zed.rainxch.core.presentation.personality.manga.MangaAccent
-import zed.rainxch.core.presentation.personality.manga.MangaPaper
-import zed.rainxch.core.presentation.personality.manga.decoration.speedLineWash
-import zed.rainxch.core.presentation.personality.mangaPersonality
 import zed.rainxch.core.presentation.personality.utils.PersonalityPreview
 import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.navigate_back
@@ -60,7 +54,6 @@ import androidx.compose.material3.Text as MaterialText
 fun KomiTopBar(
     title: String,
     modifier: Modifier = Modifier,
-    titleAccent: String? = null,
     subtitle: String? = null,
     leading: (@Composable () -> Unit)? = null,
     onBack: (() -> Unit)? = null,
@@ -69,136 +62,25 @@ fun KomiTopBar(
     centerTitle: Boolean = false,
     insets: Boolean = true,
 ) {
-    val personality = LocalPersonality.current
     val chrome = LocalScaffoldChrome.current
-    // Classic hands the back action and the actions to its KomiScaffold, which draws them in a
-    // KomiActionBar at the bottom, so the top bar keeps only the title.
-    val scaffoldChrome = if (personality is ClassicPersonality) chrome else null
+    // The scaffold draws the back action and the actions in a KomiActionBar at the bottom, so the
+    // top bar keeps only the title.
+    val scaffoldChrome = chrome
     if (scaffoldChrome != null) HandToScaffold(chrome = scaffoldChrome, onBack = onBack, actions = actions)
     val topBarBack: (@Composable () -> Unit)? =
         onBack?.takeIf { scaffoldChrome == null }?.let { back -> @Composable { TopBarBack(back) } }
     val resolvedLeading = leading ?: topBarBack
     val topBarActions = actions.takeIf { scaffoldChrome == null }
-    when (personality) {
-        is MangaPersonality -> {
-            MangaTopBar(
-                personality = personality,
-                title = title,
-                titleAccent = titleAccent,
-                subtitle = subtitle,
-                leading = resolvedLeading,
-                actions = actions,
-                size = size,
-                centerTitle = centerTitle,
-                insets = insets,
-                modifier = modifier,
-            )
-        }
-
-        is ClassicPersonality -> {
-            ClassicTopBar(
-                title = title,
-                subtitle = subtitle,
-                leading = resolvedLeading,
-                actions = topBarActions,
-                size = size,
-                centerTitle = centerTitle,
-                insets = insets,
-                modifier = modifier,
-            )
-        }
-    }
-}
-
-@Composable
-private fun MangaTopBar(
-    personality: MangaPersonality,
-    title: String,
-    titleAccent: String?,
-    subtitle: String?,
-    leading: (@Composable () -> Unit)?,
-    actions: (@Composable RowScope.() -> Unit)?,
-    size: KomiTopBarSize,
-    centerTitle: Boolean,
-    insets: Boolean,
-    modifier: Modifier = Modifier,
-) {
-    val colors = personality.colors
-    val isMast = size == KomiTopBarSize.Masthead
-    val locale = appLocale()
-    val annotatedTitle =
-        remember(title, titleAccent, colors.primary, locale) {
-            mangaTitle(title.toUpperCase(locale), titleAccent?.toUpperCase(locale), colors.primary)
-        }
-
-    Row(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .background(if (isMast) colors.background else colors.surface)
-                .clipToBounds()
-                .speedLineWash(color = colors.onSurface)
-                .then(if (insets) Modifier.statusBarsPadding() else Modifier)
-                .then(if (isMast) Modifier else Modifier.heightIn(min = 54.dp))
-                .padding(
-                    start = if (isMast) 16.dp else 8.dp,
-                    end = if (isMast) 16.dp else 8.dp,
-                    top = if (isMast) 8.dp else 0.dp,
-                    bottom = if (isMast) 12.dp else 0.dp,
-                ),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(11.dp),
-    ) {
-        leading?.invoke()
-
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = if (centerTitle) Alignment.CenterHorizontally else Alignment.Start,
-        ) {
-            MaterialText(
-                text = annotatedTitle,
-                style = personality.type.screenTitle,
-                color = colors.onSurface,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            subtitle?.let {
-                KomiText(
-                    text = it,
-                    modifier = Modifier.padding(top = 2.dp),
-                    role = KomiTextRole.Overline,
-                    color = colors.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-        }
-
-        actions?.let {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                content = it,
-            )
-        }
-    }
-}
-
-private fun mangaTitle(
-    title: String,
-    accentSub: String?,
-    accent: Color,
-): AnnotatedString {
-    if (accentSub.isNullOrEmpty()) return AnnotatedString(title)
-    val idx = title.indexOf(accentSub)
-    if (idx < 0) return AnnotatedString(title)
-    return buildAnnotatedString {
-        append(title.substring(0, idx))
-        withStyle(SpanStyle(color = accent)) {
-            append(title.substring(idx, idx + accentSub.length))
-        }
-        append(title.substring(idx + accentSub.length))
-    }
+    ClassicTopBar(
+        title = title,
+        subtitle = subtitle,
+        leading = resolvedLeading,
+        actions = topBarActions,
+        size = size,
+        centerTitle = centerTitle,
+        insets = insets,
+        modifier = modifier,
+    )
 }
 
 // One row on the page itself: the title right under the status bar, with no container and no
@@ -321,8 +203,7 @@ private fun TopBarBack(onBack: () -> Unit) {
 @Composable
 private fun PreviewMasthead() {
     KomiTopBar(
-        title = "Komi Store",
-        titleAccent = "Store",
+        title = "gStore",
         subtitle = "発見 · DISCOVER APPS",
         leading = {
             KomiIconButton(
@@ -366,29 +247,6 @@ private fun PreviewCompact() {
             )
         },
     )
-}
-
-@Preview
-@Composable
-private fun KomiTopBarMangaPreview() {
-    PersonalityPreview(mangaPersonality()) { PreviewMasthead() }
-}
-
-@Preview
-@Composable
-private fun KomiTopBarMangaCompactPreview() {
-    PersonalityPreview(mangaPersonality()) { PreviewCompact() }
-}
-
-@Preview
-@Composable
-private fun KomiTopBarMangaNightPreview() {
-    PersonalityPreview(
-        mangaPersonality(
-            paper = MangaPaper.NIGHT,
-            accent = MangaAccent.SUN,
-        ),
-    ) { PreviewMasthead() }
 }
 
 @Preview

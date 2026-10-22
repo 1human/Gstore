@@ -76,7 +76,7 @@ private fun formatDiagnostics(
     channel: FeedbackChannel,
 ): String {
     val sb = StringBuilder()
-    sb.append("- App: Komi Store v").append(d.appVersion).append('\n')
+    sb.append("- App: gStore v").append(d.appVersion).append('\n')
     sb
         .append("- Platform: ")
         .append(d.platform)

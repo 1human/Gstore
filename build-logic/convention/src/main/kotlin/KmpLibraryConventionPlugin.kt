@@ -8,6 +8,7 @@ import zed.rainxch.githubstore.convention.configureKotlinMultiplatform
 import zed.rainxch.githubstore.convention.libs
 import zed.rainxch.githubstore.convention.pathToResourcePrefix
 
+@Suppress("unused", "UnstableApiUsage")
 class KmpLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {

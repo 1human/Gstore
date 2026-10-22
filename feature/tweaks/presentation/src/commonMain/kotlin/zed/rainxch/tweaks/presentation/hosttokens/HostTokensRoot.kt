@@ -54,7 +54,6 @@ import zed.rainxch.core.presentation.components.overlays.rememberKomiToastState
 import zed.rainxch.core.presentation.components.progress.KomiCircularProgress
 import zed.rainxch.core.presentation.components.scaffold.KomiScaffold
 import zed.rainxch.tweaks.presentation.components.shell.SettingsGroup
-import zed.rainxch.tweaks.presentation.components.shell.TweaksDecorSlot
 import zed.rainxch.tweaks.presentation.components.shell.settingsRowDivider
 import zed.rainxch.core.presentation.components.surfaces.KomiSurface
 import zed.rainxch.core.presentation.components.text.KomiText
@@ -95,7 +94,6 @@ import zed.rainxch.githubstore.core.presentation.res.host_tokens_row_validate
 import zed.rainxch.githubstore.core.presentation.res.host_tokens_title
 import zed.rainxch.githubstore.core.presentation.res.host_tokens_undo_action
 import zed.rainxch.githubstore.core.presentation.res.host_tokens_undo_snackbar
-import zed.rainxch.tweaks.presentation.components.shell.tweaksKicker
 
 @Composable
 fun HostTokensRoot(
@@ -127,12 +125,9 @@ fun HostTokensRoot(
     }
 
     KomiScaffold(
-        grid = true,
-        screentone = true,
         topBar = {
             KomiTopBar(
                 title = stringResource(Res.string.host_tokens_title),
-                titleAccent = tweaksKicker(TweaksDecorSlot.Tokens),
                 onBack = onNavigateBack,
             )
         },

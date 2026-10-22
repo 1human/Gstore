@@ -54,8 +54,6 @@ import zed.rainxch.core.presentation.components.scaffold.KomiScaffold
 import zed.rainxch.core.presentation.components.text.KomiText
 import zed.rainxch.core.presentation.components.text.KomiTextRole
 import zed.rainxch.core.presentation.locals.LocalPersonality
-import zed.rainxch.core.presentation.personality.MangaPersonality
-import zed.rainxch.core.presentation.personality.usesDecor
 import zed.rainxch.core.presentation.utils.ObserveAsEvents
 import zed.rainxch.core.presentation.utils.toIcon
 import zed.rainxch.core.presentation.utils.toLabel
@@ -67,12 +65,9 @@ import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.feed_empty_reset
 import zed.rainxch.githubstore.core.presentation.res.feed_empty_subtitle
 import zed.rainxch.githubstore.core.presentation.res.feed_empty_title
-import zed.rainxch.githubstore.core.presentation.res.feed_end_cap
 import zed.rainxch.githubstore.core.presentation.res.feed_failed_to_load
 import zed.rainxch.githubstore.core.presentation.res.feed_loading
-import zed.rainxch.githubstore.core.presentation.res.feed_masthead_subtitle
 import zed.rainxch.githubstore.core.presentation.res.feed_masthead_title
-import zed.rainxch.githubstore.core.presentation.res.feed_masthead_title_accent
 import zed.rainxch.githubstore.core.presentation.res.feed_offline
 import zed.rainxch.githubstore.core.presentation.res.feed_platform_all
 import zed.rainxch.githubstore.core.presentation.res.home_retry
@@ -136,8 +131,6 @@ private fun FeedScreen(
         topBar = {
             KomiTopBar(
                 title = stringResource(Res.string.feed_masthead_title),
-                titleAccent = stringResource(Res.string.feed_masthead_title_accent),
-                subtitle = if (LocalPersonality.current.usesDecor) stringResource(Res.string.feed_masthead_subtitle) else null,
                 actions = {
                     RepoLayoutToggle(
                         isGridLayout = state.isGridLayout,
@@ -200,7 +193,6 @@ private fun FeedContent(
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalPersonality.current.colors
-    val isManga = LocalPersonality.current is MangaPersonality
     val gridPadding = PaddingValues(start = 12.dp, end = 12.dp, bottom = 32.dp)
     val cells =
         rememberWidthCappedStaggeredCells(
@@ -226,10 +218,6 @@ private fun FeedContent(
                     selected = state.selectedCategory,
                     onSelect = { onAction(FeedAction.OnCategorySelected(it)) },
                 )
-
-                if (isManga) {
-                    KomiHorizontalDivider(thickness = 3.dp, color = colors.outline)
-                }
             }
         }
 
@@ -308,42 +296,11 @@ private fun FeedContent(
                                     KomiCircularProgress(modifier = Modifier.size(28.dp))
                                 }
                             }
-                        } else if (!state.hasMore) {
-                            item(key = "feed_end_cap", span = StaggeredGridItemSpan.FullLine) { FeedEndCap() }
                         }
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun FeedEndCap() {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 18.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        KomiHorizontalDivider(
-            modifier = Modifier.weight(1f),
-            thickness = 2.dp,
-            color = LocalPersonality.current.colors.divider,
-        )
-
-        if (LocalPersonality.current.usesDecor) {
-            KomiText(
-                text = stringResource(Res.string.feed_end_cap),
-                role = KomiTextRole.Overline,
-                color = LocalPersonality.current.colors.onSurfaceVariant,
-            )
-        }
-
-        KomiHorizontalDivider(
-            modifier = Modifier.weight(1f),
-            thickness = 2.dp,
-            color = LocalPersonality.current.colors.divider,
-        )
     }
 }
 

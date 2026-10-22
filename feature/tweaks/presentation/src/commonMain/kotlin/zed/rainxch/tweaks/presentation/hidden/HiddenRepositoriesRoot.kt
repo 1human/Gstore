@@ -41,8 +41,6 @@ import zed.rainxch.githubstore.core.presentation.res.hidden_repositories_unhidde
 import zed.rainxch.githubstore.core.presentation.res.hidden_repositories_unhidden_snackbar
 import zed.rainxch.tweaks.presentation.components.shell.SettingsGroup
 import zed.rainxch.tweaks.presentation.components.shell.SettingsRow
-import zed.rainxch.tweaks.presentation.components.shell.TweaksDecorSlot
-import zed.rainxch.tweaks.presentation.components.shell.tweaksKicker
 
 @Composable
 fun HiddenRepositoriesRoot(
@@ -67,12 +65,9 @@ fun HiddenRepositoriesRoot(
 
     KomiScaffold(
         toastState = toastState,
-        grid = true,
-        screentone = true,
         topBar = {
             KomiTopBar(
                 title = stringResource(Res.string.hidden_repositories_title),
-                titleAccent = tweaksKicker(TweaksDecorSlot.Hidden),
                 onBack = onNavigateBack,
             )
         },

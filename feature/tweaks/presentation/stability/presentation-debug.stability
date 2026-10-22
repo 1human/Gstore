@@ -131,78 +131,21 @@ public fun zed.rainxch.tweaks.presentation.components.TweaksStubScreen(title: ko
     - onNavigateBack: STABLE (function type)
 
 @Composable
-public fun zed.rainxch.tweaks.presentation.components.appearance.AccentSwatch(fill: androidx.compose.ui.graphics.Color, onFill: androidx.compose.ui.graphics.Color, mono: kotlin.Boolean, selected: kotlin.Boolean, onClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - fill: STABLE (marked @Stable or @Immutable)
-    - onFill: STABLE (marked @Stable or @Immutable)
-    - mono: STABLE (primitive type)
-    - selected: STABLE (primitive type)
-    - onClick: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun zed.rainxch.tweaks.presentation.components.appearance.AppearanceHeadline(personality: zed.rainxch.core.domain.model.appearance.AppPersonality, accent: zed.rainxch.core.domain.model.appearance.AccentId, onPersonalitySelected: kotlin.Function1<zed.rainxch.core.domain.model.appearance.AppPersonality, kotlin.Unit>, onAccentSelected: kotlin.Function1<zed.rainxch.core.domain.model.appearance.AccentId, kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - personality: STABLE (class with no mutable properties)
-    - accent: STABLE (class with no mutable properties)
-    - onPersonalitySelected: STABLE (function type)
-    - onAccentSelected: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-private fun zed.rainxch.tweaks.presentation.components.appearance.HeadlineLabel(latin: kotlin.String, slot: zed.rainxch.tweaks.presentation.components.shell.TweaksDecorSlot, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - latin: STABLE (String is immutable)
-    - slot: STABLE (class with no mutable properties)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-private fun zed.rainxch.tweaks.presentation.components.appearance.MiniCard(isManga: kotlin.Boolean, accent: androidx.compose.ui.graphics.Color, onSurface: androidx.compose.ui.graphics.Color, surface: androidx.compose.ui.graphics.Color): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - isManga: STABLE (primitive type)
-    - accent: STABLE (marked @Stable or @Immutable)
-    - onSurface: STABLE (marked @Stable or @Immutable)
-    - surface: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun zed.rainxch.tweaks.presentation.components.appearance.PersonalityTile(kind: zed.rainxch.core.domain.model.appearance.AppPersonality, selected: kotlin.Boolean, onClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - kind: STABLE (class with no mutable properties)
-    - selected: STABLE (primitive type)
-    - onClick: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-private fun zed.rainxch.tweaks.presentation.components.desktop.NavRow(label: kotlin.String, kicker: kotlin.String?, active: kotlin.Boolean, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun zed.rainxch.tweaks.presentation.components.desktop.NavRow(label: kotlin.String, active: kotlin.Boolean, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - label: STABLE (String is immutable)
-    - kicker: STABLE (class with no mutable properties)
     - active: STABLE (primitive type)
     - onClick: STABLE (function type)
 
 @Composable
-public fun zed.rainxch.tweaks.presentation.components.desktop.TweaksDesktopContent(state: zed.rainxch.tweaks.presentation.TweaksState, onAction: kotlin.Function1<zed.rainxch.tweaks.presentation.TweaksAction, kotlin.Unit>, personality: zed.rainxch.core.domain.model.appearance.AppPersonality, accent: zed.rainxch.core.domain.model.appearance.AccentId, onPersonalitySelected: kotlin.Function1<zed.rainxch.core.domain.model.appearance.AppPersonality, kotlin.Unit>, onAccentSelected: kotlin.Function1<zed.rainxch.core.domain.model.appearance.AccentId, kotlin.Unit>, currentLanguageLabel: kotlin.String, onOpenLanguage: kotlin.Function0<kotlin.Unit>, onOpenFeedback: kotlin.Function0<kotlin.Unit>, onNavigateToMirrorPicker: kotlin.Function0<kotlin.Unit>, onNavigateToHiddenRepositories: kotlin.Function0<kotlin.Unit>, onNavigateToHostTokens: kotlin.Function0<kotlin.Unit>, onNavigateBack: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun zed.rainxch.tweaks.presentation.components.desktop.TweaksDesktopContent(state: zed.rainxch.tweaks.presentation.TweaksState, onAction: kotlin.Function1<zed.rainxch.tweaks.presentation.TweaksAction, kotlin.Unit>, currentLanguageLabel: kotlin.String, onOpenLanguage: kotlin.Function0<kotlin.Unit>, onOpenFeedback: kotlin.Function0<kotlin.Unit>, onNavigateToMirrorPicker: kotlin.Function0<kotlin.Unit>, onNavigateToHiddenRepositories: kotlin.Function0<kotlin.Unit>, onNavigateToHostTokens: kotlin.Function0<kotlin.Unit>, onNavigateBack: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
     - state: UNSTABLE (has mutable properties or unstable members)
     - onAction: STABLE (function type)
-    - personality: STABLE (class with no mutable properties)
-    - accent: STABLE (class with no mutable properties)
-    - onPersonalitySelected: STABLE (function type)
-    - onAccentSelected: STABLE (function type)
     - currentLanguageLabel: STABLE (String is immutable)
     - onOpenLanguage: STABLE (function type)
     - onOpenFeedback: STABLE (function type)
@@ -239,6 +182,14 @@ private fun zed.rainxch.tweaks.presentation.components.sections.AttributionRadio
 
 @Composable
 private fun zed.rainxch.tweaks.presentation.components.sections.AttributionRows(state: zed.rainxch.tweaks.presentation.TweaksState, onAction: kotlin.Function1<zed.rainxch.tweaks.presentation.TweaksAction, kotlin.Unit>): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - state: UNSTABLE (has mutable properties or unstable members)
+    - onAction: STABLE (function type)
+
+@Composable
+private fun zed.rainxch.tweaks.presentation.components.sections.BaiduCredentialsForm(state: zed.rainxch.tweaks.presentation.TweaksState, onAction: kotlin.Function1<zed.rainxch.tweaks.presentation.TweaksAction, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -397,29 +348,14 @@ private fun zed.rainxch.tweaks.presentation.components.sections.TranslationTarge
     - onAction: STABLE (function type)
 
 @Composable
-private fun zed.rainxch.tweaks.presentation.components.sections.YoudaoCredentialsForm(state: zed.rainxch.tweaks.presentation.TweaksState, onAction: kotlin.Function1<zed.rainxch.tweaks.presentation.TweaksAction, kotlin.Unit>): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - state: UNSTABLE (has mutable properties or unstable members)
-    - onAction: STABLE (function type)
-
-@Composable
-public fun zed.rainxch.tweaks.presentation.components.sections.appSection(onOpenFeedback: kotlin.Function0<kotlin.Unit>, showHead: kotlin.Boolean): kotlin.Unit
+public fun zed.rainxch.tweaks.presentation.components.sections.appSection(onOpenFeedback: kotlin.Function0<kotlin.Unit>, currentLanguageLabel: kotlin.String, onOpenLanguage: kotlin.Function0<kotlin.Unit>, showHead: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - onOpenFeedback: STABLE (function type)
+    - currentLanguageLabel: STABLE (String is immutable)
+    - onOpenLanguage: STABLE (function type)
     - showHead: STABLE (primitive type)
-
-@Composable
-public fun zed.rainxch.tweaks.presentation.components.sections.appearanceSectionContent(state: zed.rainxch.tweaks.presentation.TweaksState, onAction: kotlin.Function1<zed.rainxch.tweaks.presentation.TweaksAction, kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - state: UNSTABLE (has mutable properties or unstable members)
-    - onAction: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun zed.rainxch.tweaks.presentation.components.sections.connectionSectionContent(state: zed.rainxch.tweaks.presentation.TweaksState, onAction: kotlin.Function1<zed.rainxch.tweaks.presentation.TweaksAction, kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -464,21 +400,6 @@ public fun zed.rainxch.tweaks.presentation.components.sections.installsSection(s
     - state: UNSTABLE (has mutable properties or unstable members)
     - onAction: STABLE (function type)
     - onNavigateToSkippedUpdates: STABLE (function type)
-    - showHead: STABLE (primitive type)
-
-@Composable
-public fun zed.rainxch.tweaks.presentation.components.sections.lookAndFeelSection(state: zed.rainxch.tweaks.presentation.TweaksState, onAction: kotlin.Function1<zed.rainxch.tweaks.presentation.TweaksAction, kotlin.Unit>, personality: zed.rainxch.core.domain.model.appearance.AppPersonality, accent: zed.rainxch.core.domain.model.appearance.AccentId, onPersonalitySelected: kotlin.Function1<zed.rainxch.core.domain.model.appearance.AppPersonality, kotlin.Unit>, onAccentSelected: kotlin.Function1<zed.rainxch.core.domain.model.appearance.AccentId, kotlin.Unit>, currentLanguageLabel: kotlin.String, onOpenLanguage: kotlin.Function0<kotlin.Unit>, showHead: kotlin.Boolean): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - state: UNSTABLE (has mutable properties or unstable members)
-    - onAction: STABLE (function type)
-    - personality: STABLE (class with no mutable properties)
-    - accent: STABLE (class with no mutable properties)
-    - onPersonalitySelected: STABLE (function type)
-    - onAccentSelected: STABLE (function type)
-    - currentLanguageLabel: STABLE (String is immutable)
-    - onOpenLanguage: STABLE (function type)
     - showHead: STABLE (primitive type)
 
 @Composable
@@ -597,12 +518,11 @@ public fun zed.rainxch.tweaks.presentation.components.shell.SettingsRow(title: k
     - trailing: STABLE (composable function type)
 
 @Composable
-public fun zed.rainxch.tweaks.presentation.components.shell.SettingsSectionHead(label: kotlin.String, slot: zed.rainxch.tweaks.presentation.components.shell.TweaksDecorSlot, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun zed.rainxch.tweaks.presentation.components.shell.SettingsSectionHead(label: kotlin.String, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - label: STABLE (String is immutable)
-    - slot: STABLE (class with no mutable properties)
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
@@ -613,13 +533,6 @@ public fun zed.rainxch.tweaks.presentation.components.shell.SettingsValuePill(va
     - value: STABLE (String is immutable)
     - onClick: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun zed.rainxch.tweaks.presentation.components.shell.tweaksKicker(slot: zed.rainxch.tweaks.presentation.components.shell.TweaksDecorSlot): kotlin.String?
-  skippable: true
-  restartable: true
-  params:
-    - slot: STABLE (class with no mutable properties)
 
 @Composable
 public fun zed.rainxch.tweaks.presentation.connection.PasteProxyUrlSheet(input: kotlin.String, isError: kotlin.Boolean, onInputChange: kotlin.Function1<kotlin.String, kotlin.Unit>, onSubmit: kotlin.Function0<kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit

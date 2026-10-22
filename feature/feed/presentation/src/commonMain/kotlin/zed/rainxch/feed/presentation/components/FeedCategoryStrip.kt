@@ -31,7 +31,6 @@ fun FeedCategoryStrip(
                 label = category.toLabel(),
                 kind = KomiChipKind.Filter,
                 selected = category == selected,
-                index = index,
                 onClick = { onSelect(category) },
             )
         }

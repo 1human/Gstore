@@ -1,5 +1,6 @@
 package zed.rainxch.core.data.services
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
@@ -74,6 +75,8 @@ class AndroidPackageMonitor(
             }
         }
 
+    // The app module declares QUERY_ALL_PACKAGES; lint cannot see it from this library.
+    @SuppressLint("QueryPermissionsNeeded")
     override suspend fun getAllInstalledPackageNames(): Set<String> =
         withContext(Dispatchers.IO) {
             val packages =
@@ -87,6 +90,7 @@ class AndroidPackageMonitor(
             packages.map { it.packageName }.toSet()
         }
 
+    @SuppressLint("QueryPermissionsNeeded")
     override suspend fun getAllInstalledApps(): List<DeviceApp> =
         withContext(Dispatchers.IO) {
             val packages =

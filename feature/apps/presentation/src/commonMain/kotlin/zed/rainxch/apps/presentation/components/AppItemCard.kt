@@ -70,6 +70,7 @@ fun AppItemCard(
     onDiscardPendingClick: () -> Unit,
     onSkipVersionClick: () -> Unit,
     onUnskipVersionClick: () -> Unit,
+    onUnlinkClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalPersonality.current.colors
@@ -246,6 +247,7 @@ fun AppItemCard(
                 onToggleUpdateCheck = onToggleUpdateCheck,
                 onSkipVersionClick = onSkipVersionClick,
                 onUnskipVersionClick = onUnskipVersionClick,
+                onUnlinkClick = onUnlinkClick,
             )
 
             Spacer(Modifier.height(12.dp))

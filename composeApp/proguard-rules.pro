@@ -65,7 +65,6 @@
 # Keep enums used by Room TypeConverters and serialization
 -keep class zed.rainxch.core.domain.model.InstallSource { *; }
 -keep class zed.rainxch.core.domain.model.AppTheme { *; }
--keep class zed.rainxch.core.domain.model.FontTheme { *; }
 -keep class zed.rainxch.core.domain.model.Platform { *; }
 -keep class zed.rainxch.core.domain.model.SystemArchitecture { *; }
 -keep class zed.rainxch.core.domain.model.PackageChangeType { *; }

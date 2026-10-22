@@ -25,6 +25,7 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.OutlinedIconButton
@@ -43,13 +44,7 @@ import zed.rainxch.core.presentation.components.bars.LocalInBar
 import zed.rainxch.core.presentation.components.overlays.KomiTooltip
 import zed.rainxch.core.presentation.locals.LocalPersonality
 import zed.rainxch.core.presentation.personality.ClassicPersonality
-import zed.rainxch.core.presentation.personality.MangaPersonality
 import zed.rainxch.core.presentation.personality.classicPersonality
-import zed.rainxch.core.presentation.personality.manga.MangaAccent
-import zed.rainxch.core.presentation.personality.manga.MangaPaper
-import zed.rainxch.core.presentation.personality.manga.decoration.inkFocusRing
-import zed.rainxch.core.presentation.personality.manga.decoration.inkPress
-import zed.rainxch.core.presentation.personality.mangaPersonality
 import zed.rainxch.core.presentation.personality.utils.PersonalityPreview
 import zed.rainxch.core.presentation.spacing.Spacing
 import kotlin.math.roundToInt
@@ -65,21 +60,11 @@ fun KomiIconButton(
     variant: KomiButtonVariant = KomiButtonVariant.Tonal,
     size: KomiIconButtonSize = KomiIconButtonSize.Md,
     enabled: Boolean = true,
+    containerColor: Color = Color.Unspecified,
+    contentColor: Color = Color.Unspecified,
 ) {
     KomiTooltip(text = contentDescription, modifier = modifier) {
-        when (val personality = LocalPersonality.current) {
-            is MangaPersonality -> {
-                MangaIconButton(
-                    personality = personality,
-                    icon = icon,
-                    contentDescription = contentDescription,
-                    onClick = onClick,
-                    variant = variant,
-                    size = size,
-                    enabled = enabled,
-                )
-            }
-
+        when (LocalPersonality.current) {
             is ClassicPersonality -> {
                 ClassicIconButton(
                     icon = icon,
@@ -88,96 +73,10 @@ fun KomiIconButton(
                     variant = variant,
                     size = size,
                     enabled = enabled,
+                    containerColor = containerColor,
+                    contentColor = contentColor,
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun MangaIconButton(
-    personality: MangaPersonality,
-    icon: ImageVector,
-    contentDescription: String,
-    onClick: () -> Unit,
-    variant: KomiButtonVariant,
-    size: KomiIconButtonSize,
-    enabled: Boolean,
-    modifier: Modifier = Modifier,
-) {
-    val colors = personality.colors
-    val metrics = size.metrics
-    val shape =
-        remember(personality.shape.cornerSmall) { RoundedCornerShape(personality.shape.cornerSmall) }
-    val alpha = if (enabled) 1f else 0.45f
-    val flat = variant == KomiButtonVariant.Text
-    val ambientInk = LocalContentColor.current
-    val container = mangaButtonContainer(variant, colors)
-    val contentColor = mangaButtonContent(variant, colors, ambientInk)
-    val borderColor = if (container == Color.Transparent) contentColor else colors.outline
-    val stamped = !flat && container != Color.Transparent
-    val tapTarget = maxOf(metrics.box, MinTouchTarget)
-
-    val interaction = remember { MutableInteractionSource() }
-    val pressed by interaction.collectIsPressedAsState()
-    val hovered by interaction.collectIsHoveredAsState()
-    val focused by interaction.collectIsFocusedAsState()
-    val pressProgress =
-        animateFloatAsState(if (pressed && enabled) 1f else 0f, label = "komiIconButtonPress")
-    val hoverProgress =
-        animateFloatAsState(if (hovered && enabled) 1f else 0f, label = "komiIconButtonHover")
-
-    val pressModifier =
-        if (!stamped) {
-            Modifier.offset { IntOffset(0, (1.dp.toPx() * pressProgress.value).roundToInt()) }
-        } else {
-            Modifier.inkPress(
-                pressProgress = { pressProgress.value },
-                hoverProgress = { hoverProgress.value },
-                shadow = DpOffset(metrics.shadow, metrics.shadow),
-                shadowColor = colors.shadow.copy(alpha = alpha),
-                shape = shape,
-            )
-        }
-
-    Box(
-        modifier =
-            modifier
-                .size(tapTarget)
-                .clickable(
-                    enabled = enabled,
-                    interactionSource = interaction,
-                    indication = null,
-                    onClick = onClick,
-                ),
-        contentAlignment = Alignment.Center,
-    ) {
-        Box(
-            modifier =
-                Modifier
-                    .inkFocusRing(focused = { focused }, color = colors.primary)
-                    .then(pressModifier)
-                    .size(metrics.box)
-                    .background(color = container.copy(alpha = container.alpha * alpha), shape = shape)
-                    .then(
-                        if (!flat) {
-                            Modifier.border(
-                                width = metrics.border,
-                                color = borderColor.copy(alpha = alpha),
-                                shape = shape,
-                            )
-                        } else {
-                            Modifier
-                        },
-                    ),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = contentDescription,
-                modifier = Modifier.size(metrics.icon),
-                tint = contentColor.copy(alpha = alpha),
-            )
         }
     }
 }
@@ -192,6 +91,8 @@ private fun ClassicIconButton(
     size: KomiIconButtonSize,
     enabled: Boolean,
     modifier: Modifier = Modifier,
+    containerColor: Color = Color.Unspecified,
+    contentColor: Color = Color.Unspecified,
 ) {
     val colors = LocalPersonality.current.colors
     val metrics = size.metrics
@@ -210,12 +111,16 @@ private fun ClassicIconButton(
         }
     }
     val resolved = if (inBar && variant != KomiButtonVariant.Destructive) KomiButtonVariant.Text else variant
+    // Callers can pin the fill to a neutral surface token so a control does not read heavier than
+    // its neighbours; Unspecified keeps Material's own role colours.
+    val buttonColors = iconButtonColorsFor(resolved, containerColor, contentColor)
 
     when (resolved) {
         KomiButtonVariant.Primary -> {
             FilledIconButton(
                 onClick = onClick,
                 shapes = IconButtonDefaults.shapes(),
+                colors = buttonColors,
                 modifier = modifier.then(sizeModifier),
                 enabled = enabled,
                 content = content,
@@ -226,6 +131,7 @@ private fun ClassicIconButton(
             FilledTonalIconButton(
                 onClick = onClick,
                 shapes = IconButtonDefaults.shapes(),
+                colors = buttonColors,
                 modifier = modifier.then(sizeModifier),
                 enabled = enabled,
                 content = content,
@@ -236,6 +142,7 @@ private fun ClassicIconButton(
             OutlinedIconButton(
                 onClick = onClick,
                 shapes = IconButtonDefaults.shapes(),
+                colors = buttonColors,
                 modifier = modifier.then(sizeModifier),
                 enabled = enabled,
                 content = content,
@@ -246,6 +153,7 @@ private fun ClassicIconButton(
             IconButton(
                 onClick = onClick,
                 shapes = IconButtonDefaults.shapes(),
+                colors = buttonColors,
                 modifier = modifier.then(sizeModifier),
                 enabled = enabled,
                 content = content,
@@ -270,6 +178,50 @@ private fun ClassicIconButton(
 }
 
 @Composable
+private fun iconButtonColorsFor(
+    variant: KomiButtonVariant,
+    containerColor: Color,
+    contentColor: Color,
+): IconButtonColors {
+    val overridden = containerColor != Color.Unspecified && contentColor != Color.Unspecified
+    return when (variant) {
+        KomiButtonVariant.Primary,
+        KomiButtonVariant.Destructive,
+        -> {
+            if (overridden) {
+                IconButtonDefaults.filledIconButtonColors(containerColor = containerColor, contentColor = contentColor)
+            } else {
+                IconButtonDefaults.filledIconButtonColors()
+            }
+        }
+
+        KomiButtonVariant.Tonal -> {
+            if (overridden) {
+                IconButtonDefaults.filledTonalIconButtonColors(containerColor = containerColor, contentColor = contentColor)
+            } else {
+                IconButtonDefaults.filledTonalIconButtonColors()
+            }
+        }
+
+        KomiButtonVariant.Outline -> {
+            if (overridden) {
+                IconButtonDefaults.outlinedIconButtonColors(containerColor = containerColor, contentColor = contentColor)
+            } else {
+                IconButtonDefaults.outlinedIconButtonColors()
+            }
+        }
+
+        KomiButtonVariant.Text -> {
+            if (overridden) {
+                IconButtonDefaults.iconButtonColors(containerColor = containerColor, contentColor = contentColor)
+            } else {
+                IconButtonDefaults.iconButtonColors()
+            }
+        }
+    }
+}
+
+@Composable
 private fun PreviewIconRow() {
     Row(horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {
         KomiIconButton(Icons.AutoMirrored.Filled.ArrowBack, "Back", {}, variant = KomiButtonVariant.Tonal)
@@ -278,43 +230,6 @@ private fun PreviewIconRow() {
         KomiIconButton(Icons.Default.Close, "Clear", {}, variant = KomiButtonVariant.Text)
         KomiIconButton(Icons.Default.Delete, "Delete", {}, variant = KomiButtonVariant.Destructive)
     }
-}
-
-@Composable
-private fun PreviewSizeRow() {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(Spacing.md),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        KomiIconButton(Icons.Default.Share, "Share", {}, size = KomiIconButtonSize.Sm)
-        KomiIconButton(Icons.Default.Share, "Share", {}, size = KomiIconButtonSize.Md)
-        KomiIconButton(Icons.Default.Share, "Share", {}, size = KomiIconButtonSize.Lg)
-    }
-}
-
-@Preview
-@Composable
-private fun KomiIconButtonMangaPreview() {
-    PersonalityPreview(mangaPersonality()) {
-        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.lg)) { PreviewIconRow() }
-    }
-}
-
-@Preview
-@Composable
-private fun KomiIconButtonMangaSizesPreview() {
-    PersonalityPreview(mangaPersonality()) { PreviewSizeRow() }
-}
-
-@Preview
-@Composable
-private fun KomiIconButtonMangaNightPreview() {
-    PersonalityPreview(
-        mangaPersonality(
-            paper = MangaPaper.NIGHT,
-            accent = MangaAccent.SUN,
-        ),
-    ) { PreviewIconRow() }
 }
 
 @Preview

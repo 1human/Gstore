@@ -2,7 +2,7 @@ package zed.rainxch.core.domain.model.settings
 
 enum class TranslationProvider {
     GOOGLE,
-    YOUDAO,
+    BAIDU,
     LIBRE_TRANSLATE,
     DEEPL,
     MICROSOFT,

@@ -230,7 +230,6 @@ fun LazyListScope.header(
                 ReleaseHint(
                     text = stringResource(Res.string.go_to_version, deviceBuildTarget.tagName),
                     onClick = { onAction(DetailsAction.OnJumpToDeviceBuild) },
-                    emphasized = true,
                 )
             }
         }

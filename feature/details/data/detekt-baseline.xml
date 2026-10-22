@@ -29,12 +29,6 @@
     <ID>MagicNumber:ReadmeLocalizationHelper.kt$ReadmeLocalizationHelper$100</ID>
     <ID>MagicNumber:ReadmeLocalizationHelper.kt$ReadmeLocalizationHelper$1000</ID>
     <ID>MagicNumber:ReadmeLocalizationHelper.kt$ReadmeLocalizationHelper$4</ID>
-    <ID>MagicNumber:YoudaoTranslator.kt$YoudaoTranslator$0x10</ID>
-    <ID>MagicNumber:YoudaoTranslator.kt$YoudaoTranslator$0xff</ID>
-    <ID>MagicNumber:YoudaoTranslator.kt$YoudaoTranslator$10</ID>
-    <ID>MagicNumber:YoudaoTranslator.kt$YoudaoTranslator$1000L</ID>
-    <ID>MagicNumber:YoudaoTranslator.kt$YoudaoTranslator$16</ID>
-    <ID>MagicNumber:YoudaoTranslator.kt$YoudaoTranslator$20</ID>
     <ID>MagicNumber:preprocessMarkdown.kt$0x10FFFF</ID>
     <ID>MagicNumber:preprocessMarkdown.kt$16</ID>
     <ID>MagicNumber:preprocessMarkdown.kt$3</ID>
@@ -81,7 +75,6 @@
     <ID>TooGenericExceptionThrown:MicrosoftTranslator.kt$MicrosoftTranslator$throw RuntimeException("Microsoft Translator error: ${errorMsg ?: body}")</ID>
     <ID>TooGenericExceptionThrown:MicrosoftTranslator.kt$MicrosoftTranslator$throw RuntimeException("Microsoft Translator response empty")</ID>
     <ID>TooGenericExceptionThrown:MicrosoftTranslator.kt$MicrosoftTranslator$throw RuntimeException("Microsoft Translator response missing translation text")</ID>
-    <ID>TooGenericExceptionThrown:YoudaoTranslator.kt$YoudaoTranslator$throw RuntimeException("Youdao translate error: $errorCode")</ID>
     <ID>TooManyFunctions:DetailsRepositoryImpl.kt$DetailsRepositoryImpl : DetailsRepository</ID>
   </CurrentIssues>
 </SmellBaseline>

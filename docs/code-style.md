@@ -105,7 +105,7 @@ class FooViewModel(
 
 - Use `Komi*` components and `LocalPersonality.current` tokens. No `MaterialTheme.*`, no `Color(0x...)` literals, no `isSystemInDarkTheme()`. Bad: [DetailsRoot.kt:305](https://github.com/komi-store/komi-store/blob/cfa6bd30e6b35cbbc369d78a4599182a9a66beac/feature/details/presentation/src/commonMain/kotlin/zed/rainxch/details/presentation/DetailsRoot.kt#L305), [ExpandableDetails.kt:89](https://github.com/komi-store/komi-store/blob/cfa6bd30e6b35cbbc369d78a4599182a9a66beac/core/presentation/src/commonMain/kotlin/zed/rainxch/core/presentation/components/markdown/ExpandableDetails.kt#L89). **[review]**
 - Before writing a component, look in core/presentation. Shared needs (empty and error states, favourite toggle, search bar, sort dropdown) belong there, not in a feature. **[review]**
-- New core components dispatch on the personality with private Manga / Classic implementations, like [KomiButton.kt:70-123](https://github.com/komi-store/komi-store/blob/cfa6bd30e6b35cbbc369d78a4599182a9a66beac/core/presentation/src/commonMain/kotlin/zed/rainxch/core/presentation/components/buttons/KomiButton.kt#L70-L123). **[review]**
+- New core components read tokens from `LocalPersonality.current` and keep their implementation private, like [KomiButton.kt:70-123](https://github.com/komi-store/komi-store/blob/cfa6bd30e6b35cbbc369d78a4599182a9a66beac/core/presentation/src/commonMain/kotlin/zed/rainxch/core/presentation/components/buttons/KomiButton.kt#L70-L123). **[review]**
 - Public core components and stateless screens have a preview wrapped in `PersonalityPreview` ([PersonalityPreview.kt:16](https://github.com/komi-store/komi-store/blob/cfa6bd30e6b35cbbc369d78a4599182a9a66beac/core/presentation/src/commonMain/kotlin/zed/rainxch/core/presentation/personality/utils/PersonalityPreview.kt#L16)). **[review]**
 
 - Text goes through `KomiText(role = ...)`. The role sets size, weight, letter spacing and case; `KomiText` has no parameters to override them. Seven sizes: 11, 12, 14, 16, 20, 24, 32. **[Konsist]**
@@ -123,14 +123,14 @@ class FooViewModel(
   | `Mono` | 12 | Versions, hashes, package names, logs |
   | `LabelLarge`, `Label`, `LabelSmall` | 16, 14, 12 | Controls by size: large, medium and small buttons, chips, navigation |
   | `Overline` | 11 | Kickers above a field or group, always in capitals |
-  | `Stamp` | 12 to 14 | Segmented tabs, badges, Manga stamps |
+  | `Stamp` | 12 to 14 | Segmented tabs, badges, stamps |
   | `Numeral` | 24 | Stat values |
 
-- Case comes from the role. Manga sets `Display`, `ScreenTitle`, `SectionTitle` and `Stamp` in capitals; everything else keeps the text's own case. A selected row shows its state with color or a check, not a heavier weight. **[review]**
+- Case comes from the role. `Overline` is set in capitals; everything else keeps the text's own case. A selected row shows its state with color or a check, not a heavier weight. **[review]**
 - Large text that must keep its own case or face (the repository name in Details, the device sign-in code) uses `BasicText` with a personality style resized from another role, such as `type.display` or `type.mono.copy(fontSize = type.screenTitle.fontSize)`. Never a literal size. **[Konsist]**
 - Tints come from `PersonalityColors`: `primaryTint`, `onPrimaryTint`, `errorTint`, `pressOverlay`, `disabledContent`, `disabledContainer`, `scrimOverlay` and `divider`. No `.copy(alpha = 0.x)` on personality colors. **[Konsist]**
 - Motion comes from `LocalPersonality.current.motion`: `fastSpatial()` and `defaultSpatial()` for movement, `bouncySpatial()` for a press or swap that should feel alive, `fastEffects()`, `defaultEffects()` and `slowEffects()` for fades and color, `short()`, `medium()` and `long()` durations, `ambient()` for loops. Stop a loop when `motion.animates` is false. **[Konsist]**
-- A screen with a back action passes `onBack` to `KomiTopBar`, not an arrow in `leading`. In Classic the top bar hands `onBack`, `actions` and the scaffold's FAB to a `KomiActionBar` floating over the content at the bottom (a cookie back button, the actions in a floating toolbar) and keeps only the title; both slide away while the content scrolls down. Manga draws them in the top bar. Pass `actions = null` when a screen has none to show, not an empty lambda. **[review]**
+- A screen with a back action passes `onBack` to `KomiTopBar`, not an arrow in `leading`. In Classic the top bar hands `onBack`, `actions` and the scaffold's FAB to a `KomiActionBar` floating over the content at the bottom (a cookie back button, the actions in a floating toolbar) and keeps only the title; both slide away while the content scrolls down. Pass `actions = null` when a screen has none to show, not an empty lambda. **[review]**
 - Popups go through core components: `KomiTooltip`, `KomiRichTooltip` and `KomiCoachmark` for tips, `KomiDropdown` for menus, `KomiMenuList` for a sheet that lists options (a picker), `KomiSheet` for sheets. **[Konsist]**
 
 ## 10. Strings and accessibility

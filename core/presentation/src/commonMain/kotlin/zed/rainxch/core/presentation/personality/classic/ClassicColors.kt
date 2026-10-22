@@ -27,11 +27,6 @@ fun classicColorScheme(
     return if (dark && amoled) scheme.amoled() else scheme
 }
 
-fun classicAccentSwatch(
-    accent: AccentId,
-    dark: Boolean,
-): Pair<Color, Color> = classicColorScheme(accent, dark).let { it.primary to it.onPrimary }
-
 // WALLPAPER falls back to Crimson where the platform has no wallpaper colors.
 private val AccentId.seed: Color
     get() =

@@ -44,22 +44,13 @@ import zed.rainxch.core.domain.model.repository.DiscoveryPlatform
 import zed.rainxch.core.presentation.components.GitHubStoreImage
 import zed.rainxch.core.presentation.components.chips.KomiChip
 import zed.rainxch.core.presentation.components.chips.KomiChipKind
-import zed.rainxch.core.presentation.components.chips.KomiChipSize
-import zed.rainxch.core.presentation.components.surfaces.KomiScreentone
 import zed.rainxch.core.presentation.components.surfaces.KomiSurface
 import zed.rainxch.core.presentation.components.surfaces.KomiSurfaceElevation
 import zed.rainxch.core.presentation.components.text.KomiText
 import zed.rainxch.core.presentation.components.text.KomiTextRole
 import zed.rainxch.core.presentation.locals.LocalPersonality
 import zed.rainxch.core.presentation.personality.ClassicPersonality
-import zed.rainxch.core.presentation.personality.MangaPersonality
 import zed.rainxch.core.presentation.personality.classicPersonality
-import zed.rainxch.core.presentation.personality.manga.MangaAccent
-import zed.rainxch.core.presentation.personality.manga.MangaPaper
-import zed.rainxch.core.presentation.personality.manga.decoration.StarburstShape
-import zed.rainxch.core.presentation.personality.manga.decoration.halftoneOverlay
-import zed.rainxch.core.presentation.personality.manga.decoration.screentoneFill
-import zed.rainxch.core.presentation.personality.mangaPersonality
 import zed.rainxch.core.presentation.personality.model.PersonalityColors
 import zed.rainxch.core.presentation.personality.utils.PersonalityPreview
 import zed.rainxch.core.presentation.spacing.Spacing
@@ -86,29 +77,18 @@ fun KomiRepoCard(
     imageUrl: String? = null,
     feed: KomiRepoCardFeed = KomiRepoCardFeed.Plain,
     rank: Int = 1,
-    version: String? = null,
     dailyStars: Int = 0,
     compact: Boolean = false,
-    index: Int = 0,
-    tilt: Boolean = false,
     releasedAt: String? = null,
 ) {
     val colors = LocalPersonality.current.colors
-    val tiltDeg =
-        if (tilt) {
-            if (index % 2 != 0) 0.4f else -0.4f
-        } else {
-            0f
-        }
     val gap = if (compact) 9.dp else 11.dp
 
     KomiSurface(
         modifier = modifier.fillMaxWidth(),
         elevation = KomiSurfaceElevation.Card,
-        screentone = KomiScreentone.Corner,
         onClick = onOpen,
         onLongClick = onLongPress,
-        tilt = tiltDeg,
         contentPadding = PaddingValues(if (compact) 13.dp else 15.dp),
     ) {
         Column {
@@ -157,7 +137,6 @@ fun KomiRepoCard(
                     feed = feed,
                     rank = rank,
                     dailyStars = dailyStars,
-                    version = version,
                     releasedAgoDays = releasedAgoDays,
                     colors = colors,
                 )
@@ -199,7 +178,6 @@ fun KomiRepoCard(
                         KomiChip(
                             label = platform.toLabel(),
                             kind = KomiChipKind.Info,
-                            size = KomiChipSize.Md,
                             leadingContent = {
                                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                     platform.toIcon()?.let { icon ->
@@ -274,47 +252,6 @@ fun KomiRepoCard(
     }
 }
 
-private fun inkAvatarFilter(dark: Boolean): ColorFilter {
-    val saturation = 0.15f
-    val contrast = if (dark) 1.05f else 1.15f
-    val brightness = if (dark) 0.95f else 1.02f
-    val keep = 1f - saturation
-    val cb = contrast * brightness
-    val t = (-.5f * contrast + .5f) * 255f
-    val lr = 0.299f
-    val lg = 0.587f
-    val lb = 0.114f
-    return ColorFilter.colorMatrix(
-        ColorMatrix(
-            floatArrayOf(
-                cb * (lr * keep + saturation),
-                cb * (lg * keep),
-                cb * (lb * keep),
-                0f,
-                t,
-                cb * (lr * keep),
-                cb * (lg * keep + saturation),
-                cb * (lb * keep),
-                0f,
-                t,
-                cb * (lr * keep),
-                cb * (lg * keep),
-                cb * (lb * keep + saturation),
-                0f,
-                t,
-                0f,
-                0f,
-                0f,
-                1f,
-                0f,
-            ),
-        ),
-    )
-}
-
-private val InkAvatarFilterDay = inkAvatarFilter(dark = false)
-private val InkAvatarFilterNight = inkAvatarFilter(dark = true)
-
 @Composable
 private fun CardIconTile(
     monogram: String,
@@ -324,43 +261,6 @@ private fun CardIconTile(
 ) {
     val hasImage = !imageUrl.isNullOrBlank()
     when (LocalPersonality.current) {
-        is MangaPersonality -> {
-            Box(
-                modifier =
-                    Modifier
-                        .size(size)
-                        .clipToBounds()
-                        .background(color = colors.surface)
-                        .then(
-                            if (hasImage) {
-                                Modifier
-                            } else {
-                                Modifier.screentoneFill(
-                                    color = colors.onSurface,
-                                    opacity = colors.screentoneOpacity + 0.06f,
-                                )
-                            },
-                        ).border(width = 2.5.dp, color = colors.outline),
-                contentAlignment = Alignment.Center,
-            ) {
-                if (hasImage) {
-                    GitHubStoreImage(
-                        imageModel = { imageUrl },
-                        modifier =
-                            Modifier
-                                .matchParentSize()
-                                .halftoneOverlay(
-                                    color = colors.onSurface,
-                                    opacity = colors.screentoneOpacity + 0.06f,
-                                ),
-                        colorFilter = if (colors.isDark) InkAvatarFilterNight else InkAvatarFilterDay,
-                    )
-                } else {
-                    MonogramText(monogram = monogram, color = colors.onSurface, fontSize = (size.value * 0.46f).sp)
-                }
-            }
-        }
-
         is ClassicPersonality -> {
             Box(
                 modifier =
@@ -388,38 +288,11 @@ private fun CardBadge(
     feed: KomiRepoCardFeed,
     rank: Int,
     dailyStars: Int,
-    version: String?,
     releasedAgoDays: Int,
     colors: PersonalityColors,
 ) {
     if (feed == KomiRepoCardFeed.Plain) return
     when (LocalPersonality.current) {
-        is MangaPersonality -> {
-            when (feed) {
-                KomiRepoCardFeed.Popular -> {
-                    RankStamp(rank = rank, colors = colors)
-                }
-
-                KomiRepoCardFeed.Trending -> {
-                    if (dailyStars > 0) {
-                        BurstBadge(text = "+${fmtCompact(dailyStars)}", colors = colors)
-                    }
-                }
-
-                KomiRepoCardFeed.Release -> {
-                    NewReleaseStamp(
-                        version = version,
-                        showStamp = releasedAgoDays <= 7,
-                        colors = colors,
-                    )
-                }
-
-                KomiRepoCardFeed.Plain -> {
-                    Unit
-                }
-            }
-        }
-
         is ClassicPersonality -> {
             ClassicBadge(
                 feed = feed,
@@ -427,90 +300,6 @@ private fun CardBadge(
                 dailyStars = dailyStars,
                 releasedAgoDays = releasedAgoDays,
                 colors = colors,
-            )
-        }
-    }
-}
-
-@Composable
-private fun RankStamp(
-    rank: Int,
-    colors: PersonalityColors,
-) {
-    Box(modifier = Modifier.size(52.dp).rotate(-8f), contentAlignment = Alignment.Center) {
-        Box(
-            modifier =
-                Modifier
-                    .matchParentSize()
-                    .clip(CircleShape)
-                    .background(colors.primary)
-                    .border(width = 2.5.dp, color = colors.outline, shape = CircleShape),
-        )
-        Box(
-            modifier =
-                Modifier
-                    .matchParentSize()
-                    .padding(
-                        3.dp,
-                    ).border(
-                        width = 1.5.dp,
-                        color = colors.onPrimary.copy(alpha = 0.55f),
-                        shape = CircleShape,
-                    ),
-        )
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            KomiText(text = "NO.", role = KomiTextRole.Overline, color = colors.onPrimary)
-            KomiText(text = rank.toString().padStart(2, '0'), role = KomiTextRole.Numeral, color = colors.onPrimary)
-        }
-    }
-}
-
-@Composable
-private fun BurstBadge(
-    text: String,
-    colors: PersonalityColors,
-) {
-    Box(modifier = Modifier.size(58.dp), contentAlignment = Alignment.Center) {
-        Box(
-            modifier =
-                Modifier
-                    .matchParentSize()
-                    .background(color = colors.primary, shape = StarburstShape())
-                    .border(width = 2.dp, color = colors.outline, shape = StarburstShape()),
-        )
-        KomiText(
-            text = text,
-            role = KomiTextRole.Stamp,
-            color = colors.onPrimary,
-            modifier = Modifier.rotate(-6f),
-        )
-    }
-}
-
-@Composable
-private fun NewReleaseStamp(
-    version: String?,
-    showStamp: Boolean,
-    colors: PersonalityColors,
-) {
-    if (!showStamp) return
-    Column(horizontalAlignment = Alignment.End) {
-        Box(
-            modifier =
-                Modifier
-                    .rotate(2f)
-                    .background(color = colors.primary)
-                    .border(width = 2.dp, color = colors.outline)
-                    .padding(horizontal = 7.dp, vertical = 3.dp),
-        ) {
-            KomiText(text = "New Release", role = KomiTextRole.Overline, color = colors.onPrimary)
-        }
-        if (version != null) {
-            KomiText(
-                text = "v$version",
-                role = KomiTextRole.Mono,
-                color = colors.onSurface,
-                modifier = Modifier.padding(top = 4.dp),
             )
         }
     }
@@ -646,7 +435,6 @@ private fun PreviewCards() {
             releasedAgoDays = 5,
             feed = KomiRepoCardFeed.Trending,
             dailyStars = 980,
-            version = "1.17.0",
             onOpen = {},
         )
         KomiRepoCard(
@@ -659,27 +447,9 @@ private fun PreviewCards() {
             downloads = 12040000,
             releasedAgoDays = 3,
             feed = KomiRepoCardFeed.Release,
-            version = "10.9.11",
             onOpen = {},
         )
     }
-}
-
-@Preview
-@Composable
-private fun KomiRepoCardMangaPreview() {
-    PersonalityPreview(mangaPersonality()) { PreviewCards() }
-}
-
-@Preview
-@Composable
-private fun KomiRepoCardMangaNightPreview() {
-    PersonalityPreview(
-        mangaPersonality(
-            paper = MangaPaper.NIGHT,
-            accent = MangaAccent.SUN,
-        ),
-    ) { PreviewCards() }
 }
 
 @Preview

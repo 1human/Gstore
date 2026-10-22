@@ -106,15 +106,6 @@ public fun zed.rainxch.home.presentation.components.HomePlatformPicker(platforms
     - onDismiss: STABLE (function type)
 
 @Composable
-private fun zed.rainxch.home.presentation.components.HomePlatformRow(platform: zed.rainxch.core.domain.model.repository.DiscoveryPlatform, isSelected: kotlin.Boolean, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - platform: STABLE (class with no mutable properties)
-    - isSelected: STABLE (primitive type)
-    - onClick: STABLE (function type)
-
-@Composable
 public fun zed.rainxch.home.presentation.components.RepositoryActionsSheet(repository: zed.rainxch.core.presentation.model.GithubRepoSummaryUi, isSeen: kotlin.Boolean, onDismiss: kotlin.Function0<kotlin.Unit>, onShare: kotlin.Function0<kotlin.Unit>, onOpenOnGithub: kotlin.Function0<kotlin.Unit>, onToggleSeen: kotlin.Function0<kotlin.Unit>, onHide: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true

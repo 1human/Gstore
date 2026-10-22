@@ -39,11 +39,7 @@ import zed.rainxch.core.presentation.components.surfaces.KomiSurfaceElevation
 import zed.rainxch.core.presentation.components.text.KomiText
 import zed.rainxch.core.presentation.components.text.KomiTextRole
 import zed.rainxch.core.presentation.locals.LocalPersonality
-import zed.rainxch.core.presentation.personality.MangaPersonality
 import zed.rainxch.core.presentation.personality.classicPersonality
-import zed.rainxch.core.presentation.personality.manga.decoration.gridPaper
-import zed.rainxch.core.presentation.personality.manga.decoration.screentoneFill
-import zed.rainxch.core.presentation.personality.mangaPersonality
 import zed.rainxch.core.presentation.personality.utils.PersonalityPreview
 import zed.rainxch.core.presentation.spacing.Spacing
 
@@ -55,15 +51,10 @@ fun KomiScaffold(
     floatingActionButton: (@Composable () -> Unit)? = null,
     toastState: KomiToastState? = null,
     overlay: (@Composable () -> Unit)? = null,
-    grid: Boolean = true,
-    screentone: Boolean = false,
-    dividers: Boolean = true,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val colors = LocalPersonality.current.colors
-    val isManga = LocalPersonality.current is MangaPersonality
-    val inkDividers = isManga && dividers
-    val chrome = rememberScaffoldChrome(enabled = !isManga && topBar != null)
+    val chrome = rememberScaffoldChrome(enabled = topBar != null)
     // The FAB joins the action bar when there is one, instead of floating on its own.
     val fabInBar = chrome?.hasActionBar == true
 
@@ -74,41 +65,14 @@ fun KomiScaffold(
             topBar = {
                 topBar?.let { bar ->
                     CompositionLocalProvider(LocalScaffoldChrome provides chrome) {
-                        Column {
-                            bar()
-                            if (inkDividers) HorizontalDivider(thickness = 3.dp, color = colors.outline)
-                        }
-                    }
-                }
-            },
-            bottomBar = {
-                bottomBar?.let { bar ->
-                    Column {
-                        if (inkDividers) HorizontalDivider(thickness = 3.dp, color = colors.outline)
                         bar()
                     }
                 }
             },
+            bottomBar = { bottomBar?.invoke() },
             floatingActionButton = { if (!fabInBar) floatingActionButton?.invoke() },
         ) { innerPadding ->
             Box(modifier = Modifier.fillMaxSize()) {
-                if (isManga && grid) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .matchParentSize()
-                                .gridPaper(color = colors.onSurface, opacity = colors.gridOpacity),
-                    )
-                }
-                if (isManga && screentone) {
-                    Box(
-                        modifier =
-                            Modifier.matchParentSize().screentoneFill(
-                                color = colors.onSurface,
-                                opacity = colors.screentoneOpacity,
-                            ),
-                    )
-                }
                 content(innerPadding)
                 chrome?.let { FloatingActionBar(chrome = it, floatingActionButton = floatingActionButton, padding = innerPadding) }
             }
@@ -203,12 +167,6 @@ private fun PreviewScaffold() {
             }
         }
     }
-}
-
-@Preview
-@Composable
-private fun KomiScaffoldMangaPreview() {
-    PersonalityPreview(mangaPersonality()) { PreviewScaffold() }
 }
 
 @Preview

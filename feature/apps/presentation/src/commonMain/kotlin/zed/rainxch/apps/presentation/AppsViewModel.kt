@@ -475,6 +475,19 @@ class AppsViewModel(
                 _state.update { it.copy(appPendingUninstall = action.app) }
             }
 
+            is AppsAction.OnUnlinkApp -> {
+                _state.update { it.copy(appPendingUnlink = action.app) }
+            }
+
+            is AppsAction.OnUnlinkConfirmed -> {
+                unlinkApp(action.app)
+                _state.update { it.copy(appPendingUnlink = null) }
+            }
+
+            AppsAction.OnDismissUnlinkDialog -> {
+                _state.update { it.copy(appPendingUnlink = null) }
+            }
+
             AppsAction.OnAddByLinkClick -> {
                 openLinkSheet()
             }
@@ -1157,6 +1170,32 @@ class AppsViewModel(
         }
     }
 
+    private fun unlinkApp(app: InstalledAppUi) {
+        viewModelScope.launch {
+            try {
+                installedAppsRepository.executeInTransaction {
+                    externalImportRepository.unlink(app.packageName)
+                    installedAppsRepository.deleteInstalledApp(app.packageName)
+                }
+                logger.debug("Unlinked ${app.packageName}")
+                _events.send(
+                    AppsEvent.ShowSuccess(
+                        getString(Res.string.details_unlink_external_app_success),
+                    ),
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                logger.error("Failed to unlink ${app.packageName}: ${e.message}")
+                _events.send(
+                    AppsEvent.ShowError(
+                        getString(Res.string.details_unlink_external_app_failure),
+                    ),
+                )
+            }
+        }
+    }
+
     private fun openApp(app: InstalledAppUi) {
         viewModelScope.launch {
             try {
@@ -1727,7 +1766,9 @@ class AppsViewModel(
         entry: OrchestratedDownload,
         failedFallback: String,
     ) {
-        val stageChanged = orchestratedStages.put(packageName, entry.stage) != entry.stage
+        val oldStage = orchestratedStages[packageName]
+        orchestratedStages[packageName] = entry.stage
+        val stageChanged = oldStage != entry.stage
         if (stageChanged) {
             updateAppState(
                 packageName,

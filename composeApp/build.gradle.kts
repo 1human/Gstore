@@ -1,3 +1,4 @@
+import com.android.build.api.dsl.ApplicationExtension
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -6,7 +7,7 @@ plugins {
     alias(libs.plugins.compose.hot.reload)
 }
 
-android {
+extensions.configure<ApplicationExtension> {
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
@@ -26,6 +27,8 @@ kotlin {
             implementation(libs.core.splashscreen)
 
             implementation(libs.koin.android)
+            implementation(libs.androidx.work.runtime)
+            implementation(libs.shizuku.provider)
         }
         commonMain.dependencies {
             implementation(projects.core.data)
@@ -123,9 +126,10 @@ compose.desktop {
         nativeDistributions {
             packageName = "Komi-Store"
             packageVersion =
-                libs.versions.projectVersionName
-                    .get()
-                    .toString()
+                project
+                    .findProperty("projectVersionName")
+                    ?.toString()
+                    ?: "1.0"
             vendor = "rainxchzed"
             includeAllModules = true
 
@@ -170,13 +174,15 @@ compose.desktop {
             linux {
                 iconFile.set(project.file("src/jvmMain/resources/logo/app_icon.png"))
                 appRelease =
-                    libs.versions.projectVersionName
-                        .get()
-                        .toString()
+                    project
+                        .findProperty("projectVersionName")
+                        ?.toString()
+                        ?: "1.0"
                 debPackageVersion =
-                    libs.versions.projectVersionName
-                        .get()
-                        .toString()
+                    project
+                        .findProperty("projectVersionName")
+                        ?.toString()
+                        ?: "1.0"
                 menuGroup = "Development"
                 appCategory = "Development"
             }

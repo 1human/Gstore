@@ -67,8 +67,6 @@ import zed.rainxch.githubstore.core.presentation.res.mirror_test_timeout
 import zed.rainxch.tweaks.presentation.components.shell.SettingsGroup
 import zed.rainxch.tweaks.presentation.components.shell.SettingsRow
 import zed.rainxch.tweaks.presentation.components.shell.SettingsSectionHead
-import zed.rainxch.tweaks.presentation.components.shell.TweaksDecorSlot
-import zed.rainxch.tweaks.presentation.components.shell.tweaksKicker
 import zed.rainxch.tweaks.presentation.mirror.components.CustomMirrorDialog
 import zed.rainxch.tweaks.presentation.mirror.components.DeployYourOwnHint
 
@@ -116,12 +114,9 @@ fun MirrorPickerRoot(
 
     KomiScaffold(
         toastState = toastState,
-        grid = true,
-        screentone = true,
         topBar = {
             KomiTopBar(
                 title = stringResource(Res.string.mirror_picker_title),
-                titleAccent = tweaksKicker(TweaksDecorSlot.Mirror),
                 onBack = onNavigateBack,
             )
         },
@@ -147,7 +142,6 @@ fun MirrorPickerRoot(
 
             SettingsSectionHead(
                 stringResource(Res.string.mirror_section_official),
-                TweaksDecorSlot.MirrorOfficial
             )
             SettingsGroup {
                 SettingsRow(
@@ -187,7 +181,6 @@ fun MirrorPickerRoot(
 
             SettingsSectionHead(
                 stringResource(Res.string.mirror_section_community),
-                TweaksDecorSlot.MirrorCommunity
             )
             SettingsGroup {
                 community.forEachIndexed { index, mirror ->
