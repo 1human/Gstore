@@ -150,7 +150,19 @@ compose.desktop {
                     ?.toString()
                     ?: "1.0"
             vendor = "rainxchzed"
-            includeAllModules = true
+            // includeAllModules would copy every JDK module into the bundle: the runtime
+            // image alone came out at 460 MB. Ship the modules the app actually needs.
+            modules(
+                "java.desktop",
+                "java.logging",
+                "java.management",
+                "java.naming",
+                "java.prefs",
+                "java.sql",
+                "jdk.charsets",
+                "jdk.crypto.ec",
+                "jdk.unsupported",
+            )
 
             val currentOs =
                 org.gradle.internal.os.OperatingSystem

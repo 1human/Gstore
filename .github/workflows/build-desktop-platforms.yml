@@ -88,7 +88,14 @@ jobs:
           if (-not (Test-Path $appDir)) { Write-Error "app-image directory not found"; exit 1 }
           New-Item -ItemType Directory -Force -Path windows-portable | Out-Null
           $zip = "windows-portable/Komi-Store-$version-windows-x64-portable.zip"
-          Compress-Archive -Path $appDir -DestinationPath $zip -Force
+          # 7-Zip at max level beats Compress-Archive by ~10% on the jimage + DLLs;
+          # fall back to Compress-Archive if 7z is unavailable.
+          if (Get-Command 7z -ErrorAction SilentlyContinue) {
+            7z a -tzip -mx=9 "$zip" "$appDir" | Out-Null
+            if (-not (Test-Path $zip)) { Write-Error "7z did not produce $zip"; exit 1 }
+          } else {
+            Compress-Archive -Path $appDir -DestinationPath $zip -Force
+          }
           Get-Item $zip | Format-List
 
       - name: Upload Windows portable
