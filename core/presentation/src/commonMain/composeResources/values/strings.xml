@@ -1512,4 +1512,6 @@
     <string name="share_link">Share link</string>
     <string name="library_from_github">From GitHub</string>
     <string name="library_not_installed">Not installed</string>
+    <string name="library_tracked_title">Added to library</string>
+    <string name="library_remove">Remove</string>
 </resources>

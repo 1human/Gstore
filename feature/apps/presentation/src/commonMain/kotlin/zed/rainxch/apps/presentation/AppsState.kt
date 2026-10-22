@@ -18,6 +18,7 @@ import zed.rainxch.apps.presentation.model.LinkStep
 import zed.rainxch.apps.presentation.model.UpdateAllProgress
 import zed.rainxch.apps.presentation.model.VariantOption
 import zed.rainxch.apps.presentation.model.VariantPickerError
+import zed.rainxch.core.domain.model.library.TrackedRepo
 import zed.rainxch.core.domain.system.OrchestratedDownload
 import zed.rainxch.core.domain.system.RepoMatchSuggestion
 
@@ -27,6 +28,7 @@ data class AppsState(
     val searchQuery: String = "",
     // Repositories GitHub returned for the same query: the library lists them under the installed
     // apps, marked as not installed.
+    val trackedRepos: ImmutableList<TrackedRepo> = persistentListOf(),
     val remoteResults: ImmutableList<RepoMatchSuggestion> = persistentListOf(),
     val isSearchingRemote: Boolean = false,
     val sortRule: AppSortRule = AppSortRule.UpdatesFirst,

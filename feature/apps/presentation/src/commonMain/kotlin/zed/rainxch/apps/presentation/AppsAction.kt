@@ -13,6 +13,10 @@ sealed interface AppsAction {
         val query: String,
     ) : AppsAction
 
+    data class OnUntrackRepo(
+        val repoId: Long,
+    ) : AppsAction
+
     data class OnSortRuleSelected(
         val sortRule: AppSortRule,
     ) : AppsAction

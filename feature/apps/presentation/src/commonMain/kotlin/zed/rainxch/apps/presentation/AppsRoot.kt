@@ -587,11 +587,16 @@ fun AppsScreen(
                                         }
                                     }
 
+                                    if (state.trackedRepos.isNotEmpty()) {
+                                        item(key = "library-tracked", span = { GridItemSpan(maxLineSpan) }) {
+                                            LibraryTrackedRepoList(state.trackedRepos, { onAction(it.toNavigateAction()) }) {
+                                                onAction(AppsAction.OnUntrackRepo(it.repoId))
+                                            }
+                                        }
+                                    }
                                     if (state.remoteResults.isNotEmpty()) {
                                         item(key = "library-from-github", span = { GridItemSpan(maxLineSpan) }) {
-                                            LibraryRemoteRepoList(state.remoteResults) { suggestion ->
-                                                onAction(suggestion.toNavigateAction())
-                                            }
+                                            LibraryRemoteRepoList(state.remoteResults) { onAction(it.toNavigateAction()) }
                                         }
                                     }
 

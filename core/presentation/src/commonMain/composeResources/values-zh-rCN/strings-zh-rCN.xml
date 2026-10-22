@@ -1435,4 +1435,6 @@
     <string name="share_link">分享链接</string>
     <string name="library_from_github">来自 GitHub</string>
     <string name="library_not_installed">未安装</string>
+    <string name="library_tracked_title">已加入文库</string>
+    <string name="library_remove">移除</string>
 </resources>

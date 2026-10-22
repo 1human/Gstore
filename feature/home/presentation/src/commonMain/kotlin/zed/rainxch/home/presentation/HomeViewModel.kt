@@ -25,6 +25,7 @@ import zed.rainxch.core.domain.model.account.github.GithubRepoSummary
 import zed.rainxch.core.domain.model.installation.InstalledApp
 import zed.rainxch.core.domain.model.installation.hasActualUpdate
 import zed.rainxch.core.domain.model.installation.isReallyInstalled
+import zed.rainxch.core.domain.model.library.TrackedRepo
 import zed.rainxch.core.domain.model.repository.DiscoveryPlatform
 import zed.rainxch.core.domain.model.repository.PaginatedDiscoveryRepositories
 import zed.rainxch.core.domain.model.system.Platform
@@ -124,6 +125,28 @@ class HomeViewModel(
 
             HomeAction.OnLoadMore -> {
                 loadMore()
+            }
+
+            HomeAction.OnTrackRepo -> {
+                val card = _state.value.actionSheetCard
+                if (card != null) {
+                    viewModelScope.launch {
+                        val current = tweaksRepository.getTrackedRepos().first()
+                        if (current.none { it.repoId == card.id }) {
+                            tweaksRepository.setTrackedRepos(
+                                current +
+                                    TrackedRepo(
+                                        repoId = card.id,
+                                        owner = card.ownerLogin,
+                                        repo = card.name,
+                                        description = card.description,
+                                        stars = card.starsCount,
+                                        addedAt = System.currentTimeMillis(),
+                                    ),
+                            )
+                        }
+                    }
+                }
             }
 
             HomeAction.OnToggleGridLayout -> {

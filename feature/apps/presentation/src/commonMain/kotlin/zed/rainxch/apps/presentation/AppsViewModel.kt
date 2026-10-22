@@ -126,6 +126,7 @@ class AppsViewModel(
             )
 
     init {
+        observeTrackedRepos()
         observeOrchestratorDownloads()
     }
 
@@ -194,6 +195,14 @@ class AppsViewModel(
         viewModelScope.launch {
             tweaksRepository.getKaoBannerDismissed().collect { dismissed ->
                 _state.update { it.copy(showKaoBanner = !dismissed) }
+            }
+        }
+    }
+
+    private fun observeTrackedRepos() {
+        viewModelScope.launch {
+            tweaksRepository.getTrackedRepos().collect { repos ->
+                _state.update { it.copy(trackedRepos = repos.toImmutableList()) }
             }
         }
     }
@@ -346,6 +355,13 @@ class AppsViewModel(
             }
 
             AppsAction.OnAddFromStarredClick -> {
+            }
+
+            is AppsAction.OnUntrackRepo -> {
+                viewModelScope.launch {
+                    val remaining = _state.value.trackedRepos.filterNot { it.repoId == action.repoId }
+                    tweaksRepository.setTrackedRepos(remaining)
+                }
             }
 
             is AppsAction.OnSearchChange -> {
