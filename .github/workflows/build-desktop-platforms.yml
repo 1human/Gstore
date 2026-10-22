@@ -1,9 +1,12 @@
-name: Build Desktop Platform Installers
+name: Build Desktop Platforms
 
 on:
   push:
     branches:
       - generate-installers
+  # Manual "Run workflow" from the Actions tab. Without this trigger GitHub
+  # hides the button entirely, which is why the workflow looked unrunnable.
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -440,7 +443,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          VERSION=$(grep 'projectVersionName' gradle/libs.versions.toml | head -1 | sed 's/.*= *"\(.*\)"/\1/')
+          VERSION=$(grep '^projectVersionName' gradle.properties | head -1 | sed 's/.*= *//')
           PKG_NAME="komi-store"
           PKG_DIR="pkg-root"
 
@@ -558,9 +561,9 @@ jobs:
         id: version
         run: |
           set -euo pipefail
-          VERSION=$(grep 'projectVersionName' gradle/libs.versions.toml | head -1 | sed 's/.*= *"\(.*\)"/\1/')
+          VERSION=$(grep '^projectVersionName' gradle.properties | head -1 | sed 's/.*= *//')
           if [ -z "$VERSION" ]; then
-            echo "ERROR: could not read projectVersionName from gradle/libs.versions.toml"
+            echo "ERROR: could not read projectVersionName from gradle.properties"
             exit 1
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
@@ -610,8 +613,8 @@ jobs:
           linux_appimage_count=0
           linux_arch_count=0
 
-          # Windows portable — app-image zip from build-windows (unsigned, not
-          # routed through SignPath). Filename already carries version + arch.
+          # Windows portable — the only Windows artifact: app-image zip from
+          # build-windows, filename already carries version + arch.
           while IFS= read -r f; do
             [ -n "$f" ] || continue
             stage "$f" "$(basename "$f")" && windows_portable_count=$((windows_portable_count + 1)) || true
@@ -702,7 +705,7 @@ jobs:
             # Release with this tag exists. Only clobber assets if it's still
             # a DRAFT — we never silently overwrite assets on a published
             # release. Operator must bump projectVersionName in
-            # gradle/libs.versions.toml to roll a new tag.
+            # gradle.properties to roll a new tag.
             is_draft=$(gh release view "$TAG" --json isDraft -q '.isDraft')
             if [ "$is_draft" = "true" ]; then
               echo "Draft release $TAG already exists — replacing assets via --clobber..."
@@ -712,7 +715,7 @@ jobs:
               echo "Refusing to clobber published assets."
               echo
               echo "If you intended to ship a new version, bump"
-              echo "projectVersionName in gradle/libs.versions.toml first,"
+              echo "projectVersionName in gradle.properties first,"
               echo "then re-push to generate-installers."
               exit 1
             fi
