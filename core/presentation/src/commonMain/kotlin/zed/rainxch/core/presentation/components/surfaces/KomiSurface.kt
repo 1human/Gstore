@@ -112,33 +112,7 @@ private fun ClassicSurface(
             KomiSurfaceElevation.Modal -> 6.dp
         }
 
-    val clickModifier =
-        if (onClick != null || onLongClick != null) {
-            Modifier
-                // Mouse users need the hand cursor to know a surface is clickable; no-op on touch.
-                .pointerHoverIcon(PointerIcon.Hand)
-                .then(
-                    // Desktop has no long press: a secondary click opens the same actions.
-                    if (onLongClick != null) {
-                        Modifier.pointerInput(onLongClick) {
-                            awaitPointerEventScope {
-                                while (true) {
-                                    val event = awaitPointerEvent(PointerEventPass.Main)
-                                    if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
-                                        event.changes.forEach { it.consume() }
-                                        onLongClick()
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        Modifier
-                    },
-                )
-                .combinedClickable(onClick = onClick ?: {}, onLongClick = onLongClick)
-        } else {
-            Modifier
-        }
+    val clickModifier = Modifier.pointerClicks(onClick = onClick, onLongClick = onLongClick)
     Surface(
         modifier = modifier,
         shape = shape,
@@ -157,6 +131,34 @@ private fun PreviewPanelBody() {
         KomiText("Ollama", role = KomiTextRole.CardTitle)
         KomiText("Run large language models locally.", role = KomiTextRole.Body)
         KomiText("v0.5.4 · 174M", role = KomiTextRole.Mono)
+    }
+}
+
+private fun Modifier.pointerClicks(
+    onClick: (() -> Unit)?,
+    onLongClick: (() -> Unit)?,
+): Modifier {
+    if (onClick == null && onLongClick == null) return Modifier
+    return this
+        // Mouse users need the hand cursor to know a surface is clickable; no-op on touch.
+        .pointerHoverIcon(PointerIcon.Hand)
+        .secondaryClickAsLongPress(onLongClick)
+        .combinedClickable(onClick = onClick ?: {}, onLongClick = onLongClick)
+}
+
+// Desktop has no long press: a secondary click opens the same actions.
+private fun Modifier.secondaryClickAsLongPress(onLongClick: (() -> Unit)?): Modifier {
+    if (onLongClick == null) return this
+    return pointerInput(onLongClick) {
+        awaitPointerEventScope {
+            while (true) {
+                val event = awaitPointerEvent(PointerEventPass.Main)
+                if (event.type == PointerEventType.Press && event.buttons.isSecondaryPressed) {
+                    event.changes.forEach { it.consume() }
+                    onLongClick()
+                }
+            }
+        }
     }
 }
 
