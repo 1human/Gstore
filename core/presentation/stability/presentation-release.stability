@@ -442,6 +442,16 @@ public fun zed.rainxch.core.presentation.components.buttons.KomiSoftIconButton(i
     - size: STABLE (marked @Stable or @Immutable)
 
 @Composable
+public fun zed.rainxch.core.presentation.components.buttons.PlatformFilterButton(platform: zed.rainxch.core.domain.model.repository.DiscoveryPlatform, onClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, size: zed.rainxch.core.presentation.components.buttons.KomiButtonSize): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - platform: STABLE (class with no mutable properties)
+    - onClick: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - size: STABLE (class with no mutable properties)
+
+@Composable
 private fun zed.rainxch.core.presentation.components.buttons.PreviewButtonStack(): kotlin.Unit
   skippable: true
   restartable: true
@@ -1202,6 +1212,12 @@ private fun zed.rainxch.core.presentation.components.overlays.WideMenu(expanded:
     - entries: STABLE (known stable type)
     - value: STABLE (class with no mutable properties)
     - onPick: STABLE (function type)
+
+@Composable
+private fun zed.rainxch.core.presentation.components.overlays.platformCaretShape(): androidx.compose.ui.graphics.Shape?
+  skippable: true
+  restartable: true
+  params:
 
 @Composable
 public fun zed.rainxch.core.presentation.components.overlays.rememberKomiToastState(limit: kotlin.Int): zed.rainxch.core.presentation.components.overlays.KomiToastState

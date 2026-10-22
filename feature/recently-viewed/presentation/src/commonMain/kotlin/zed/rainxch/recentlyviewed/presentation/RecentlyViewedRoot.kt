@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import zed.rainxch.core.domain.isDesktop
 import zed.rainxch.core.domain.utils.RepoIdCodec
 import zed.rainxch.core.presentation.components.ScrollbarContainer
 import zed.rainxch.core.presentation.components.bars.KomiTopBar
@@ -78,7 +79,7 @@ fun RecentlyViewedScreen(
             KomiTopBar(
                 title = stringResource(Res.string.recently_viewed),
                 size = KomiTopBarSize.Compact,
-                onBack = { onAction(RecentlyViewedAction.OnNavigateBackClick) },
+                onBack = if (isDesktop()) null else ({ onAction(RecentlyViewedAction.OnNavigateBackClick) }),
             )
         },
     ) { innerPadding ->

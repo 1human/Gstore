@@ -138,6 +138,21 @@ val packagingJavaHome: String? =
                 ?.absolutePath
         }.getOrNull()
 
+// The modules the bundled runtime keeps; scripts/prune-desktop-image.ps1 rebuilds the same image
+// with jlink compression, so both places read this list.
+val desktopRuntimeModules =
+    listOf(
+        "java.desktop",
+        "java.logging",
+        "java.management",
+        "java.naming",
+        "java.prefs",
+        "java.sql",
+        "jdk.charsets",
+        "jdk.crypto.ec",
+        "jdk.unsupported",
+    )
+
 compose.desktop {
     application {
         packagingJavaHome?.let { javaHome = it }
@@ -152,17 +167,7 @@ compose.desktop {
             vendor = "rainxchzed"
             // includeAllModules would copy every JDK module into the bundle: the runtime
             // image alone came out at 460 MB. Ship the modules the app actually needs.
-            modules(
-                "java.desktop",
-                "java.logging",
-                "java.management",
-                "java.naming",
-                "java.prefs",
-                "java.sql",
-                "jdk.charsets",
-                "jdk.crypto.ec",
-                "jdk.unsupported",
-            )
+            modules(*desktopRuntimeModules.toTypedArray())
 
             val currentOs =
                 org.gradle.internal.os.OperatingSystem
@@ -220,6 +225,53 @@ compose.desktop {
         }
     }
 }
+
+// ── Desktop image slimming ─────────────────────────────────
+// jpackage copies every runtime jar whole, so the Windows image carried the SQLite and JNA
+// natives for macOS/Linux and the entire 36 MB icon jar whose classes the app barely touches.
+// scripts/prune-desktop-image.ps1 drops the entries this build cannot reach; nothing is renamed,
+// optimised or otherwise rewritten.
+val pruneDesktopImage =
+    tasks.register<Exec>("pruneDesktopImage") {
+        description = "Drops foreign natives and unused icons from the packaged desktop image."
+        group = "distribution"
+        onlyIf {
+            org.gradle.internal.os.OperatingSystem
+                .current()
+                .isWindows
+        }
+        // The pruning script also rebuilds the bundled runtime with jlink compression, so it needs
+        // the same module list and the JDK that jpackage itself used.
+        val arguments =
+            mutableListOf(
+                "powershell",
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                rootProject.file("scripts/prune-desktop-image.ps1").absolutePath,
+                "-Modules",
+                desktopRuntimeModules.joinToString(","),
+            )
+        packagingJavaHome?.let { arguments.addAll(listOf("-JdkHome", it)) }
+        arguments.addAll(
+            listOf(
+                layout.buildDirectory
+                    .dir("compose/binaries/main/app/Komi-Store")
+                    .get()
+                    .asFile.absolutePath,
+                layout.buildDirectory
+                    .dir("compose/binaries/main-release/app/Komi-Store")
+                    .get()
+                    .asFile.absolutePath,
+            ),
+        )
+        commandLine(arguments)
+    }
+
+tasks
+    .matching { it.name == "createDistributable" || it.name == "createReleaseDistributable" }
+    .configureEach { finalizedBy(pruneDesktopImage) }
 
 tasks.register("printRuntimeDependencies") {
     description = "Lists all runtime dependencies for licenses.json maintenance."

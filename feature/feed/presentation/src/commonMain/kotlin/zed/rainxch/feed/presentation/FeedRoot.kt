@@ -16,7 +16,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import zed.rainxch.core.presentation.components.buttons.PlatformFilterButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -37,7 +37,6 @@ import zed.rainxch.core.domain.model.repository.DiscoveryPlatform
 import zed.rainxch.core.domain.model.repository.FeedCategory
 import zed.rainxch.core.presentation.components.bars.KomiTopBar
 import zed.rainxch.core.presentation.components.buttons.KomiButton
-import zed.rainxch.core.presentation.components.buttons.KomiButtonSize
 import zed.rainxch.core.presentation.components.buttons.KomiButtonVariant
 import zed.rainxch.core.presentation.components.buttons.KomiIconButtonSize
 import zed.rainxch.core.presentation.components.buttons.RepoLayoutToggle
@@ -55,10 +54,10 @@ import zed.rainxch.core.presentation.components.text.KomiText
 import zed.rainxch.core.presentation.components.text.KomiTextRole
 import zed.rainxch.core.presentation.locals.LocalPersonality
 import zed.rainxch.core.presentation.utils.ObserveAsEvents
-import zed.rainxch.core.presentation.utils.toIcon
 import zed.rainxch.core.presentation.utils.toLabel
 import zed.rainxch.core.presentation.layout.CardGridSpec
 import zed.rainxch.core.presentation.layout.rememberWidthCappedStaggeredCells
+import zed.rainxch.feed.presentation.components.FeedCategoryTabs
 import zed.rainxch.feed.presentation.components.FeedCategoryStrip
 import zed.rainxch.feed.presentation.components.FeedPlatformPicker
 import zed.rainxch.githubstore.core.presentation.res.Res
@@ -138,14 +137,11 @@ private fun FeedScreen(
                         size = KomiIconButtonSize.Sm,
                     )
 
-                    val platform = state.selectedPlatform
-                    KomiButton(
+                    // The sidebar no longer lists platforms, so the action bar carries the picker
+                    // on every screen and both bars offer the same control.
+                    PlatformFilterButton(
+                        platform = state.selectedPlatform,
                         onClick = { onAction(FeedAction.OnPlatformPickerOpen) },
-                        label = if (platform == DiscoveryPlatform.All) stringResource(Res.string.feed_platform_all) else platform.toLabel(),
-                        variant = KomiButtonVariant.Primary,
-                        size = KomiButtonSize.Sm,
-                        leadingIcon = if (platform == DiscoveryPlatform.All) null else platform.toIcon(),
-                        trailingIcon = Icons.Rounded.KeyboardArrowDown,
                     )
                 },
             )
@@ -204,7 +200,14 @@ private fun FeedContent(
         modifier = modifier
             .fillMaxSize(),
     ) {
-        if (!isDesktop()) {
+        if (isDesktop()) {
+            // The sidebar no longer lists categories, so the feed carries them above the grid.
+            FeedCategoryTabs(
+                categories = state.categories,
+                selected = state.selectedCategory,
+                onSelect = { onAction(FeedAction.OnCategorySelected(it)) },
+            )
+        } else {
             Column(
                 modifier =
                     Modifier

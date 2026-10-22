@@ -313,13 +313,10 @@
 
     <string name="home_topbar_discover">Discover</string>
     <string name="home_masthead_title">Top Charts</string>
-    <string name="home_platform_filter">Filter platforms</string>
     <string name="home_chart_trending">Trending</string>
     <string name="home_chart_releases">Releases</string>
     <string name="home_chart_popular">Popular</string>
     <string name="sidebar_browse">Browse</string>
-    <string name="sidebar_platform">Platform</string>
-    <string name="sidebar_categories">Categories</string>
     <string name="home_section_hot_releases">Hot releases</string>
     <string name="home_section_trending_now">Trending now</string>
     <string name="home_section_most_popular">Most popular</string>

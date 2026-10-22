@@ -86,20 +86,6 @@ public fun zed.rainxch.githubstore.app.navigation.DesktopSidebar(currentScreen: 
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
-private fun zed.rainxch.githubstore.app.navigation.InkCheckbox(checked: kotlin.Boolean): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - checked: STABLE (primitive type)
-
-@Composable
-private fun zed.rainxch.githubstore.app.navigation.InkDiamond(filled: kotlin.Boolean): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - filled: STABLE (primitive type)
-
-@Composable
 private fun zed.rainxch.githubstore.app.navigation.MainDetailPane(args: zed.rainxch.core.presentation.components.adaptive.AdaptiveDetailArgs, navController: androidx.navigation.NavHostController, onCrossNavToRepo: kotlin.Function1<zed.rainxch.core.presentation.components.adaptive.AdaptiveDetailArgs, kotlin.Unit>, onClearPane: kotlin.Function0<kotlin.Unit>, onOpenAbout: kotlin.Function5<kotlin.Long, kotlin.String, kotlin.String, kotlin.String?, kotlin.String?, kotlin.Unit>, onOpenWhatsNew: kotlin.Function4<kotlin.Long, kotlin.String, kotlin.String, kotlin.String?, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
@@ -121,16 +107,6 @@ private fun zed.rainxch.githubstore.app.navigation.NavIcon(icon: androidx.compos
     - badgeCount: STABLE (primitive type)
 
 @Composable
-private fun zed.rainxch.githubstore.app.navigation.SidebarCategoryRow(category: zed.rainxch.core.domain.model.repository.FeedCategory, selected: kotlin.Boolean, rail: kotlin.Boolean, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - category: STABLE (class with no mutable properties)
-    - selected: STABLE (primitive type)
-    - rail: STABLE (primitive type)
-    - onClick: STABLE (function type)
-
-@Composable
 private fun zed.rainxch.githubstore.app.navigation.SidebarNavRow(label: kotlin.String, icon: androidx.compose.ui.graphics.vector.ImageVector, selected: kotlin.Boolean, rail: kotlin.Boolean, badgeCount: kotlin.Int, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
@@ -143,29 +119,12 @@ private fun zed.rainxch.githubstore.app.navigation.SidebarNavRow(label: kotlin.S
     - onClick: STABLE (function type)
 
 @Composable
-private fun zed.rainxch.githubstore.app.navigation.SidebarPlatformRow(platform: zed.rainxch.core.domain.model.repository.DiscoveryPlatform, selected: kotlin.Boolean, rail: kotlin.Boolean, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - platform: STABLE (class with no mutable properties)
-    - selected: STABLE (primitive type)
-    - rail: STABLE (primitive type)
-    - onClick: STABLE (function type)
-
-@Composable
 private fun zed.rainxch.githubstore.app.navigation.SidebarSideHeading(title: kotlin.String, rail: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - title: STABLE (String is immutable)
     - rail: STABLE (primitive type)
-
-@Composable
-private fun zed.rainxch.githubstore.app.navigation.hoverWash(color: androidx.compose.ui.graphics.Color): androidx.compose.ui.Modifier
-  skippable: true
-  restartable: true
-  params:
-    - color: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun zed.rainxch.githubstore.app.whatsnew.SheetHeader(entry: zed.rainxch.core.domain.model.announcement.WhatsNewEntry): kotlin.Unit

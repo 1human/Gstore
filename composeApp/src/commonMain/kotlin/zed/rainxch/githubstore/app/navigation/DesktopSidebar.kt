@@ -3,9 +3,6 @@ package zed.rainxch.githubstore.app.navigation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.hoverable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -26,64 +22,26 @@ import androidx.compose.material.icons.outlined.Apps
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.WideNavigationRailItem
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.koinInject
-import zed.rainxch.core.domain.model.repository.DiscoveryPlatform
-import zed.rainxch.core.domain.model.repository.FeedCategory
-import zed.rainxch.core.domain.repository.BrowseFilterStore
 import zed.rainxch.core.presentation.components.badge.KomiBadge
 import zed.rainxch.core.presentation.components.icon.KomiIcon
 import zed.rainxch.core.presentation.components.text.KomiText
 import zed.rainxch.core.presentation.components.text.KomiTextRole
 import zed.rainxch.core.presentation.locals.LocalPersonality
-import zed.rainxch.core.presentation.utils.toIcon
-import zed.rainxch.core.presentation.utils.toLabel
 import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.bottom_nav_apps_title
-import zed.rainxch.githubstore.core.presentation.res.category_all
 import zed.rainxch.githubstore.core.presentation.res.favourites
-import zed.rainxch.githubstore.core.presentation.res.feed_category_ai
-import zed.rainxch.githubstore.core.presentation.res.feed_category_media
-import zed.rainxch.githubstore.core.presentation.res.feed_category_networking
-import zed.rainxch.githubstore.core.presentation.res.feed_category_privacy
-import zed.rainxch.githubstore.core.presentation.res.feed_category_reading
-import zed.rainxch.githubstore.core.presentation.res.feed_category_social
-import zed.rainxch.githubstore.core.presentation.res.feed_category_tools
 import zed.rainxch.githubstore.core.presentation.res.recently_viewed
 import zed.rainxch.githubstore.core.presentation.res.sidebar_browse
-import zed.rainxch.githubstore.core.presentation.res.sidebar_categories
-import zed.rainxch.githubstore.core.presentation.res.sidebar_platform
 import zed.rainxch.githubstore.core.presentation.res.tweaks_title
-
-private val SidebarPlatforms =
-    listOf(
-        DiscoveryPlatform.All,
-        DiscoveryPlatform.Android,
-        DiscoveryPlatform.Windows,
-        DiscoveryPlatform.Macos,
-        DiscoveryPlatform.Linux,
-    )
 
 // Material's collapsed wide rail, wide enough for a label under each icon.
 private val ClassicRailWidth = 96.dp
@@ -97,36 +55,22 @@ fun DesktopSidebar(
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalPersonality.current.colors
-    val store = koinInject<BrowseFilterStore>()
-    val platform by store.platform.collectAsStateWithLifecycle()
-    val category by store.category.collectAsStateWithLifecycle()
-
     val browseItems =
         BottomNavigationUtils.items().filterNot { it.screen == GithubStoreGraph.AppsScreen }
-    val isBrowseScreen =
-        currentScreen != null &&
-            (
-                currentScreen::class == GithubStoreGraph.ExploreScreen::class ||
-                    currentScreen::class == GithubStoreGraph.ChartsScreen::class ||
-                    currentScreen::class == GithubStoreGraph.SearchScreen()::class
-            )
-    val isHomeFeed =
-        currentScreen != null && currentScreen::class == GithubStoreGraph.ExploreScreen::class
+
+    // The panel is a card on the page rather than the window's own edge: every corner takes the
+    // surface radius and a hairline border, the same treatment a profile card gets.
+    val shape = RoundedCornerShape(LocalPersonality.current.shape.corner)
 
     Column(
         modifier =
             modifier
                 .width(if (rail) ClassicRailWidth else 216.dp)
                 .fillMaxHeight()
-                .background(colors.surface)
-                .drawBehind {
-                    val w = 1.dp.toPx()
-                    drawRect(
-                        color = colors.outlineVariant,
-                        topLeft = Offset(size.width - w, 0f),
-                        size = Size(w, size.height),
-                    )
-                }.verticalScroll(rememberScrollState())
+                .clip(shape)
+                .background(colors.background)
+                .border(LocalPersonality.current.shape.borderPanel, colors.outlineVariant, shape)
+                .verticalScroll(rememberScrollState())
                 .padding(
                     top = if (rail) 12.dp else 16.dp,
                     bottom = 16.dp,
@@ -154,38 +98,6 @@ fun DesktopSidebar(
                 badgeCount = badge,
                 onClick = { onNavigate(item.screen) },
             )
-        }
-
-        if (isBrowseScreen) {
-            Spacer(Modifier.height(if (rail) 2.dp else 6.dp))
-            SidebarSideHeading(
-                stringResource(Res.string.sidebar_platform),
-                rail,
-            )
-            SidebarPlatforms.forEach { p ->
-                SidebarPlatformRow(
-                    platform = p,
-                    selected = p == platform,
-                    rail = rail,
-                    onClick = { store.setPlatform(p) },
-                )
-            }
-        }
-
-        if (isHomeFeed) {
-            Spacer(Modifier.height(if (rail) 2.dp else 6.dp))
-            SidebarSideHeading(
-                stringResource(Res.string.sidebar_categories),
-                rail,
-            )
-            FeedCategory.entries.forEach { c ->
-                SidebarCategoryRow(
-                    category = c,
-                    selected = c == category,
-                    rail = rail,
-                    onClick = { store.setCategory(c) },
-                )
-            }
         }
 
         // Library/settings/help used to live in the window menu bar, which desktop no
@@ -278,7 +190,6 @@ private fun SidebarNavRow(
 
 // Material 3 Expressive's wide rail item: a pill behind the selected icon, the label under the
 // icon when the rail is collapsed and beside it when expanded.
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ClassicNavRow(
     label: String,
@@ -288,21 +199,50 @@ private fun ClassicNavRow(
     badgeCount: Int,
     onClick: () -> Unit,
 ) {
-    WideNavigationRailItem(
-        selected = selected,
-        onClick = onClick,
-        icon = { NavIcon(icon, LocalContentColor.current, badgeCount) },
-        label = {
+    val colors = LocalPersonality.current.colors
+    val shape = RoundedCornerShape(LocalPersonality.current.shape.cornerSmall)
+    val content = if (selected) colors.onPrimaryContainer else colors.onSurface
+
+    // Laid out by hand: the rail's own item centres the icon and the label, and a sidebar reads
+    // better with both pinned to the leading edge.
+    if (rail) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .clip(shape)
+                    .then(if (selected) Modifier.background(colors.primaryContainer, shape) else Modifier)
+                    .clickable(onClick = onClick)
+                    .padding(vertical = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            NavIcon(icon, content, badgeCount)
+            KomiText(text = label, role = KomiTextRole.LabelSmall, color = content, maxLines = 1)
+        }
+    } else {
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .clip(shape)
+                    .then(if (selected) Modifier.background(colors.primaryContainer, shape) else Modifier)
+                    .clickable(onClick = onClick)
+                    .padding(horizontal = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            NavIcon(icon, content, badgeCount)
             KomiText(
                 text = label,
-                role = if (rail) KomiTextRole.LabelSmall else KomiTextRole.Label,
-                color = LocalContentColor.current,
+                role = KomiTextRole.Label,
+                color = content,
                 maxLines = 1,
+                modifier = Modifier.weight(1f),
             )
-        },
-        railExpanded = !rail,
-        modifier = Modifier.fillMaxWidth(),
-    )
+        }
+    }
 }
 
 @Composable
@@ -330,202 +270,3 @@ private fun NavIcon(
         )
     }
 }
-
-@Composable
-private fun SidebarPlatformRow(
-    platform: DiscoveryPlatform,
-    selected: Boolean,
-    rail: Boolean,
-    onClick: () -> Unit,
-) {
-    val colors = LocalPersonality.current.colors
-    val label =
-        if (platform == DiscoveryPlatform.All) {
-            stringResource(Res.string.category_all)
-        } else {
-            platform.toLabel()
-        }
-    if (rail) {
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .height(34.dp)
-                    .clip(RoundedCornerShape(LocalPersonality.current.shape.cornerSmall))
-                    .then(
-                        if (selected) {
-                            Modifier.background(colors.primaryContainer)
-                        } else {
-                            Modifier.hoverWash(colors.onSurface)
-                        },
-                    ).clickable(onClick = onClick),
-            contentAlignment = Alignment.Center,
-        ) {
-            val icon = platform.toIcon()
-            if (icon != null) {
-                KomiIcon(
-                    imageVector = icon,
-                    contentDescription = label,
-                    modifier = Modifier.size(16.dp),
-                    tint = colors.onSurface,
-                )
-            } else {
-                KomiText(
-                    text = label,
-                    role = KomiTextRole.Overline,
-                    color = colors.onSurface,
-                    maxLines = 1,
-                )
-            }
-        }
-    } else {
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .height(32.dp)
-                    .clip(RoundedCornerShape(LocalPersonality.current.shape.cornerSmall))
-                    .hoverWash(colors.onSurface)
-                    .clickable(onClick = onClick)
-                    .padding(horizontal = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(9.dp),
-        ) {
-            InkCheckbox(checked = selected)
-            val icon = platform.toIcon()
-            icon?.let { icon ->
-                KomiIcon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(14.dp),
-                    tint = colors.onSurface,
-                )
-            }
-            KomiText(
-                text = label,
-                role = KomiTextRole.Label,
-                color = colors.onSurface,
-                maxLines = 1,
-            )
-        }
-    }
-}
-
-@Composable
-private fun SidebarCategoryRow(
-    category: FeedCategory,
-    selected: Boolean,
-    rail: Boolean,
-    onClick: () -> Unit,
-) {
-    val colors = LocalPersonality.current.colors
-    if (rail) {
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .height(34.dp)
-                    .clip(RoundedCornerShape(LocalPersonality.current.shape.cornerSmall))
-                    .then(
-                        if (selected) {
-                            Modifier.background(colors.primaryContainer)
-                        } else {
-                            Modifier.hoverWash(colors.onSurface)
-                        },
-                    ).clickable(onClick = onClick),
-            contentAlignment = Alignment.Center,
-        ) {
-            InkDiamond(filled = selected)
-        }
-    } else {
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .height(30.dp)
-                    .clip(RoundedCornerShape(LocalPersonality.current.shape.cornerSmall))
-                    .hoverWash(colors.onSurface)
-                    .clickable(onClick = onClick)
-                    .padding(horizontal = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(9.dp),
-        ) {
-            InkDiamond(filled = selected)
-            KomiText(
-                text = stringResource(category.sidebarLabelRes()),
-                role = KomiTextRole.Label,
-                color = if (selected) colors.onSurface else colors.onSurfaceVariant,
-                maxLines = 1,
-            )
-        }
-    }
-}
-
-@Composable
-private fun InkCheckbox(checked: Boolean) {
-    val colors = LocalPersonality.current.colors
-    val shape = RoundedCornerShape(4.dp)
-    val borderColor =
-        if (checked) {
-            colors.primary
-        } else {
-            colors.outlineVariant
-        }
-    Box(
-        modifier =
-            Modifier
-                .size(14.dp)
-                .clip(shape)
-                .background(if (checked) colors.primary else Color.Transparent)
-                .border(1.5.dp, borderColor, shape),
-        contentAlignment = Alignment.Center,
-    ) {
-        if (checked) {
-            KomiIcon(
-                Icons.Rounded.Check,
-                contentDescription = null,
-                modifier = Modifier.size(10.dp),
-                tint = colors.onPrimary,
-            )
-        }
-    }
-}
-
-@Composable
-private fun InkDiamond(filled: Boolean) {
-    val colors = LocalPersonality.current.colors
-    Box(
-        modifier =
-            Modifier
-                .size(7.dp)
-                .clip(CircleShape)
-                .then(
-                    if (filled) {
-                        Modifier.background(colors.primary)
-                    } else {
-                        Modifier.border(1.5.dp, colors.outlineVariant, CircleShape)
-                    },
-                ),
-    )
-}
-
-@Composable
-private fun Modifier.hoverWash(color: Color): Modifier {
-    val interaction = remember { MutableInteractionSource() }
-    val hovered by interaction.collectIsHoveredAsState()
-    return this
-        .hoverable(interaction)
-        .background(if (hovered) color.copy(alpha = 0.08f) else Color.Transparent)
-}
-
-private fun FeedCategory.sidebarLabelRes() =
-    when (this) {
-        FeedCategory.All -> Res.string.category_all
-        FeedCategory.Ai -> Res.string.feed_category_ai
-        FeedCategory.Privacy -> Res.string.feed_category_privacy
-        FeedCategory.Networking -> Res.string.feed_category_networking
-        FeedCategory.Media -> Res.string.feed_category_media
-        FeedCategory.Social -> Res.string.feed_category_social
-        FeedCategory.Reading -> Res.string.feed_category_reading
-        FeedCategory.Tools -> Res.string.feed_category_tools
-    }

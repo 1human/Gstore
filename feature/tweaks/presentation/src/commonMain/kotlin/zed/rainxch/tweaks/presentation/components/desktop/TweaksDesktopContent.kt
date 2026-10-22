@@ -1,12 +1,12 @@
 package zed.rainxch.tweaks.presentation.components.desktop
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,23 +17,18 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
-import zed.rainxch.core.presentation.components.buttons.KomiIconButton
 import zed.rainxch.core.presentation.components.text.KomiText
 import zed.rainxch.core.presentation.components.text.KomiTextRole
 import zed.rainxch.core.presentation.locals.LocalPersonality
 import zed.rainxch.githubstore.core.presentation.res.Res
-import zed.rainxch.githubstore.core.presentation.res.navigate_back
 import zed.rainxch.githubstore.core.presentation.res.section_app_block
 import zed.rainxch.githubstore.core.presentation.res.section_connectivity
 import zed.rainxch.githubstore.core.presentation.res.section_privacy_and_data
@@ -68,7 +63,6 @@ fun TweaksDesktopContent(
     onNavigateToMirrorPicker: () -> Unit,
     onNavigateToHiddenRepositories: () -> Unit,
     onNavigateToHostTokens: () -> Unit,
-    onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = LocalPersonality.current.colors
@@ -79,7 +73,7 @@ fun TweaksDesktopContent(
                 Modifier
                     .width(230.dp)
                     .fillMaxHeight()
-                    .background(colors.surface)
+                    .background(colors.background)
                     .drawBehind {
                         val stroke = 1.dp.toPx()
                         drawLine(
@@ -90,22 +84,16 @@ fun TweaksDesktopContent(
                         )
                     }.padding(horizontal = 12.dp, vertical = 18.dp),
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                KomiIconButton(
-                    icon = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(Res.string.navigate_back),
-                    onClick = onNavigateBack,
-                )
-                KomiText(
-                    text = stringResource(Res.string.tweaks_title),
-                    role = KomiTextRole.ScreenTitle,
-                    color = colors.onSurface,
-                    modifier = Modifier.padding(start = 6.dp),
-                )
-            }
+            KomiText(
+                text = stringResource(Res.string.tweaks_title),
+                role = KomiTextRole.ScreenTitle,
+                color = colors.onSurface,
+                modifier = Modifier.padding(start = 6.dp),
+            )
+            // The title sits at the panel's top edge, so the first section row needs a gap of its
+            // own instead of starting right under it.
+            Spacer(Modifier.height(16.dp))
+
             DesktopSection.entries.forEach { entry ->
                 NavRow(
                     label = entry.label(),

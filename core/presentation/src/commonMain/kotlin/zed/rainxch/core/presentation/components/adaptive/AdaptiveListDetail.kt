@@ -31,10 +31,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import zed.rainxch.core.presentation.utils.horizontalResizePointerIcon
 import zed.rainxch.core.presentation.layout.WindowBreakpoints
 import zed.rainxch.core.presentation.locals.LocalPersonality
 
@@ -156,7 +156,7 @@ private fun PaneResizeHandle(onDrag: (Float) -> Unit) {
             Modifier
                 .fillMaxHeight()
                 .width(10.dp)
-                .pointerHoverIcon(PointerIcon.Crosshair)
+                .pointerHoverIcon(horizontalResizePointerIcon)
                 .draggable(
                     state = draggableState,
                     orientation = Orientation.Horizontal,

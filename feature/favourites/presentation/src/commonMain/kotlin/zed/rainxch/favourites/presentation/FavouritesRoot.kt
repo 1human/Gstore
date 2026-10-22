@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Sort
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.rounded.PersonAdd
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
@@ -28,6 +27,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import zed.rainxch.core.domain.isDesktop
 import zed.rainxch.core.domain.utils.RepoIdCodec
 import zed.rainxch.core.presentation.components.bars.KomiTopBar
 import zed.rainxch.core.presentation.components.bars.KomiTopBarSize
@@ -178,7 +178,7 @@ private fun FavouritesTopbar(
     KomiTopBar(
         title = stringResource(Res.string.favourites),
         size = KomiTopBarSize.Compact,
-        onBack = { onAction(FavouritesAction.OnNavigateBackClick) },
+        onBack = if (isDesktop()) null else ({ onAction(FavouritesAction.OnNavigateBackClick) }),
         actions = {
             KomiIconButton(
                 icon = Icons.Rounded.PersonAdd,

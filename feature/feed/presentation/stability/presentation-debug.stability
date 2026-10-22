@@ -58,6 +58,15 @@ private fun zed.rainxch.feed.presentation.FeedScreen(state: zed.rainxch.feed.pre
     - onAction: STABLE (function type)
 
 @Composable
+private fun zed.rainxch.feed.presentation.components.CategorySegment(label: kotlin.String, selected: kotlin.Boolean, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - label: STABLE (String is immutable)
+    - selected: STABLE (primitive type)
+    - onClick: STABLE (function type)
+
+@Composable
 public fun zed.rainxch.feed.presentation.components.FeedCategoryStrip(categories: kotlinx.collections.immutable.ImmutableList<zed.rainxch.core.domain.model.repository.FeedCategory>, selected: zed.rainxch.core.domain.model.repository.FeedCategory, onSelect: kotlin.Function1<zed.rainxch.core.domain.model.repository.FeedCategory, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
@@ -65,6 +74,16 @@ public fun zed.rainxch.feed.presentation.components.FeedCategoryStrip(categories
     - categories: STABLE (known stable type)
     - selected: STABLE (class with no mutable properties)
     - onSelect: STABLE (function type)
+
+@Composable
+public fun zed.rainxch.feed.presentation.components.FeedCategoryTabs(categories: kotlinx.collections.immutable.ImmutableList<zed.rainxch.core.domain.model.repository.FeedCategory>, selected: zed.rainxch.core.domain.model.repository.FeedCategory, onSelect: kotlin.Function1<zed.rainxch.core.domain.model.repository.FeedCategory, kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - categories: STABLE (known stable type)
+    - selected: STABLE (class with no mutable properties)
+    - onSelect: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun zed.rainxch.feed.presentation.components.FeedPlatformBar(platform: zed.rainxch.core.domain.model.repository.DiscoveryPlatform, onOpenPicker: kotlin.Function0<kotlin.Unit>): kotlin.Unit

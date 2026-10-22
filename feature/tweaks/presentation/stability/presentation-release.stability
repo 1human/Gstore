@@ -159,7 +159,7 @@ private fun zed.rainxch.tweaks.presentation.components.desktop.NavRow(label: kot
     - onClick: STABLE (function type)
 
 @Composable
-public fun zed.rainxch.tweaks.presentation.components.desktop.TweaksDesktopContent(state: zed.rainxch.tweaks.presentation.TweaksState, onAction: kotlin.Function1<zed.rainxch.tweaks.presentation.TweaksAction, kotlin.Unit>, currentLanguageLabel: kotlin.String, onOpenLanguage: kotlin.Function0<kotlin.Unit>, onOpenFeedback: kotlin.Function0<kotlin.Unit>, onNavigateToMirrorPicker: kotlin.Function0<kotlin.Unit>, onNavigateToHiddenRepositories: kotlin.Function0<kotlin.Unit>, onNavigateToHostTokens: kotlin.Function0<kotlin.Unit>, onNavigateBack: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+public fun zed.rainxch.tweaks.presentation.components.desktop.TweaksDesktopContent(state: zed.rainxch.tweaks.presentation.TweaksState, onAction: kotlin.Function1<zed.rainxch.tweaks.presentation.TweaksAction, kotlin.Unit>, currentLanguageLabel: kotlin.String, onOpenLanguage: kotlin.Function0<kotlin.Unit>, onOpenFeedback: kotlin.Function0<kotlin.Unit>, onNavigateToMirrorPicker: kotlin.Function0<kotlin.Unit>, onNavigateToHiddenRepositories: kotlin.Function0<kotlin.Unit>, onNavigateToHostTokens: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: false
   restartable: true
   params:
@@ -171,7 +171,6 @@ public fun zed.rainxch.tweaks.presentation.components.desktop.TweaksDesktopConte
     - onNavigateToMirrorPicker: STABLE (function type)
     - onNavigateToHiddenRepositories: STABLE (function type)
     - onNavigateToHostTokens: STABLE (function type)
-    - onNavigateBack: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable

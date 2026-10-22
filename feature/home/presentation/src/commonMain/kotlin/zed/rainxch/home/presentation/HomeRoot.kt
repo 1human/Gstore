@@ -18,7 +18,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.itemsIndexed
 import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -35,9 +34,9 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import zed.rainxch.core.domain.isAndroid
-import zed.rainxch.core.presentation.components.buttons.KomiButton
 import zed.rainxch.core.presentation.components.buttons.KomiButtonVariant
-import zed.rainxch.core.presentation.components.buttons.KomiIconButton
+import zed.rainxch.core.presentation.components.buttons.PlatformFilterButton
+import zed.rainxch.core.presentation.components.buttons.KomiButton
 import zed.rainxch.core.presentation.components.buttons.RepoLayoutToggle
 import zed.rainxch.core.presentation.components.cards.DiscoveryRepoCard
 import zed.rainxch.core.presentation.components.cards.KomiRepoCardFeed
@@ -58,10 +57,8 @@ import zed.rainxch.core.presentation.layout.rememberWidthCappedStaggeredCells
 import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.feed_empty_title
 import zed.rainxch.githubstore.core.presentation.res.home_finding_repositories
-import zed.rainxch.githubstore.core.presentation.res.home_platform_filter
 import zed.rainxch.githubstore.core.presentation.res.home_retry
 import zed.rainxch.home.presentation.components.HomeChartTabs
-import zed.rainxch.core.domain.isDesktop
 import zed.rainxch.core.presentation.components.bars.KomiTopBar
 import zed.rainxch.githubstore.core.presentation.res.home_masthead_title
 import zed.rainxch.home.presentation.components.HomePlatformPicker
@@ -134,14 +131,10 @@ private fun HomeScreen(
                         isGridLayout = state.isGridLayout,
                         onToggle = { onAction(HomeAction.OnToggleGridLayout) },
                     )
-                    if (!isDesktop()) {
-                        KomiIconButton(
-                            icon = Icons.Rounded.Tune,
-                            contentDescription = stringResource(Res.string.home_platform_filter),
-                            onClick = { onAction(HomeAction.OnPlatformPopupOpen) },
-                            variant = KomiButtonVariant.Primary,
-                        )
-                    }
+                    PlatformFilterButton(
+                        platform = state.selectedPlatform,
+                        onClick = { onAction(HomeAction.OnPlatformPopupOpen) },
+                    )
                 }
             )
         },

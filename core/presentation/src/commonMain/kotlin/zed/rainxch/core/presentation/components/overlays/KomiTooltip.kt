@@ -20,9 +20,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import zed.rainxch.core.domain.isDesktop
 import zed.rainxch.core.presentation.components.buttons.KomiButton
 import zed.rainxch.core.presentation.components.buttons.KomiButtonSize
 import zed.rainxch.core.presentation.components.buttons.KomiButtonVariant
@@ -116,9 +118,16 @@ fun KomiCoachmark(
     )
 }
 
+// material3 shapes the caret by transforming a Path, and Skia backs that with a Matrix33 that
+// only accepts 2D affine matrices; the one layoutCaret builds is rejected with "Matrix33 does
+// not support arbitrary transforms". Android's Path takes any matrix, so desktop drops the
+// caret and keeps the plain container.
+@Composable
+private fun platformCaretShape(): Shape? = if (isDesktop()) null else TooltipDefaults.caretShape()
+
 @Composable
 private fun TooltipScope.KomiPlainTooltip(text: String) {
-    PlainTooltip(caretShape = TooltipDefaults.caretShape()) {
+    PlainTooltip(caretShape = platformCaretShape()) {
         KomiText(text = text, role = KomiTextRole.Caption, color = LocalContentColor.current)
     }
 }
@@ -130,7 +139,7 @@ private fun TooltipScope.KomiRichTooltipPanel(
     action: (@Composable () -> Unit)? = null,
 ) {
     RichTooltip(
-        caretShape = TooltipDefaults.caretShape(),
+        caretShape = platformCaretShape(),
         title = { KomiText(text = title, role = KomiTextRole.CardTitle, color = LocalContentColor.current) },
         action = action,
     ) {

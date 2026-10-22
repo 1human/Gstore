@@ -105,7 +105,11 @@ fun AppNavigation(
         LocalScrollbarEnabled provides isScrollbarEnabled,
         LocalContentWidth provides contentWidth,
     ) {
-        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        // The shell paints the page colour itself so the gaps around the sidebar card read as the
+        // same page, instead of the window's neutral default showing through.
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxSize().background(LocalPersonality.current.colors.background),
+        ) {
             val rail = maxWidth < 1140.dp
             Row(modifier = Modifier.fillMaxSize()) {
                 val desktopDrawerCurrent =
@@ -115,20 +119,29 @@ fun AppNavigation(
                         .getCurrentScreen()
 
                 if (isDesktop() && desktopDrawerCurrent != null) {
-                    DesktopSidebar(
-                        currentScreen = desktopDrawerCurrent,
-                        onNavigate = { target ->
-                            navController.navigate(target) {
-                                popUpTo(GithubStoreGraph.ExploreScreen) {
-                                    saveState = true
+                    // The sidebar is a card inset from the window edges, the same way a profile
+                    // card sits on the page instead of running to the frame.
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxHeight()
+                                .padding(start = 8.dp, top = 8.dp, bottom = 8.dp, end = 8.dp),
+                    ) {
+                        DesktopSidebar(
+                            currentScreen = desktopDrawerCurrent,
+                            onNavigate = { target ->
+                                navController.navigate(target) {
+                                    popUpTo(GithubStoreGraph.ExploreScreen) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = target != GithubStoreGraph.ExploreScreen
                                 }
-                                launchSingleTop = true
-                                restoreState = target != GithubStoreGraph.ExploreScreen
-                            }
-                        },
-                        rail = rail,
-                        unreadAnnouncementsCount = announcementsUnreadCount,
-                    )
+                            },
+                            rail = rail,
+                            unreadAnnouncementsCount = announcementsUnreadCount,
+                        )
+                    }
                 }
 
                 Box(

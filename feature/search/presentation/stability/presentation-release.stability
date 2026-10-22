@@ -55,14 +55,6 @@ private fun zed.rainxch.search.presentation.FiltersPillButton(activeCount: kotli
     - onClick: STABLE (function type)
 
 @Composable
-public fun zed.rainxch.search.presentation.PlatformPicker(state: zed.rainxch.search.presentation.SearchState, onAction: kotlin.Function1<zed.rainxch.search.presentation.SearchAction, kotlin.Unit>): kotlin.Unit
-  skippable: false
-  restartable: true
-  params:
-    - state: RUNTIME (requires runtime check)
-    - onAction: STABLE (function type)
-
-@Composable
 public fun zed.rainxch.search.presentation.SearchRoot(onNavigateBack: kotlin.Function0<kotlin.Unit>, onNavigateToDetails: kotlin.Function4<@[ParameterName(name = \, onNavigateToDetailsFromLink: kotlin.Function2<@[ParameterName(name = \, onNavigateToDeveloperProfile: kotlin.Function1<@[ParameterName(name = \, viewModel: zed.rainxch.search.presentation.SearchViewModel): kotlin.Unit
   skippable: false
   restartable: true

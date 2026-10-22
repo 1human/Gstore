@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
@@ -41,10 +40,10 @@ import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.TravelExplore
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
@@ -64,12 +63,9 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import zed.rainxch.core.domain.model.repository.DiscoveryPlatform
-import zed.rainxch.core.domain.model.system.Platform
 import zed.rainxch.core.presentation.components.ScrollbarContainer
 import zed.rainxch.core.presentation.components.buttons.KomiButton
 import zed.rainxch.core.presentation.components.buttons.KomiButtonVariant
-import zed.rainxch.core.presentation.components.buttons.KomiIconButtonSize
-import zed.rainxch.core.presentation.components.buttons.RepoLayoutToggle
 import zed.rainxch.core.presentation.components.buttons.KomiFab
 import zed.rainxch.core.presentation.components.cards.DiscoveryRepoCard
 import zed.rainxch.core.presentation.components.icon.KomiIcon
@@ -88,8 +84,6 @@ import zed.rainxch.core.presentation.locals.LocalScrollbarEnabled
 import zed.rainxch.core.presentation.personality.utils.PersonalityPreview
 import zed.rainxch.core.presentation.utils.ObserveAsEvents
 import zed.rainxch.core.presentation.utils.arrowKeyScroll
-import zed.rainxch.core.presentation.utils.toIcon
-import zed.rainxch.core.presentation.utils.toLabel
 import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.clipboard_link_detected
 import zed.rainxch.githubstore.core.presentation.res.detected_links
@@ -386,20 +380,6 @@ fun SearchScreen(
                     )
                 }
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(modifier = Modifier.weight(1f)) {
-                        PlatformPicker(
-                            state = state,
-                            onAction = onAction
-                        )
-                    }
-                    RepoLayoutToggle(
-                        isGridLayout = state.isGridLayout,
-                        onToggle = { onAction(SearchAction.OnToggleGridLayout) },
-                        size = KomiIconButtonSize.Sm,
-                    )
-                }
-
                 ActiveFiltersStrip(
                     state = state,
                     onAction = onAction
@@ -649,66 +629,6 @@ fun SearchScreen(
                         }
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun PlatformPicker(
-    state: SearchState,
-    onAction: (SearchAction) -> Unit
-) {
-    val colors = LocalPersonality.current.colors
-    val shape = RoundedCornerShape(LocalPersonality.current.shape.cornerSmall)
-    LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        items(DiscoveryPlatform.entries) { platform ->
-            Row(
-                modifier = Modifier
-                    .clip(shape)
-                    .background(
-                        if (state.selectedSearchPlatform == platform) {
-                            colors.primaryTint
-                        } else colors.surfaceContainerHigh,
-                        shape = shape
-                    )
-                    .border(
-                        width = 1.dp,
-                        color = if (state.selectedSearchPlatform == platform) {
-                            colors.primary.copy(alpha = 0.4f)
-                        } else {
-                            colors.outlineVariant
-                        },
-                        shape = shape,
-                    )
-                    .clickable(onClick = {
-                        onAction(SearchAction.OnPlatformTypeSelected(platform))
-                    })
-                    .padding(start = 12.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-            ) {
-                val icon = platform.toIcon()
-                if (icon != null) {
-                    KomiIcon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        modifier = Modifier.size(14.dp),
-                        tint = colors.primary,
-                    )
-                }
-
-                KomiText(
-                    text = platform.toLabel(),
-                    role = KomiTextRole.LabelSmall,
-                    color = colors.primary,
-                )
             }
         }
     }

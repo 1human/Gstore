@@ -1,0 +1,105 @@
+name: Windows
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  # Manual "Run workflow" from the Actions tab.
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  JAVA_VERSION: '21'
+  JAVA_DISTRIBUTION: 'temurin'
+  GRADLE_OPTS: >-
+    -Dorg.gradle.daemon=false
+    -Dorg.gradle.parallel=true
+    -Dorg.gradle.caching=true
+    -Dorg.gradle.vfs.watch=false
+
+jobs:
+  build-windows:
+    name: Package Windows portable (x64)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        with:
+          cache-read-only: false
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+          gradle-home-cache-cleanup: true
+
+      # The app-image is pruned and its runtime is re-compressed by the
+      # `pruneDesktopImage` task that `createDistributable` finalizes, so this
+      # single task produces the slim portable build.
+      - name: Build portable app-image
+        run: |
+          set -euo pipefail
+          # The Gradle daemon runs on the JDK runtime image that
+          # gradle-daemon-jvm.properties provisions, and that image has no jmods,
+          # so jlink fails with "This JDK does not contain packaged modules".
+          # Packaging therefore uses the full Temurin JDK installed above.
+          export PACKAGING_JAVA_HOME="$JAVA_HOME"
+          retry() {
+            local n=1 max=3 delay=5
+            while true; do
+              echo "Attempt #$n: $*"
+              "$@" && break
+              [ $n -ge $max ] && { echo "Failed after $n attempts."; return 1; }
+              n=$((n+1)); echo "Retrying in ${delay}s..."; sleep $delay; delay=$((delay*2))
+            done
+          }
+          retry ./gradlew :composeApp:createDistributable
+        shell: bash
+
+      - name: Stage portable zip
+        shell: pwsh
+        run: |
+          $line = (Select-String -Path 'gradle.properties' -Pattern '^projectVersionName\s*=' | Select-Object -First 1).Line
+          $version = ($line -split '=')[1].Trim()
+          if ([string]::IsNullOrWhiteSpace($version)) { Write-Error "Could not read projectVersionName"; exit 1 }
+          $appDir = "composeApp/build/compose/binaries/main/app/Komi-Store"
+          if (-not (Test-Path $appDir)) { Write-Error "app-image directory not found"; exit 1 }
+          New-Item -ItemType Directory -Force -Path windows-portable | Out-Null
+          $zip = "windows-portable/Komi-Store-$version-windows-x64-portable.zip"
+          # 7-Zip at max level beats Compress-Archive by ~10% on the jimage + DLLs;
+          # fall back to Compress-Archive if 7z is unavailable.
+          if (Get-Command 7z -ErrorAction SilentlyContinue) {
+            7z a -tzip -mx=9 "$zip" "$appDir" | Out-Null
+            if (-not (Test-Path $zip)) { Write-Error "7z did not produce $zip"; exit 1 }
+          } else {
+            Compress-Archive -Path $appDir -DestinationPath $zip -Force
+          }
+          Get-Item $zip | Format-List
+          $size = (Get-ChildItem $appDir -Recurse -File | Measure-Object Length -Sum).Sum
+          Write-Host ("app-image size: {0:N1} MB" -f ($size / 1MB))
+
+      - name: Upload portable build
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: windows-portable
+          path: windows-portable/*
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0

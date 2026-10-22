@@ -1,0 +1,98 @@
+name: Android
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  # Manual "Run workflow" from the Actions tab.
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  JAVA_VERSION: '21'
+  JAVA_DISTRIBUTION: 'temurin'
+  GRADLE_OPTS: >-
+    -Dorg.gradle.daemon=false
+    -Dorg.gradle.parallel=true
+    -Dorg.gradle.caching=true
+    -Dorg.gradle.vfs.watch=false
+
+jobs:
+  build-android:
+    name: Package Android APKs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        with:
+          cache-read-only: false
+          cache-encryption-key: ${{ secrets.GRADLE_ENCRYPTION_KEY }}
+          gradle-home-cache-cleanup: true
+
+      # Release is arm64-only and unsigned (the project has no signing config); the
+      # debug APK is the one that installs as-is on a device or emulator.
+      - name: Build APKs
+        run: |
+          set -euo pipefail
+          retry() {
+            local n=1 max=3 delay=5
+            while true; do
+              echo "Attempt #$n: $*"
+              "$@" && break
+              [ $n -ge $max ] && { echo "Failed after $n attempts."; return 1; }
+              n=$((n+1)); echo "Retrying in ${delay}s..."; sleep $delay; delay=$((delay*2))
+            done
+          }
+          retry ./gradlew :composeApp:assembleRelease :composeApp:assembleDebug
+        shell: bash
+
+      - name: Stage APKs
+        run: |
+          set -euo pipefail
+          VERSION=$(grep '^projectVersionName' gradle.properties | head -1 | sed 's/.*= *//')
+          mkdir -p android-apk
+          for apk in composeApp/build/outputs/apk/release/*.apk; do
+            [ -e "$apk" ] || continue
+            base=$(basename "$apk" .apk)
+            cp "$apk" "android-apk/Komi-Store-$VERSION-$base.apk"
+          done
+          for apk in composeApp/build/outputs/apk/debug/*.apk; do
+            [ -e "$apk" ] || continue
+            cp "$apk" "android-apk/Komi-Store-$VERSION-debug.apk"
+          done
+          if [ -z "$(ls -A android-apk)" ]; then
+            echo "ERROR: no APK was produced"
+            exit 1
+          fi
+          ls -la android-apk
+        shell: bash
+
+      - name: Upload APKs
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: android-apk
+          path: android-apk/*
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
