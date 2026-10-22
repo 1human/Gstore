@@ -1433,4 +1433,6 @@
     <string name="go_to_version">前往 %1$s</string>
     <string name="get_it_on_platform">获取 %1$s 版</string>
     <string name="share_link">分享链接</string>
+    <string name="library_from_github">来自 GitHub</string>
+    <string name="library_not_installed">未安装</string>
 </resources>

@@ -79,6 +79,7 @@ import zed.rainxch.core.presentation.personality.utils.PersonalityPreview
 import zed.rainxch.core.presentation.utils.ObserveAsEvents
 import zed.rainxch.core.presentation.utils.arrowKeyScroll
 import zed.rainxch.core.presentation.utils.formatLastChecked
+import zed.rainxch.githubstore.core.presentation.res.library_from_github
 import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.add_by_link
 import zed.rainxch.githubstore.core.presentation.res.apps_section_in_progress
@@ -585,6 +586,15 @@ fun AppsScreen(
                                             }
                                         }
                                     }
+
+                                    if (state.remoteResults.isNotEmpty()) {
+                                        item(key = "library-from-github", span = { GridItemSpan(maxLineSpan) }) {
+                                            LibraryRemoteRepoList(state.remoteResults) { suggestion ->
+                                                onAction(suggestion.toNavigateAction())
+                                            }
+                                        }
+                                    }
+
 
                                     item(key = "trailing-spacer", span = { GridItemSpan(maxLineSpan) }) {
                                         Spacer(Modifier.height(32.dp))

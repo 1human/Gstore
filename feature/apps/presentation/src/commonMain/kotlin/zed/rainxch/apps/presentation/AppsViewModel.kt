@@ -776,12 +776,37 @@ class AppsViewModel(
         }
     }
 
+    private var remoteSearchJob: Job? = null
+
     private fun filterApps() {
         _state.update { current ->
             current.copy(
                 filteredApps = computeFilteredApps(current.apps, current.searchQuery, current.sortRule),
             )
         }
+        searchRemoteRepos(_state.value.searchQuery)
+    }
+
+    // The library searches GitHub alongside the installed apps, so a repository that was never
+    // installed still shows up. Typing is debounced; a blank query clears the results.
+    private fun searchRemoteRepos(query: String) {
+        remoteSearchJob?.cancel()
+        if (query.isBlank()) {
+            _state.update { it.copy(remoteResults = persistentListOf(), isSearchingRemote = false) }
+            return
+        }
+        remoteSearchJob =
+            viewModelScope.launch {
+                delay(REMOTE_SEARCH_DEBOUNCE_MS)
+                _state.update { it.copy(isSearchingRemote = true) }
+                val results = externalImportRepository.searchRepos(query.trim()).getOrElse { emptyList() }
+                _state.update { current ->
+                    current.copy(
+                        remoteResults = results.toImmutableList(),
+                        isSearchingRemote = false,
+                    )
+                }
+            }
     }
 
     private fun computeFilteredApps(

@@ -25,6 +25,10 @@ data class AppsState(
     val apps: ImmutableList<AppItem> = persistentListOf(),
     val filteredApps: ImmutableList<AppItem> = persistentListOf(),
     val searchQuery: String = "",
+    // Repositories GitHub returned for the same query: the library lists them under the installed
+    // apps, marked as not installed.
+    val remoteResults: ImmutableList<RepoMatchSuggestion> = persistentListOf(),
+    val isSearchingRemote: Boolean = false,
     val sortRule: AppSortRule = AppSortRule.UpdatesFirst,
     val isLoading: Boolean = false,
     val isUpdatingAll: Boolean = false,

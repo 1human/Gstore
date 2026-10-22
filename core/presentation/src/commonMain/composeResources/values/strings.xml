@@ -1510,4 +1510,6 @@
     <string name="go_to_version">Go to %1$s</string>
     <string name="get_it_on_platform">Get it on %1$s</string>
     <string name="share_link">Share link</string>
+    <string name="library_from_github">From GitHub</string>
+    <string name="library_not_installed">Not installed</string>
 </resources>
