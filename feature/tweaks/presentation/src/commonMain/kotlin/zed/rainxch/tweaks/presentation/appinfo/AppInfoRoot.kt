@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -98,14 +99,47 @@ fun AppInfoRoot(
                 onBack = onNavigateBack,
             )
         },
-        toastState = toastState
+        toastState = toastState,
     ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentAlignment = Alignment.TopCenter,
-        ) {
+        AppInfoContent(
+            state = state,
+            uriHandler = uriHandler,
+            onNavigateToLicenses = onNavigateToLicenses,
+            modifier = Modifier.fillMaxSize().padding(innerPadding),
+        )
+    }
+}
+
+/**
+ * The app info body without its own scaffold, for the desktop detail pane that is empty
+ * until a repository is selected.
+ */
+@Composable
+fun AppInfoPane(
+    onNavigateToLicenses: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: AppInfoViewModel = koinViewModel(),
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    AppInfoContent(
+        state = state,
+        uriHandler = LocalUriHandler.current,
+        onNavigateToLicenses = onNavigateToLicenses,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun AppInfoContent(
+    state: AppInfoState,
+    uriHandler: UriHandler,
+    onNavigateToLicenses: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter,
+    ) {
             Column (
                 modifier = Modifier
                     .constrainedContentWidth()
@@ -165,7 +199,6 @@ fun AppInfoRoot(
                 )
             }
         }
-    }
 }
 
 @Composable

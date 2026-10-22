@@ -35,6 +35,25 @@ private fun zed.rainxch.tweaks.presentation.appinfo.AppIdentityCard(versionName:
     - versionName: STABLE (String is immutable)
 
 @Composable
+private fun zed.rainxch.tweaks.presentation.appinfo.AppInfoContent(state: zed.rainxch.tweaks.presentation.appinfo.AppInfoState, uriHandler: androidx.compose.ui.platform.UriHandler, onNavigateToLicenses: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - state: STABLE (class with no mutable properties)
+    - uriHandler: RUNTIME (requires runtime check)
+    - onNavigateToLicenses: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun zed.rainxch.tweaks.presentation.appinfo.AppInfoPane(onNavigateToLicenses: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, viewModel: zed.rainxch.tweaks.presentation.appinfo.AppInfoViewModel): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - onNavigateToLicenses: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - viewModel: RUNTIME (requires runtime check)
+
+@Composable
 public fun zed.rainxch.tweaks.presentation.appinfo.AppInfoRoot(onNavigateBack: kotlin.Function0<kotlin.Unit>, onNavigateToLicenses: kotlin.Function0<kotlin.Unit>, viewModel: zed.rainxch.tweaks.presentation.appinfo.AppInfoViewModel): kotlin.Unit
   skippable: false
   restartable: true

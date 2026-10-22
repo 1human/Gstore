@@ -83,6 +83,9 @@ fun AdaptiveListDetailScaffold(
     emptyPaneTitle: String,
     emptyPaneSubtitle: String,
     modifier: Modifier = Modifier,
+    // When provided, replaces the "pick a repository" placeholder; desktop uses it to
+    // show the app info page in the detail pane until something is selected.
+    emptyPane: (@Composable () -> Unit)? = null,
     initialListFraction: Float = 0.46f,
     // 380 + 520 = 900dp of content width is what a default 1280px window offers once the
     // 216dp sidebar is subtracted; the old 480 + 600 never fit and hid the two-pane layout.
@@ -131,13 +134,14 @@ fun AdaptiveListDetailScaffold(
                         .fillMaxHeight(),
             ) {
                 val args = state.currentArgs
-                if (args == null) {
-                    EmptyDetailPlaceholder(
-                        title = emptyPaneTitle,
-                        subtitle = emptyPaneSubtitle,
-                    )
-                } else {
-                    detail(args)
+                when {
+                    args != null -> detail(args)
+                    emptyPane != null -> emptyPane()
+                    else ->
+                        EmptyDetailPlaceholder(
+                            title = emptyPaneTitle,
+                            subtitle = emptyPaneSubtitle,
+                        )
                 }
             }
         }

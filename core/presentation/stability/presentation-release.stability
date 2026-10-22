@@ -67,7 +67,7 @@ public fun zed.rainxch.core.presentation.components.ScrollbarContainer(gridState
     - content: STABLE (composable function type)
 
 @Composable
-public fun zed.rainxch.core.presentation.components.adaptive.AdaptiveListDetailScaffold(state: zed.rainxch.core.presentation.components.adaptive.AdaptiveListDetailState, list: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \, detail: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<zed.rainxch.core.presentation.components.adaptive.AdaptiveDetailArgs, kotlin.Unit>, emptyPaneTitle: kotlin.String, emptyPaneSubtitle: kotlin.String, modifier: androidx.compose.ui.Modifier, initialListFraction: kotlin.Float, minListWidthDp: kotlin.Int, minDetailWidthDp: kotlin.Int, expandedBreakpointDp: kotlin.Int): kotlin.Unit
+public fun zed.rainxch.core.presentation.components.adaptive.AdaptiveListDetailScaffold(state: zed.rainxch.core.presentation.components.adaptive.AdaptiveListDetailState, list: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<@[ParameterName(name = \, detail: @[Composable] androidx.compose.runtime.internal.ComposableFunction1<zed.rainxch.core.presentation.components.adaptive.AdaptiveDetailArgs, kotlin.Unit>, emptyPaneTitle: kotlin.String, emptyPaneSubtitle: kotlin.String, modifier: androidx.compose.ui.Modifier, emptyPane: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>?, initialListFraction: kotlin.Float, minListWidthDp: kotlin.Int, minDetailWidthDp: kotlin.Int, expandedBreakpointDp: kotlin.Int): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -77,6 +77,7 @@ public fun zed.rainxch.core.presentation.components.adaptive.AdaptiveListDetailS
     - emptyPaneTitle: STABLE (String is immutable)
     - emptyPaneSubtitle: STABLE (String is immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
+    - emptyPane: STABLE (composable function type)
     - initialListFraction: STABLE (primitive type)
     - minListWidthDp: STABLE (primitive type)
     - minDetailWidthDp: STABLE (primitive type)

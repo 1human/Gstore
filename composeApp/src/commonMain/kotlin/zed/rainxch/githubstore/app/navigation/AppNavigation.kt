@@ -80,6 +80,7 @@ import zed.rainxch.search.presentation.SearchRoot
 import zed.rainxch.search.presentation.SearchViewModel
 import zed.rainxch.starred.presentation.StarredReposRoot
 import zed.rainxch.tweaks.presentation.TweaksRoot
+import zed.rainxch.tweaks.presentation.appinfo.AppInfoPane
 import zed.rainxch.tweaks.presentation.appinfo.AppInfoRoot
 import zed.rainxch.tweaks.presentation.hidden.HiddenRepositoriesRoot
 import zed.rainxch.tweaks.presentation.hosttokens.HostTokensRoot
@@ -215,6 +216,13 @@ fun AppNavigation(
                                         state = listDetailState,
                                         emptyPaneTitle = stringResource(Res.string.adaptive_pick_repo_title),
                                         emptyPaneSubtitle = stringResource(Res.string.adaptive_pick_repo_subtitle),
+                                        emptyPane = {
+                                            AppInfoPane(
+                                                onNavigateToLicenses = {
+                                                    navController.navigate(GithubStoreGraph.LicensesScreen)
+                                                },
+                                            )
+                                        },
                                         list = { isExpanded ->
                                             FeedRoot(
                                                 onNavigateToDetails = { repoId ->
@@ -265,6 +273,13 @@ fun AppNavigation(
                                         state = listDetailState,
                                         emptyPaneTitle = stringResource(Res.string.adaptive_pick_repo_title),
                                         emptyPaneSubtitle = stringResource(Res.string.adaptive_pick_repo_subtitle),
+                                        emptyPane = {
+                                            AppInfoPane(
+                                                onNavigateToLicenses = {
+                                                    navController.navigate(GithubStoreGraph.LicensesScreen)
+                                                },
+                                            )
+                                        },
                                         list = { isExpanded ->
                                             HomeRoot(
                                                 onNavigateToDetails = { repoId ->
@@ -338,6 +353,13 @@ fun AppNavigation(
                                     state = listDetailState,
                                     emptyPaneTitle = pickRepoTitle,
                                     emptyPaneSubtitle = pickRepoSubtitle,
+                                    emptyPane = {
+                                        AppInfoPane(
+                                            onNavigateToLicenses = {
+                                                navController.navigate(GithubStoreGraph.LicensesScreen)
+                                            },
+                                        )
+                                    },
                                     list = { isExpanded ->
                                         SearchRoot(
                                             onNavigateBack = {
