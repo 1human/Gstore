@@ -574,6 +574,13 @@ fun SearchScreen(
                                         onShareClick = {
                                             onAction(SearchAction.OnShareClick(discoveryRepository.repository))
                                         },
+                                        onAddToLibrary = {
+                                            onAction(
+                                                SearchAction.OnAddToLibrary(
+                                                    discoveryRepository.repository
+                                                )
+                                            )
+                                        },
                                         onHideClick = {
                                             onAction(
                                                 SearchAction.OnHideRepository(

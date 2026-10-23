@@ -26,6 +26,8 @@ import zed.rainxch.core.domain.model.account.github.GithubRepoSummary
 import zed.rainxch.core.domain.model.error.RateLimitException
 import zed.rainxch.core.domain.model.installation.hasActualUpdate
 import zed.rainxch.core.domain.model.installation.isReallyInstalled
+import zed.rainxch.core.domain.model.library.TrackedRepo
+import zed.rainxch.core.domain.model.library.addToLibrary
 import zed.rainxch.core.domain.model.repository.DiscoveryPlatform
 import zed.rainxch.core.domain.model.system.Platform
 import zed.rainxch.core.domain.repository.BrowseFilterStore
@@ -813,6 +815,29 @@ class SearchViewModel(
             SearchAction.OnDisableHideSeenForResults -> {
                 viewModelScope.launch {
                     tweaksRepository.setHideSeenEnabled(false)
+                }
+            }
+
+            is SearchAction.OnAddToLibrary -> {
+                val repo = action.repo
+                viewModelScope.launch {
+                    try {
+                        tweaksRepository.addToLibrary(
+                            TrackedRepo(
+                                repoId = repo.id,
+                                owner = repo.owner.login,
+                                repo = repo.name,
+                                description = repo.description,
+                                stars = repo.stargazersCount,
+                                sourceHost = repo.sourceHost,
+                                addedAt = System.currentTimeMillis(),
+                            ),
+                        )
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Throwable) {
+                        logger.warn("Adding ${repo.fullName} to library failed: ${e.message}")
+                    }
                 }
             }
 

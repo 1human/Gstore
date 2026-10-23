@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -37,6 +38,7 @@ import zed.rainxch.core.presentation.utils.daysSinceIso
 import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.hide_repository
 import zed.rainxch.githubstore.core.presentation.res.mark_as_unviewed
+import zed.rainxch.githubstore.core.presentation.res.library_add
 import zed.rainxch.githubstore.core.presentation.res.mark_as_viewed
 import zed.rainxch.githubstore.core.presentation.res.open_on_github
 import zed.rainxch.githubstore.core.presentation.res.share_repository
@@ -49,6 +51,7 @@ fun DiscoveryRepoCard(
     modifier: Modifier = Modifier,
     onHideClick: (() -> Unit)? = null,
     onToggleSeen: (() -> Unit)? = null,
+    onAddToLibrary: (() -> Unit)? = null,
     onLongPress: (() -> Unit)? = null,
     compact: Boolean = false,
     feed: KomiRepoCardFeed = KomiRepoCardFeed.Plain,
@@ -61,7 +64,7 @@ fun DiscoveryRepoCard(
             repo.availablePlatforms.filter { it != DiscoveryPlatform.All }.toImmutableList()
         }
     val longPress =
-        onLongPress ?: if (onHideClick != null) ({ showActions = true }) else null
+        onLongPress ?: if (onHideClick != null || onAddToLibrary != null) ({ showActions = true }) else null
 
     KomiRepoCard(
         name = repo.name,
@@ -118,6 +121,16 @@ fun DiscoveryRepoCard(
                     onClick = {
                         showActions = false
                         toggle()
+                    },
+                )
+            }
+            onAddToLibrary?.let { add ->
+                RepoActionRow(
+                    label = stringResource(Res.string.library_add),
+                    icon = Icons.Default.Add,
+                    onClick = {
+                        showActions = false
+                        add()
                     },
                 )
             }

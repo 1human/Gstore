@@ -327,7 +327,9 @@ fun AppsScreen(
                             }
                         }
 
-                        state.filteredApps.isEmpty() && state.inProgressDownloads.isEmpty() -> {
+                        // An empty installed list must not hide tracked repos or GitHub hits.
+                        state.filteredApps.isEmpty() && state.inProgressDownloads.isEmpty() &&
+                            state.trackedRepos.isEmpty() && state.remoteResults.isEmpty() -> {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
                                 contentAlignment = Alignment.Center,

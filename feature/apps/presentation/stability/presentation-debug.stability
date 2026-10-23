@@ -62,6 +62,40 @@ private fun zed.rainxch.apps.presentation.KeepAtTopWhenSectionsChange(gridState:
     - sections: RUNTIME (requires runtime check)
 
 @Composable
+internal fun zed.rainxch.apps.presentation.LibraryRemoteRepoList(suggestions: kotlin.collections.List<zed.rainxch.core.domain.system.RepoMatchSuggestion>, onOpen: kotlin.Function1<zed.rainxch.core.domain.system.RepoMatchSuggestion, kotlin.Unit>): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - suggestions: RUNTIME (requires runtime check)
+    - onOpen: STABLE (function type)
+
+@Composable
+internal fun zed.rainxch.apps.presentation.LibraryRemoteRepoRow(suggestion: zed.rainxch.core.domain.system.RepoMatchSuggestion, onOpen: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - suggestion: UNSTABLE (has mutable properties or unstable members)
+    - onOpen: STABLE (function type)
+
+@Composable
+internal fun zed.rainxch.apps.presentation.LibraryTrackedRepoList(repos: kotlin.collections.List<zed.rainxch.core.domain.model.library.TrackedRepo>, onOpen: kotlin.Function1<zed.rainxch.core.domain.model.library.TrackedRepo, kotlin.Unit>, onRemove: kotlin.Function1<zed.rainxch.core.domain.model.library.TrackedRepo, kotlin.Unit>): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - repos: RUNTIME (requires runtime check)
+    - onOpen: STABLE (function type)
+    - onRemove: STABLE (function type)
+
+@Composable
+private fun zed.rainxch.apps.presentation.LibraryTrackedRepoRow(repo: zed.rainxch.core.domain.model.library.TrackedRepo, onOpen: kotlin.Function0<kotlin.Unit>, onRemove: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - repo: UNSTABLE (has mutable properties or unstable members)
+    - onOpen: STABLE (function type)
+    - onRemove: STABLE (function type)
+
+@Composable
 public fun zed.rainxch.apps.presentation.components.AdvancedAppSettingsBottomSheet(state: zed.rainxch.apps.presentation.AppsState, onAction: kotlin.Function1<zed.rainxch.apps.presentation.AppsAction, kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true

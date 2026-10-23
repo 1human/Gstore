@@ -83,6 +83,10 @@ sealed interface SearchAction {
 
     data object OnDisableHideSeenForResults : SearchAction
 
+    data class OnAddToLibrary(
+        val repo: GithubRepoSummaryUi,
+    ) : SearchAction
+
     data class OnHideRepository(
         val repo: GithubRepoSummaryUi,
     ) : SearchAction

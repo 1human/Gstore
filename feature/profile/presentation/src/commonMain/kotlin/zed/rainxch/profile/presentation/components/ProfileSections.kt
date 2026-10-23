@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
+import zed.rainxch.core.domain.isDesktop
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.AccountCircle
@@ -90,14 +91,16 @@ fun LazyListScope.profileSections(
                     )
                 }
 
-                add(
-                    KomiListItem(
-                        title = stringResource(Res.string.favourites),
-                        subtitle = stringResource(Res.string.profile_favourites_description),
-                        icon = Icons.Outlined.Favorite,
-                        onClick = { onAction(ProfileAction.OnFavouriteReposClick) },
-                    ),
-                )
+                if (!isDesktop()) {
+                    add(
+                        KomiListItem(
+                            title = stringResource(Res.string.favourites),
+                            subtitle = stringResource(Res.string.profile_favourites_description),
+                            icon = Icons.Outlined.Favorite,
+                            onClick = { onAction(ProfileAction.OnFavouriteReposClick) },
+                        ),
+                    )
+                }
 
                 add(
                     KomiListItem(

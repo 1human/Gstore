@@ -27,7 +27,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                         findProperty("projectApplicationId")?.toString()
                             ?: "zed.rainxch.githubstore"
                     minSdk =
-                        findProperty("projectMinSdkVersion")?.toString()?.toInt() ?: 26
+                        findProperty("projectMinSdkVersion")?.toString()?.toInt() ?: 31
                     targetSdk =
                         findProperty("projectTargetSdkVersion")?.toString()?.toInt() ?: 37
                     versionCode =

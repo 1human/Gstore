@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Apps
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.Composable
@@ -38,7 +37,6 @@ import zed.rainxch.core.presentation.components.text.KomiTextRole
 import zed.rainxch.core.presentation.locals.LocalPersonality
 import zed.rainxch.githubstore.core.presentation.res.Res
 import zed.rainxch.githubstore.core.presentation.res.bottom_nav_apps_title
-import zed.rainxch.githubstore.core.presentation.res.favourites
 import zed.rainxch.githubstore.core.presentation.res.recently_viewed
 import zed.rainxch.githubstore.core.presentation.res.sidebar_browse
 import zed.rainxch.githubstore.core.presentation.res.tweaks_title
@@ -133,7 +131,6 @@ private class SidebarDestination(
 private val sidebarDestinations: List<SidebarDestination> =
     listOf(
         SidebarDestination(Res.string.bottom_nav_apps_title, Icons.Outlined.Apps, GithubStoreGraph.AppsScreen),
-        SidebarDestination(Res.string.favourites, Icons.Outlined.FavoriteBorder, GithubStoreGraph.FavouritesScreen),
         SidebarDestination(Res.string.recently_viewed, Icons.Outlined.History, GithubStoreGraph.RecentlyViewedScreen),
         SidebarDestination(Res.string.tweaks_title, Icons.Outlined.Settings, GithubStoreGraph.TweaksScreen),
     )
@@ -179,7 +176,7 @@ private fun SidebarSideHeading(
 @Composable
 private fun SidebarNavRow(
     label: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     selected: Boolean,
     rail: Boolean,
     badgeCount: Int,
@@ -193,7 +190,7 @@ private fun SidebarNavRow(
 @Composable
 private fun ClassicNavRow(
     label: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     selected: Boolean,
     rail: Boolean,
     badgeCount: Int,
@@ -247,7 +244,7 @@ private fun ClassicNavRow(
 
 @Composable
 private fun NavIcon(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     tint: Color,
     badgeCount: Int,
 ) {

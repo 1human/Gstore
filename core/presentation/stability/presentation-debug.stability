@@ -544,7 +544,7 @@ private fun zed.rainxch.core.presentation.components.cards.Diamond(color: androi
     - color: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun zed.rainxch.core.presentation.components.cards.DiscoveryRepoCard(discoveryRepositoryUi: zed.rainxch.core.presentation.model.DiscoveryRepositoryUi, onClick: kotlin.Function0<kotlin.Unit>, onShareClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, onHideClick: kotlin.Function0<kotlin.Unit>?, onToggleSeen: kotlin.Function0<kotlin.Unit>?, onLongPress: kotlin.Function0<kotlin.Unit>?, compact: kotlin.Boolean, feed: zed.rainxch.core.presentation.components.cards.KomiRepoCardFeed, rank: kotlin.Int): kotlin.Unit
+public fun zed.rainxch.core.presentation.components.cards.DiscoveryRepoCard(discoveryRepositoryUi: zed.rainxch.core.presentation.model.DiscoveryRepositoryUi, onClick: kotlin.Function0<kotlin.Unit>, onShareClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, onHideClick: kotlin.Function0<kotlin.Unit>?, onToggleSeen: kotlin.Function0<kotlin.Unit>?, onAddToLibrary: kotlin.Function0<kotlin.Unit>?, onLongPress: kotlin.Function0<kotlin.Unit>?, compact: kotlin.Boolean, feed: zed.rainxch.core.presentation.components.cards.KomiRepoCardFeed, rank: kotlin.Int): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -554,6 +554,7 @@ public fun zed.rainxch.core.presentation.components.cards.DiscoveryRepoCard(disc
     - modifier: STABLE (marked @Stable or @Immutable)
     - onHideClick: STABLE (function type)
     - onToggleSeen: STABLE (function type)
+    - onAddToLibrary: STABLE (function type)
     - onLongPress: STABLE (function type)
     - compact: STABLE (primitive type)
     - feed: STABLE (class with no mutable properties)
