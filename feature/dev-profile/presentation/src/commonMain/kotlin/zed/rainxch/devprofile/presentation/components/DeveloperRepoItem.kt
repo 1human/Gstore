@@ -19,9 +19,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.CallSplit
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Code
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.runtime.Composable
@@ -227,13 +227,13 @@ private fun FavoriteToggle(
     val colors = LocalPersonality.current.colors
     val container =
         if (isFavorite) {
-            colors.errorTint
+            colors.primaryContainer
         } else {
             colors.surfaceContainerHigh
         }
     val tint =
         if (isFavorite) {
-            colors.error
+            colors.onPrimaryContainer
         } else {
             colors.onSurfaceVariant
         }
@@ -248,7 +248,7 @@ private fun FavoriteToggle(
         contentAlignment = Alignment.Center,
     ) {
         KomiIcon(
-            imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+            imageVector = if (isFavorite) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
             contentDescription =
                 stringResource(
                     if (isFavorite) {

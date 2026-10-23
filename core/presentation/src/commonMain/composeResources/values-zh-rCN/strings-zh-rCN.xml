@@ -186,11 +186,15 @@
     <string name="system_font_description">使用设备字体以提高可读性</string>
 
 
-    <string name="added_to_favourites">已添加到收藏</string>
-    <string name="removed_from_favourites">已从收藏中移除</string>
-    <string name="add_to_favourites">添加到收藏</string>
-    <string name="remove_from_favourites">从收藏中移除</string>
-    <string name="favourites">收藏</string>
+    <string name="added_to_favourites">已添加至应用库</string>
+    <string name="removed_from_favourites">已从应用库移除</string>
+    <string name="add_to_favourites">添加至应用库</string>
+    <string name="remove_from_favourites">从应用库移除</string>
+    <string name="added_to_library">已添加至应用库</string>
+    <string name="removed_from_library">已从应用库移除</string>
+    <string name="add_to_library">添加至应用库</string>
+    <string name="remove_from_library">从应用库移除</string>
+    <string name="favourites">应用库</string>
 
     <string name="added_just_now">刚刚添加</string>
     <string name="added_hours_ago">%1$d 小时前添加</string>
@@ -239,7 +243,7 @@
     <string name="clear_search">清除搜索</string>
     <string name="filter_with_releases">有发布版</string>
     <string name="filter_installed">已安装</string>
-    <string name="filter_favorites">收藏</string>
+    <string name="filter_favorites">应用库</string>
     <string name="sort">排序</string>
     <string name="sort_recently_updated">最近更新</string>
     <string name="sort_name">名称</string>
@@ -253,7 +257,7 @@
     <!-- Developer Profile - Empty States -->
     <string name="no_repos_with_releases">没有可安装发布版的仓库</string>
     <string name="no_installed_repos">没有已安装的仓库</string>
-    <string name="no_favorite_repos">没有收藏的仓库</string>
+    <string name="no_favorite_repos">应用库中没有仓库</string>
 
     <string name="has_release">有发布版</string>
 

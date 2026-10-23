@@ -353,11 +353,15 @@
     <string name="system_font_description">Match your device's font for better readability</string>
 
 
-    <string name="added_to_favourites">Repository added to favourites</string>
-    <string name="removed_from_favourites">Repository removed from favourites</string>
-    <string name="add_to_favourites">Add to favourites</string>
-    <string name="remove_from_favourites">Remove from favourites</string>
-    <string name="favourites">Favourites</string>
+    <string name="added_to_favourites">Repository added to library</string>
+    <string name="removed_from_favourites">Repository removed from library</string>
+    <string name="add_to_favourites">Add to library</string>
+    <string name="remove_from_favourites">Remove from library</string>
+    <string name="added_to_library">Repository added to library</string>
+    <string name="removed_from_library">Repository removed from library</string>
+    <string name="add_to_library">Add to library</string>
+    <string name="remove_from_library">Remove from library</string>
+    <string name="favourites">Library</string>
     <string name="recently_viewed">Recently Viewed</string>
     <string name="recently_viewed_remove_cd">Remove from history</string>
     <string name="profile_recently_viewed_description">Repositories you have visited</string>
@@ -411,7 +415,7 @@
     <string name="filter_with_releases">With releases</string>
     <string name="filter_with_installable">Installable here</string>
     <string name="filter_installed">Installed</string>
-    <string name="filter_favorites">Favorites</string>
+    <string name="filter_favorites">Library</string>
     <string name="sort">Sort</string>
     <string name="sort_recently_updated">Recently Updated</string>
     <string name="sort_name">Name</string>
@@ -426,7 +430,7 @@
     <string name="no_repos_with_releases">No repositories with releases</string>
     <string name="no_repos_with_installable">No repositories with installable assets for this platform</string>
     <string name="no_installed_repos">No installed repositories</string>
-    <string name="no_favorite_repos">No favorite repositories</string>
+    <string name="no_favorite_repos">No repositories in library</string>
 
     <string name="has_release">Has Release</string>
 

@@ -105,9 +105,10 @@ private fun ScrollbarContainerShell(
 @Composable
 private fun scrollbarStyle(): androidx.compose.foundation.ScrollbarStyle =
     LocalScrollbarStyle.current.copy(
+        thickness = 6.dp,
         shape = RoundedCornerShape(32.dp),
-        unhoverColor = MaterialTheme.colorScheme.onSurface,
-        hoverColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        unhoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f),
+        hoverColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
     )
 
 private class GridScrollbarAdapterBase(

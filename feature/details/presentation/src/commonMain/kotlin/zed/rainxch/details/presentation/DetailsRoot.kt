@@ -21,8 +21,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.FavoriteBorder
+import androidx.compose.material.icons.rounded.Bookmark
+import androidx.compose.material.icons.rounded.BookmarkBorder
 import androidx.compose.material.icons.rounded.LinkOff
 import androidx.compose.material.icons.rounded.OpenInBrowser
 import androidx.compose.material.icons.rounded.Refresh
@@ -557,32 +557,19 @@ fun DetailsScreen(
         val contentWidthDp = contentWidthCap()
         val pullEnabled = remember { isPullToRefreshSupported() }
 
-        val isDesktop = remember { isDesktop() }
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .scrollable(
-                    state = listState,
-                    orientation = Orientation.Vertical,
-
-                    reverseDirection = true,
-                    enabled = isDesktop,
-                )
-                .onSizeChanged { size ->
-
-                    val newHeight = with(density) { size.height.toDp() }
-                    if (newHeight != containerHeightDp) containerHeightDp = newHeight
-                },
-            contentAlignment = Alignment.Center,
+        ScrollbarContainer(
+            listState = listState,
+            enabled = isScrollbarEnabled,
+            modifier = Modifier.fillMaxSize(),
         ) {
-            ScrollbarContainer(
-                listState = listState,
-                enabled = isScrollbarEnabled,
-                modifier =
-                    Modifier
-                        .fillMaxHeight()
-                        .widthIn(max = contentWidthDp)
-                        .fillMaxWidth(),
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .onSizeChanged { size ->
+                        val newHeight = with(density) { size.height.toDp() }
+                        if (newHeight != containerHeightDp) containerHeightDp = newHeight
+                    },
+                contentAlignment = Alignment.Center,
             ) {
                 val listModifier =
                     Modifier
@@ -748,7 +735,7 @@ private fun DetailsActions(
         )
         add(
             KomiActionRowItem(
-                icon = if (state.isFavourite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                icon = if (state.isFavourite) Icons.Rounded.Bookmark else Icons.Rounded.BookmarkBorder,
                 title = favouriteLabel,
                 onClick = {
                     onAction(DetailsAction.OnToggleFavorite)
